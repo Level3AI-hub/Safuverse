@@ -243,6 +243,8 @@ This ecosystem leverages BNB Chain's unique advantages:
 
 - **SafuCourse**: https://academy.safuverse.com
 - **safudomains**: https://names.safuverse.com
+- **Safucard**: https://safucard.xyz
+- **SafuAgents**: https://ai.safuverse.com
 
 ## Contributing
 
