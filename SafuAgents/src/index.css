@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --font-bold: "Gilroy-bold", sans-serif;
+  --font-heavy: "Gilroy-Heavy", sans-serif;
+  --font-light: "Gilroy-Light", sans-serif;
+  --font-semibold: "Gilroy-Medium", sans-serif;
+  --font-gilroy: "Gilroy-Regular", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+button.wallet-adapter-button {
+  @apply bg-[#FFB000] rounded-full text-black hover:bg-red-400 font-gilroy; /* etc */
+}

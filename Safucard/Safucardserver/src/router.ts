@@ -1,0 +1,136 @@
+import express from "express";
+import { calculateTotalBNBValue } from "./packages/balance";
+import { getFirstMemecoin } from "./packages/firstMemecoin";
+import { getLastMemecoin } from "./packages/firstMemecoin";
+import { getUserCategory } from "./packages/status";
+import { getCount } from "./packages/count";
+import { PinataSDK } from "pinata";
+import multer from "multer";
+import { File, Blob } from "node:buffer";
+// Removed the import of Blob from "buffer" as it conflicts with the global Blob type
+import "dotenv/config";
+import bodyParser from "body-parser";
+import "dotenv/config";
+import { Readable } from "stream";
+import { getDefiDegen } from "./packages/defi";
+import { getMemecoiner } from "./packages/memecoin";
+import { isBuilder } from "./packages/builder";
+
+const pinata = new PinataSDK({
+  pinataJwt: `${process.env.JWT}`,
+  pinataGateway: `${process.env.GATEWAY_URL}`,
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+const router = express.Router();
+router.use(bodyParser.json());
+
+router.get("/address/:address", async (req, res) => {
+  try {
+    const { address } = req.params;
+    console.log(`Searching for wallet with user ID: ${address}`); // Debugging log
+    if (!address) {
+      res.status(500).json({
+        error: "No Address",
+      });
+    }
+    const [r, f, l, u, c, d, m, b] = await Promise.all([
+      calculateTotalBNBValue(address),
+      getFirstMemecoin(address),
+      getLastMemecoin(address),
+      getUserCategory(address),
+      getCount(address),
+      getDefiDegen(address),
+      getMemecoiner(address),
+      isBuilder(address),
+    ]);
+
+    console.log("m", m);
+    console.log("b", b);
+
+    res.status(200).json({
+      status: r.status,
+      first: f,
+      last: l,
+      user: u,
+      count: c,
+      defi: d,
+      memecoiner: m,
+      builder: b,
+    });
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`Error fetching wallet: ${err.message}`);
+      res.status(500).json({ error: err.message });
+    } else {
+      console.error("Error fetching wallet:", err);
+      res.status(500).json({ error: err });
+    }
+  }
+});
+
+router.post("/nft/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (req.headers.authorization !== `Bearer ${process.env.UPLOAD_KEY}`) {
+      res.status(403).json({ error: "Unauthorized" });
+      return;
+    }
+    let url = "";
+    if (!req.file) {
+      res.status(400).json({ error: "No file uploaded" });
+      return;
+    }
+    const blob = new Blob([req.file.buffer]);
+    const file = new File([blob], req.file.originalname, {
+      type: req.file.mimetype,
+    });
+
+    const upload = await pinata.upload.public.file(file as any, {
+      metadata: {
+        name: req.file.originalname,
+      },
+    });
+    console.log(upload);
+    url = `https://ipfs.io/ipfs/` + upload.cid;
+    res.status(200).json({ message: "Files uploaded successfully", url: url });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+      console.log(error);
+    }
+  }
+});
+
+router.post("/nft/uploadMetadata", async (req, res) => {
+  try {
+    if (req.headers.authorization !== `Bearer ${process.env.UPLOAD_KEY}`) {
+      res.status(403).json({ error: "Unauthorized" });
+      return;
+    }
+    const metadata = req.body;
+    if (!metadata) {
+      res.status(400).json({ error: "No metadata provided" });
+      return;
+    }
+    console.log("Metadata received:", metadata);
+    const blob = new Blob([JSON.stringify(metadata)], {
+      type: "application/json",
+    });
+    const upload = await pinata.upload.public.file(
+      blob as unknown as globalThis.File
+    );
+    console.log(upload);
+    const url = `https://ipfs.io/ipfs/` + upload.cid;
+    res
+      .status(200)
+      .json({ message: "Metadata uploaded successfully", url: url });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Metadata upload error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
+export default router;
