@@ -139,7 +139,7 @@ npx hardhat run scripts/createCourse.ts --network bsc
 ### Prerequisites for Course Enrollment
 
 1. **Domain Ownership**: User must own a .safu domain from safudomains (deployed on BNB Chain)
-2. **Funded Relayer**: Ensure your OpenZeppelin Defender relayer has BNB for gas
+2. **Funded Relayer**: Ensure your Backend relayer has BNB for gas
 3. **Deployed Courses**: Course contracts must be deployed on BSC
 
 ### User Flow
@@ -271,7 +271,6 @@ VITE_PINATA_KEY=your_pinata_api_key_here
 ```
 
 **Note**: The contract addresses and network configuration are hardcoded in `src/constants.ts`:
-- **ERC2771 Forwarder**: `0xa579e4F7158826e4C0E6842779580f524bD6188C`
 - **Level3Course Contract**: `0xD0cB04cB20Dff62E26b7069B95Fa9fF3D4694d13`
 - **BNB Chain**: Chain ID 56 (BSC Mainnet)
 
@@ -351,7 +350,6 @@ The frontend interacts with deployed contracts on BNB Chain through `src/constan
 
 ```typescript
 // Contract configuration (from src/constants.ts)
-export const ERC2771Forwarder = "0xa579e4F7158826e4C0E6842779580f524bD6188C";
 export const Deploy = "0xD0cB04cB20Dff62E26b7069B95Fa9fF3D4694d13"; // Level3Course contract
 
 // Contract ABI is exported in the same file
@@ -360,24 +358,14 @@ export const abi = [...]; // Full Level3Course ABI
 
 The frontend uses Wagmi hooks for contract interactions:
 - Read operations: `useReadContract` for fetching courses, progress, and enrollment status
-- Write operations: Custom `useWriteContractMeta` hook for gasless meta-transactions via ERC2771Forwarder
+- Write operations: Handled through standard `useWriteContract` calls from the relayer backend.
 
-#### Gasless Transaction Flow
+### Relayer — current implementation & roadmap
 
-The frontend implements gasless transactions using ERC2771 meta-transactions:
+> **Note:** The backend relayer used for gasless transactions is a custom, lightweight relayer service deployed by the project. It uses a backend-controlled wallet to sign and submit transactions on behalf of users (server-side signing). This enables gasless enrollments but requires that the relayer wallet is secured and funded.
 
-**Implementation** (from `src/lib/useWriteContractMeta.ts`):
-1. User initiates an action (enroll, update progress) via the UI
-2. Frontend creates a meta-transaction request with user's signature
-3. Request is sent to backend relayer with the trusted forwarder address
-4. Backend relayer submits the transaction on-chain, paying gas fees
-5. User receives confirmation without paying gas
+**Planned upgrade:** This relayer infrastructure will be upgraded soon (hardening, improved key management, monitoring, and more robust deployment patterns). The improved relayer implementation and related deployment/configuration files will be published in this repository once available.
 
-**Key Features**:
-- Uses `eth-sig-util` for signature generation
-- Supports multiple wallet types through RainbowKit
-- Automatic network switching to BNB Chain
-- Transaction status tracking with TanStack Query
 
 ### Key Frontend Features
 
@@ -497,8 +485,6 @@ All integrations occur seamlessly on BNB Chain.
 
 2. **Gasless Transactions Failing**
    - Verify backend relayer has sufficient BNB balance
-   - Check that ERC2771Forwarder address is correct
-   - Ensure meta-transaction signatures are properly generated
    - Confirm API_URL environment variable is set correctly
 
 3. **Domain Verification Issues**
@@ -525,8 +511,7 @@ All integrations occur seamlessly on BNB Chain.
 - **Blockchain**: BNB Smart Chain (BSC) - Chain ID 56
 - **Smart Contracts**: Solidity 0.8.28
 - **Development Framework**: Hardhat 2.x
-- **Meta-Transactions**: EIP-2771 (ERC2771Context)
-- **Relayer**: Backend relayer with ERC2771Forwarder
+- **Relayer**: Backend relayer
 - **Contract Libraries**: OpenZeppelin Contracts 5.3.0
 - **Verification**: BSCScan
 - **Testing**: Hardhat test suite
