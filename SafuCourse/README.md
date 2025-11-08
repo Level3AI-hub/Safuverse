@@ -39,7 +39,7 @@ networks: {
 
 ## How It Works
 
-1. Users must own a .safu domain from the safudomains system on BNB Chain
+1. Users must own a primary .safu domain from the safudomains system on BNB Chain
 2. Course creators deploy courses via the CourseFactory contract
 3. Domain owners enroll in courses without paying gas (relayer-enabled)
 4. Progress is tracked on-chain on BNB Chain
