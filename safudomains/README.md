@@ -570,6 +570,7 @@ npm run build
 ```
 
 This creates an optimized production build in the `dist/` directory with:
+
 - Code splitting for wagmi, RainbowKit, and Apollo Client
 - Minified JavaScript and CSS
 - Optimized assets
@@ -589,6 +590,7 @@ vercel
 #### Other Deployment Options
 
 The built static files in `dist/` can be deployed to:
+
 - Netlify
 - Cloudflare Pages
 - AWS S3 + CloudFront
@@ -597,22 +599,26 @@ The built static files in `dist/` can be deployed to:
 ### Frontend Features
 
 1. **Domain Search & Registration**
+
    - Real-time availability checking
    - Multi-token payment (BNB, CAKE, USD1)
    - Price calculation with Chainlink oracles
 
 2. **Domain Management**
+
    - Set resolver records (addresses, text records, etc.)
    - Transfer ownership
    - Renew domains
    - Manage subdomains
 
 3. **Referral System**
+
    - Share referral links
    - Track referral earnings
    - Automatic reward distribution
 
 4. **Wallet Integration**
+
    - Multi-wallet support via RainbowKit
    - Social login via Web3Auth
    - Seamless BNB Chain connection
@@ -627,11 +633,13 @@ The built static files in `dist/` can be deployed to:
 **Common Issues:**
 
 1. **Wallet connection fails**
+
    - Ensure you're on BNB Chain (Chain ID: 56)
    - Try clearing browser cache
    - Update MetaMask/wallet extension
 
 2. **Build errors with polyfills**
+
    - The project uses `vite-plugin-node-polyfills` for Node.js compatibility
    - Buffer and process are polyfilled in `index.html`
 
@@ -661,4 +669,4 @@ The built static files in `dist/` can be deployed to:
 
 ---
 
-**Deployed on BNB Chain** - Decentralized .safu domains on BNB Smart Chain with multi-token pricing and referral rewards.
+**Deployed on BNB Chain and Powered by .safu** - Decentralized .safu domains on BNB Smart Chain with multi-token pricing and referral rewards.

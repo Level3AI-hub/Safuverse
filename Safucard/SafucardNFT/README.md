@@ -5,6 +5,7 @@ ERC721 NFT smart contract **deployed on BNB Chain** with dynamic USD-pegged pric
 ## Deployment Information
 
 **Network**: BNB Smart Chain (BSC)
+
 - **Mainnet Chain ID**: 56
 - **Testnet Chain ID**: 97
 
@@ -43,9 +44,11 @@ constructor(address oracleAddress)
 Mints a new Safucard NFT to the caller.
 
 **Parameters**:
+
 - `_URI`: IPFS or HTTP URI for the scorecard metadata
 
 **Requirements**:
+
 - Must send sufficient BNB to cover $5 USD mint fee
 - URI can only be set once per token (frozen after mint)
 
@@ -58,11 +61,13 @@ Mints a new Safucard NFT to the caller.
 Returns the current mint fee in BNB (18 decimals) equivalent to $5 USD.
 
 **How it works**:
+
 1. Fetches current BNB/USD price from Chainlink oracle on BSC
 2. Calculates BNB amount needed for $5 USD
 3. Returns the amount in wei (18 decimals)
 
 **Example**:
+
 - If BNB = $600, mint fee = 0.00833... BNB
 - If BNB = $300, mint fee = 0.01666... BNB
 
@@ -226,6 +231,7 @@ npx hardhat verify --network bsc <CONTRACT_ADDRESS> <ORACLE_ADDRESS>
 ```
 
 Example:
+
 ```bash
 npx hardhat verify --network bsc 0x123... 0xabc...
 ```
@@ -246,7 +252,7 @@ const uri = "ipfs://Qm.../metadata.json";
 const fee = await scorecardNFT.getMintFeeInNative();
 
 const tx = await scorecardNFT.mintNFT(uri, {
-  value: fee
+  value: fee,
 });
 
 await tx.wait();
@@ -272,15 +278,19 @@ console.log("Funds withdrawn");
 ## Events
 
 ### NFTMinted
+
 ```solidity
 event NFTMinted(address indexed recipient, uint256 tokenId, string tokenURI)
 ```
+
 Emitted when a new scorecard NFT is minted.
 
 ### FundsWithdrawn
+
 ```solidity
 event FundsWithdrawn(address indexed owner, uint256 amount)
 ```
+
 Emitted when the owner withdraws accumulated fees.
 
 ## Technology Stack
@@ -295,12 +305,14 @@ Emitted when the owner withdraws accumulated fees.
 ## Network Information
 
 ### BSC Mainnet
+
 - **Chain ID**: 56
 - **RPC**: https://bsc-dataseed.binance.org/
 - **Explorer**: https://bscscan.com
 - **Chainlink Docs**: https://docs.chain.link/data-feeds/price-feeds/addresses?network=bnb-chain
 
 ### BSC Testnet
+
 - **Chain ID**: 97
 - **RPC**: https://data-seed-prebsc-1-s1.binance.org:8545/
 - **Explorer**: https://testnet.bscscan.com
@@ -309,11 +321,13 @@ Emitted when the owner withdraws accumulated fees.
 ## Gas Optimization
 
 The contract is optimized for gas efficiency:
+
 - Single storage slot for token ID counter
 - Efficient oracle price calculation
 - Minimal storage writes
 
 Estimated gas costs on BSC:
+
 - **Mint**: ~150,000-200,000 gas (very cheap on BSC)
 - **Withdraw**: ~30,000 gas
 
@@ -326,6 +340,7 @@ npx hardhat test
 ```
 
 Test coverage includes:
+
 - Minting with correct fee
 - URI freeze functionality
 - Oracle price integration
@@ -347,10 +362,11 @@ MIT License
 ## Support
 
 For questions or issues:
+
 - Email: info@level3labs.fun
 - GitHub Issues
 - BNB Chain Documentation: https://docs.bnbchain.org
 
 ---
 
-**Deployed on BNB Chain** - Dynamic USD-pegged NFT minting powered by Chainlink oracles on BSC.
+**Deployed on BNB Chain and Powered by .safu** - Dynamic USD-pegged NFT minting powered by Chainlink oracles on BSC.

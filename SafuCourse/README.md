@@ -625,4 +625,4 @@ MIT License
 
 ---
 
-**Deployed on BNB Chain** - Delivering gasless, domain-gated education on BNB Smart Chain.
+**Deployed on BNB Chain and Powered by .safu** - Delivering gasless, domain-gated education on BNB Smart Chain.

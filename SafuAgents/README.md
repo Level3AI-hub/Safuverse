@@ -41,6 +41,7 @@ const config = getDefaultConfig({
 ```
 
 This configuration ensures **all Web3 interactions occur exclusively on BNB Chain**, providing:
+
 - Connection to BSC mainnet only (no multi-chain ambiguity)
 - Wallet connections restricted to BSC network
 - All transactions executed on BNB Chain
@@ -53,11 +54,12 @@ The backend server connects **directly to BNB Chain infrastructure**:
 
 ```javascript
 const provider = new ethers.JsonRpcProvider(
-  "https://bsc-dataseed.binance.org/"  // Official BSC RPC endpoint
+  "https://bsc-dataseed.binance.org/" // Official BSC RPC endpoint
 );
 ```
 
 This RPC configuration:
+
 - Points exclusively to BNB Chain's official dataseed
 - All smart contract interactions occur on BSC
 - No fallback or alternative chain configurations
@@ -80,7 +82,8 @@ const BASE_ADDRESS = "0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c";
 ```
 
 These contracts are:
-- **Deployed on BNB Chain** (BSC mainnet)
+
+- **Deployed on BNB Chain and Powered by .safu** (BSC mainnet)
 - Verified on BscScan
 - Core infrastructure for .safu domain resolution on BSC
 
@@ -90,10 +93,10 @@ The application performs BSC-specific blockchain operations:
 
 ```javascript
 // server/server.js - Domain verification on BNB Chain
-const node = await reverse.node(publicKey);           // BSC contract call
+const node = await reverse.node(publicKey); // BSC contract call
 const resolverAddress = await registry.resolver(node); // BSC contract call
-const name = await resolver.name(node);                // BSC contract call
-const expiry = await base.nameExpires(tokenId);        // BSC contract call
+const name = await resolver.name(node); // BSC contract call
+const expiry = await base.nameExpires(tokenId); // BSC contract call
 ```
 
 All these operations **execute exclusively on BNB Chain**.
@@ -105,6 +108,7 @@ All these operations **execute exclusively on BNB Chain**.
 SafuAgents consists of two main components, both integrated with BNB Chain:
 
 ### 1. Frontend (`/frontend`)
+
 - **Framework**: React 19 + TypeScript + Vite
 - **Web3 Integration**:
   - RainbowKit 2.2.9 (BSC wallet connection)
@@ -114,6 +118,7 @@ SafuAgents consists of two main components, both integrated with BNB Chain:
 - **AI Integration**: OpenAI 6.7.0
 
 ### 2. Backend (`/server`)
+
 - **Framework**: Express.js + Node.js
 - **Blockchain Provider**: ethers.js with **BSC RPC endpoint**
 - **Network**: **BNB Chain** via `https://bsc-dataseed.binance.org/`
@@ -125,11 +130,13 @@ SafuAgents consists of two main components, both integrated with BNB Chain:
 ## Core Features
 
 ### AI Agent Access (Gated by BSC)
+
 - Multiple specialized AI agents for crypto operations
 - Access tiers based on .safu domain character count (verified on BSC)
 - Rate limiting tied to BSC domain ownership
 
 ### BNB Chain Integration
+
 - **Wallet Connection**: RainbowKit integration for BSC wallets
 - **Domain Verification**: On-chain verification via BSC smart contracts
 - **.safu Domain System**: Native domain resolution on BNB Chain
@@ -137,13 +144,13 @@ SafuAgents consists of two main components, both integrated with BNB Chain:
 
 ### Tier Structure (Based on BSC Domain Ownership)
 
-| Domain Length | 1-Year Registration | Lifetime Registration | Access |
-|---------------|---------------------|----------------------|---------|
-| 2-char .safu  | 100 calls/day       | 200 calls/day        | All agents |
-| 3-char .safu  | 20 calls/day        | 50 calls/day         | All agents |
-| 4-char .safu  | 5 calls/day         | 10 calls/day         | All agents |
-| 5-char .safu  | 2 calls/day         | 5 calls/day          | All agents |
-| No domain     | 5 lifetime calls    | -                    | 1 agent only |
+| Domain Length | 1-Year Registration | Lifetime Registration | Access       |
+| ------------- | ------------------- | --------------------- | ------------ |
+| 2-char .safu  | 100 calls/day       | 200 calls/day         | All agents   |
+| 3-char .safu  | 20 calls/day        | 50 calls/day          | All agents   |
+| 4-char .safu  | 5 calls/day         | 10 calls/day          | All agents   |
+| 5-char .safu  | 2 calls/day         | 5 calls/day           | All agents   |
+| No domain     | 5 lifetime calls    | -                     | 1 agent only |
 
 All domain ownership verified **on-chain via BNB Chain smart contracts**.
 
@@ -152,18 +159,21 @@ All domain ownership verified **on-chain via BNB Chain smart contracts**.
 ## Technology Stack
 
 ### Frontend Technologies
+
 - **React**: 19.1.1
 - **TypeScript**: 5.9
 - **Build Tool**: Vite (Rolldown)
 - **Styling**: CSS + Lucide icons
 
 ### BNB Chain Web3 Stack
+
 - **Wallet**: RainbowKit 2.2.9 (BSC-configured)
 - **Blockchain**: wagmi 2.19.2 (BSC chain)
 - **Contracts**: viem 2.38.6 (BSC interactions)
 - **Query**: TanStack React Query 5.90.6
 
 ### Backend Technologies
+
 - **Server**: Express.js 5.1.0
 - **Blockchain**: ethers.js 6.15.0 (**BSC RPC provider**)
 - **AI**: OpenAI 6.7.0
@@ -358,25 +368,31 @@ All ecosystem components leverage **BNB Chain infrastructure** for interoperabil
 ## API Endpoints
 
 ### POST `/api/verify`
+
 Verifies .safu domain ownership **on BNB Chain**.
 
 **Process**:
+
 1. Queries BSC smart contracts (`REVERSE_ADDRESS`, `REGISTRY_ADDRESS`)
 2. Verifies domain ownership on-chain
 3. Checks domain expiry via `BASE_ADDRESS` contract
 4. Assigns tier based on domain characteristics
 
 ### POST `/api/assistant`
+
 Handles AI agent chat requests with BSC-based rate limiting.
 
 **Rate Limiting**:
+
 - Based on .safu domain ownership (verified on BSC)
 - Tier system tied to on-chain domain characteristics
 
 ### GET `/api/user?publicKey=...`
+
 Retrieves user data and BSC domain verification status.
 
 ### GET `/api/ip-status`
+
 Checks IP-based usage for non-domain users.
 
 ---
@@ -396,20 +412,24 @@ Checks IP-based usage for non-domain users.
 This repository demonstrates **clear deployment intent on BNB Chain** through:
 
 ### Configuration Evidence
+
 - Frontend wagmi config: **Explicit BSC chain** (`frontend/src/main.tsx:13,19`)
 - Backend RPC provider: **BSC dataseed endpoint** (`server/server.js:31-32`)
 
 ### BNB Chain-Specific Infrastructure
+
 - .safu domain contracts deployed on **BSC mainnet**
 - Smart contract addresses: **BSC-specific** (`server/server.js:36-77`)
 - All blockchain queries: **BSC RPC endpoint**
 
 ### README Documentation
+
 - Explicitly states **BNB Chain deployment** throughout
 - Provides BSC network information
 - Documents BNB Chain-specific features
 
 ### No Ambiguity
+
 - Single chain configuration (BSC only)
 - No multi-chain fallbacks or alternatives
 - All operations on BNB Chain infrastructure
@@ -421,11 +441,13 @@ A reviewer examining this repository can **reasonably conclude** that SafuAgents
 ## Development Notes
 
 ### React + TypeScript
+
 - Modern React 19 with TypeScript 5.9
 - Full type safety for BSC contract interactions
 - ESLint 9 with TypeScript support
 
 ### BNB Chain Development
+
 - Uses official BSC RPC endpoints
 - Follows BSC best practices for contract interaction
 - Optimized for BSC's fast block times
@@ -435,16 +457,19 @@ A reviewer examining this repository can **reasonably conclude** that SafuAgents
 ## Support & Documentation
 
 ### BNB Chain Resources
+
 - [BNB Chain Documentation](https://docs.bnbchain.org)
 - [BscScan](https://bscscan.com) - Blockchain explorer
 - [BNB Chain Faucet](https://testnet.bnbchain.org/faucet-smart) - Testnet BNB
 
 ### Web3 Libraries (BSC-Configured)
+
 - [RainbowKit Documentation](https://rainbowkit.com)
 - [wagmi Documentation](https://wagmi.sh)
 - [viem Documentation](https://viem.sh)
 
 ### AI Integration
+
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 
 ---
