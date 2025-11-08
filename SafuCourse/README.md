@@ -389,7 +389,7 @@ The frontend uses Wagmi hooks for contract interactions:
    - Domain ownership verification before enrollment
 
 #### 4. **Video Learning Platform** (LessonPage.tsx)
-   - **Video.js Player**: Professional video playback with quality selection
+   - **Video Player**: Professional video playback with quality selection
    - **IPFS Integration**: Content delivery via Pinata
    - Progress tracking per lesson
    - Automatic progress updates on lesson completion
@@ -398,7 +398,7 @@ The frontend uses Wagmi hooks for contract interactions:
 #### 5. **Domain-Gated Access**
    - Verify .safu domain ownership via `getPrimaryName` hook
    - Automatic eligibility checking using safudomains reverse registrar
-   - Gasless enrollment via ERC2771 meta-transactions
+   - Gasless enrollment via relayer transactions
    - User points and achievement tracking
 
 #### 6. **Progress Tracking**
@@ -496,7 +496,7 @@ All integrations occur seamlessly on BNB Chain.
 4. **Video Playback Issues**
    - Ensure IPFS content is accessible via Pinata gateway
    - Check VITE_PINATA_KEY is configured correctly
-   - Verify Video.js player loaded successfully
+   - Verify Video player loaded successfully
    - Check browser console for video loading errors
 
 5. **Build/Development Errors**
