@@ -5,6 +5,7 @@ AI agents interface with Web3 wallet integration, **deployed on BNB Chain** (BNB
 ## Deployment Information
 
 **Primary Network**: BNB Smart Chain (BSC)
+
 - Wagmi configuration: Explicitly set to BSC mainnet (chain ID: 56)
 - See configuration: `src/main.tsx:13,19`
 
@@ -21,22 +22,26 @@ This frontend application is specifically configured to interact with smart cont
 ## Technology Stack
 
 ### Frontend
+
 - **Framework**: React 19.1.1
 - **Language**: TypeScript 5.9
 - **Build Tool**: Vite (Rolldown)
 - **Styling**: CSS with Lucide icons
 
 ### Web3 Integration (BNB Chain)
+
 - **Wallet Connection**: RainbowKit 2.2.9
 - **Blockchain Interaction**: wagmi 2.19.2, viem 2.38.6
 - **Network**: BNB Smart Chain (BSC) - explicitly configured in `src/main.tsx`
 - **Query**: TanStack React Query 5.90.6
 
 ### AI Integration
+
 - **AI SDK**: OpenAI 6.7.0
 - **HTTP Client**: Axios 1.13.1
 
 ### Additional Chain Support
+
 - **Solana**: Wallet adapters and SPL token support for multi-chain features
 
 ## BNB Chain Configuration
@@ -55,6 +60,7 @@ const config = getDefaultConfig({
 ```
 
 This configuration ensures all Web3 interactions occur on BNB Chain, providing users with:
+
 - Low transaction costs
 - Fast confirmation times
 - Access to BSC ecosystem (PancakeSwap, CAKE, etc.)
@@ -90,6 +96,7 @@ VITE_OPENAI_API_KEY=your_openai_api_key
 ```
 
 Update `src/main.tsx` line 18 with your WalletConnect Project ID:
+
 ```typescript
 projectId: "YOUR_PROJECT_ID", // Replace with your actual project ID
 ```
@@ -145,6 +152,7 @@ SafuAgents/
 ### Wallet Integration
 
 The app uses RainbowKit for wallet connection, configured specifically for BNB Chain:
+
 - Supports MetaMask, Trust Wallet, and other WalletConnect-compatible wallets
 - Custom theme with branded colors
 - Compact modal size for better UX
@@ -159,6 +167,7 @@ The app uses RainbowKit for wallet connection, configured specifically for BNB C
 ### Multi-Chain Features
 
 While primarily deployed for BNB Chain:
+
 - Solana wallet adapters available for cross-chain token operations
 - SPL token support for multi-chain asset management
 
@@ -172,6 +181,7 @@ While primarily deployed for BNB Chain:
 ## Network Information
 
 ### BNB Smart Chain (BSC) Mainnet
+
 - **Chain ID**: 56
 - **RPC**: https://bsc-dataseed.binance.org/
 - **Explorer**: https://bscscan.com
@@ -181,6 +191,7 @@ While primarily deployed for BNB Chain:
 ## Integration with Safuverse Ecosystem
 
 SafuAgents is part of the larger Safuverse ecosystem on BNB Chain:
+
 - **SafuCourse**: Educational platform integration
 - **safudomains**: Domain name resolution
 - **safupad**: Token launch platform interaction
@@ -195,17 +206,15 @@ All ecosystem components are deployed on BNB Chain for seamless interoperability
 The project uses modern ESLint 9 with TypeScript support. To enable type-aware linting:
 
 ```js
-import tseslint from 'typescript-eslint';
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      tseslint.configs.recommendedTypeChecked,
-    ],
+    files: ["**/*.{ts,tsx}"],
+    extends: [tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -227,6 +236,7 @@ React Compiler is not enabled by default. See [React Compiler documentation](htt
 ## Support
 
 For issues specific to SafuAgents, please check:
+
 - [RainbowKit Documentation](https://rainbowkit.com)
 - [wagmi Documentation](https://wagmi.sh)
 - [BNB Chain Documentation](https://docs.bnbchain.org)
@@ -237,4 +247,4 @@ See the main Safuverse repository for license information.
 
 ---
 
-**Powered by BNB Chain** - Leveraging BSC's speed and efficiency for AI-enhanced Web3 experiences.
+**Powered by BNB Chain and .safu** - Leveraging BSC's speed and efficiency for AI-enhanced Web3 experiences.

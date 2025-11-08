@@ -5,6 +5,7 @@ Backend API server for the Safucard NFT system **on BNB Chain**. Analyzes wallet
 ## Overview
 
 SafuServer is a Node.js/Express API that:
+
 - Retrieves and analyzes wallet addresses on **BNB Chain**
 - Calculates memecoin scores based on BSC token holdings
 - Provides data for Safucard NFT generation
@@ -13,6 +14,7 @@ SafuServer is a Node.js/Express API that:
 ## BNB Chain Integration
 
 This server specifically analyzes wallets on **BNB Smart Chain (BSC)**:
+
 - Fetches ERC20 token balances from BSC addresses
 - Analyzes memecoin transactions on BNB Chain
 - Returns data for NFTs minted on BSC
@@ -38,12 +40,14 @@ This server specifically analyzes wallets on **BNB Smart Chain (BSC)**:
 ### Quick Start
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/Level3AI-hub/Safuverse.git
    cd Safuverse/Safucard/Safucardserver
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -51,11 +55,13 @@ This server specifically analyzes wallets on **BNB Smart Chain (BSC)**:
 3. **Configure environment variables** (see below)
 
 4. **Run development server**:
+
    ```bash
    npm run dev
    ```
 
 5. **Build for production**:
+
    ```bash
    npm run build
    ```
@@ -92,6 +98,7 @@ PORT=3000
 ### Alchemy BSC Configuration
 
 To use Alchemy for BNB Chain:
+
 1. Sign up at [Alchemy](https://www.alchemy.com)
 2. Create a new app for **BNB Chain**
 3. Copy your API key to `ALCHEMY_KEY`
@@ -107,9 +114,11 @@ Alchemy supports BSC Mainnet and Testnet.
 **Description**: Returns the wallet's memecoin scorecard details for a BNB Chain address
 
 **Parameters**:
+
 - `address` (path): BNB Chain wallet address (0x...)
 
 **Response**:
+
 ```json
 {
   "address": "0x...",
@@ -127,6 +136,7 @@ Alchemy supports BSC Mainnet and Testnet.
 ```
 
 **Example**:
+
 ```bash
 curl http://localhost:3000/api/address/0x1234...
 ```
@@ -138,6 +148,7 @@ curl http://localhost:3000/api/address/0x1234...
 **Description**: Uploads scorecard metadata and image to IPFS
 
 **Request Body**:
+
 ```json
 {
   "image": "base64_encoded_image",
@@ -150,6 +161,7 @@ curl http://localhost:3000/api/address/0x1234...
 ```
 
 **Response**:
+
 ```json
 {
   "ipfsHash": "QmXxxx...",
@@ -233,11 +245,13 @@ Ensure `BSC_RPC_URL` and `ALCHEMY_KEY` point to the correct network.
 ## Network Information
 
 ### BSC Mainnet
+
 - **Chain ID**: 56
 - **RPC**: https://bsc-dataseed.binance.org/
 - **Alchemy**: Available
 
 ### BSC Testnet
+
 - **Chain ID**: 97
 - **RPC**: https://data-seed-prebsc-1-s1.binance.org:8545/
 - **Alchemy**: Available
@@ -257,6 +271,7 @@ npm test
 ```
 
 Test coverage includes:
+
 - Wallet address validation
 - BSC RPC integration
 - Score calculation logic
@@ -272,6 +287,7 @@ Test coverage includes:
 ## Support
 
 For issues or questions:
+
 - Email: info@level3labs.fun
 - GitHub Issues
 - BNB Chain Documentation
@@ -282,4 +298,4 @@ MIT License
 
 ---
 
-**Powered by BNB Chain** - Analyzing memecoin portfolios on BNB Smart Chain for NFT scorecards.
+**Powered by BNB Chain and .safu** - Analyzing memecoin portfolios on BNB Smart Chain for NFT scorecards.
