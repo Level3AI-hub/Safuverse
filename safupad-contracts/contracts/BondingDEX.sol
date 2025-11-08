@@ -129,7 +129,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     // Constants
 
     uint256 public constant TOTAL_TOKEN_SUPPLY = 1_000_000_000 * 10 ** 18;
-    uint256 public constant GRADUATION_BNB_THRESHOLD = 0.6 ether;
+    uint256 public constant GRADUATION_BNB_THRESHOLD = 15 ether;
     uint256 public constant TARGET_PRICE_MULTIPLIER = 6;
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant CLAIM_COOLDOWN = 24 hours;

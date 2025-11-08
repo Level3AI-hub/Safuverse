@@ -75,6 +75,7 @@ Rename `.env.example` to `.env` and configure:
 # BNB Chain RPC Provider
 ALCHEMY_KEY=your_alchemy_api_key_for_bsc
 BSC_RPC_URL=https://bsc-dataseed.binance.org/  # Optional if using Alchemy
+GRAPH_API_KEY=your_graph_api_key
 
 # IPFS Gateway (Pinata)
 GATEWAY_URL=https://gateway.pinata.cloud/ipfs/

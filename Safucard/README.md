@@ -17,6 +17,8 @@ All components integrate with **BNB Chain** infrastructure for minting, pricing,
 - **Chain ID**: 56 (BSC Mainnet)
 - **Testnet Chain ID**: 97 (BSC Testnet)
 
+- **ScorecardNFT**: `0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65`
+
 The NFT contracts are deployed on BNB Chain, leveraging Chainlink price oracles on BSC for accurate BNB/USD conversion to maintain a stable $5 USD mint price.
 
 ## System Architecture
@@ -159,7 +161,7 @@ Frontend displays score
     ↓
 User approves mint transaction
     ↓
-SafucardNFT Contract on BSC
+ScorecardNFT Contract on BSC
     ↓
 Chainlink Oracle (BSC) → BNB/USD price
     ↓
@@ -202,6 +204,7 @@ CHAINLINK_BNB_USD_FEED=0x... # BSC oracle address
 BSC_RPC_URL=https://bsc-dataseed.binance.org/
 PORT=3000
 DATABASE_URL=your_database_url
+UPLOAD_KEY=your_custom_generated_api_key_for_uploads
 ```
 
 ### Frontend
@@ -209,6 +212,7 @@ DATABASE_URL=your_database_url
 VITE_BSC_RPC=https://bsc-dataseed.binance.org/
 VITE_CONTRACT_ADDRESS=deployed_nft_contract_address
 VITE_API_URL=http://localhost:3000
+VITE_KEY=UPLOAD_KEY
 ```
 
 ## Technology Stack
@@ -238,7 +242,7 @@ VITE_API_URL=http://localhost:3000
 
 ```bash
 cd SafucardNFT
-npx hardhat run scripts/deploy.js --network bsc
+npx hardhat run scripts/deploy.ts --network bsc
 # Note the deployed contract address
 ```
 

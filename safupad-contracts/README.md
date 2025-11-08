@@ -197,13 +197,13 @@ REPORT_GAS=true npx hardhat test
 ### Deploy to BSC Testnet
 
 ```bash
-npx hardhat ignition deploy ignition/modules/LaunchpadManager.ts --network bscTestnet
+npx hardhat run scripts/deploy.ts --network bscTestnet
 ```
 
 ### Deploy to BSC Mainnet
 
 ```bash
-npx hardhat ignition deploy ignition/modules/LaunchpadManager.ts --network bsc
+npx hardhat run scripts/deploy.ts --network bsc
 ```
 
 ### Verify on BSCScan

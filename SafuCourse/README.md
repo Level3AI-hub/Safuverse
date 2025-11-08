@@ -1,6 +1,6 @@
 # SafuCourse (EduFi-contracts)
 
-Decentralized educational platform **deployed on BNB Chain** with on-chain courses linked to domain ownership. This smart contract system enables gasless course enrollment and progress tracking through OpenZeppelin Defender relayer integration on BNB Smart Chain.
+Decentralized educational platform **deployed on BNB Chain** with on-chain courses linked to domain ownership. This smart contract system enables gasless course enrollment and progress tracking through a backend relayer integration on BNB Smart Chain.
 
 ## Deployment Information
 
@@ -31,11 +31,11 @@ networks: {
 
 ## Features
 
-- **Gasless Transactions**: Zero gas fees for users through OpenZeppelin Defender relayer on BNB Chain
+- **Gasless Transactions**: Zero gas fees for users through a backend relayer controlled by the owner on BNB Chain
 - **Domain-Gated Access**: Only domain owners from the safudomains system (deployed on BSC) can enroll
 - **On-Chain Progress**: Course completion tracked transparently on BNB Chain
 - **Course Creation**: Deploy courses as individual smart contracts on BSC
-- **Meta-Transactions**: EIP-2771 compliant for gasless user experience
+
 
 ## How It Works
 
@@ -51,8 +51,6 @@ networks: {
 
 - **CourseFactory.sol**: Deploys and manages course instances on BSC
 - **Coursecontract.sol** (Level3Course): Individual course logic with enrollment and progress tracking
-- **ERC2771Context.sol**: Meta-transaction support for gasless operations
-- **Ownable.sol**: Access control
 
 ### Integration
 
@@ -95,31 +93,12 @@ API_URL=https://data-seed-prebsc-1-s1.binance.org:8545/
 # Deployment wallet
 PRIVATE_KEY=your_private_key_here
 
-# OpenZeppelin Defender (for gasless transactions on BSC)
-API_KEY=your_defender_api_key
-API_SECRET=your_defender_api_secret
-RELAYER_API_KEY=  # Generated in setup
-RELAYER_API_SECRET=  # Generated in setup
 
 # Contract configuration
 OWNER_ADDRESS=your_wallet_address
-FORWARDER_ADDRESS=  # Generated after deployment
-ACTION_ID=  # Generated in setup
 ```
 
-### Setup OpenZeppelin Defender Relayer for BNB Chain
-
-1. Create API credentials at [OpenZeppelin Defender](https://defender.openzeppelin.com/v2/#/settings/api-keys/new)
-
-2. Generate relayer (configured for BNB Chain):
-
-```bash
-yarn create-relayer
-```
-
-This creates a relayer specifically for BNB Chain transactions and updates your `.env` file automatically.
-
-**Important**: Fund your relayer with BNB tokens on BSC mainnet or testnet BNB for testnet operations.
+**Important**: Fund your relayer wallet with BNB tokens on BSC mainnet or testnet BNB for testnet operations.
 
 ### Compile Contracts
 
@@ -141,26 +120,11 @@ Deploy to BSC Mainnet:
 npx hardhat run scripts/deploy.ts --network bsc
 ```
 
-After deployment, copy the Forwarder Address to your `.env` file.
-
 ### Verify Contracts on BSCScan
 
 ```bash
 npx hardhat verify --network bsc <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
 ```
-
-### Create Defender Action
-
-Set up the gasless transaction action on BNB Chain:
-
-```bash
-yarn create-action
-```
-
-Then visit [Defender Actions](https://defender.openzeppelin.com/v2/#/actions/automatic) to:
-1. Copy the webhook URL
-2. Ensure it's configured for BNB Chain network
-3. Save the webhook for your frontend integration
 
 ### Create a Course
 
@@ -277,14 +241,13 @@ SafuCourse/
 ├── contracts/
 │   ├── CourseFactory.sol       # Course deployment factory
 │   ├── Coursecontract.sol      # Main course logic
-│   ├── ERC2771Context.sol      # Meta-transaction support
-│   ├── Ownable.sol             # Access control
+│   ├── ILevel3Course.sol       # Interface
+│   ├── INameResolver.sol       # DNS integration
+│   ├── ENS.sol                 # DNS integration
 │   └── IReverseRegistrar.sol   # DNS integration
 ├── scripts/
 │   ├── deploy.ts               # Deployment to BSC
 │   ├── createCourse.ts         # Course creation
-│   ├── create-relayer.ts       # Setup Defender relayer
-│   └── create-action.ts        # Setup gasless actions
 ├── test/                       # Contract tests
 ├── hardhat.config.ts           # BSC network configuration
 └── package.json

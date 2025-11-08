@@ -55,17 +55,11 @@ const config: HardhatUserConfig = {
         url: "https://bsc-testnet-rpc.publicnode.com",
       },
     },
-    testnet: {
+    bscTestnet: {
       type: "http",
       chainType: "l1",
       url: configVariable("RPC_URL"),
       accounts: [configVariable("PRIVATE_KEY")],
-    },
-    sepolia: {
-      type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
     },
   },
 };

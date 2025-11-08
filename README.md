@@ -97,7 +97,6 @@ React-based frontend for interacting with AI agents, with Web3 wallet integratio
 - Multi-chain wallet support (primary: BNB Chain)
 - RainbowKit integration
 - OpenAI-powered agents
-- Solana secondary support
 
 **Directory**: `SafuAgents/`
 
