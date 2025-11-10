@@ -56,9 +56,18 @@ export default function Home() {
   }, [ref])
 
   useEffect(() => {
-    const recent = JSON.parse(localStorage.getItem('Recent') as string)
-    if (recent?.length > 0) {
-      setRecents(recent)
+    try {
+      const recentData = localStorage.getItem('Recent')
+      if (recentData) {
+        const recent = JSON.parse(recentData)
+        if (Array.isArray(recent) && recent.length > 0) {
+          setRecents(recent)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse recent searches from localStorage:', error)
+      // Clear corrupted data
+      localStorage.removeItem('Recent')
     }
   }, [])
   const [showBox, setShowBox] = useState(false)
@@ -70,15 +79,34 @@ export default function Home() {
     document.title = `safu Domains - Get a Domain name with a safu identity`
   }, [])
   const setRecent = (search: string) => {
-    const recent = JSON.parse(localStorage.getItem('Recent') as string)
-    if (recent == null) {
-      localStorage.setItem('Recent', JSON.stringify([search]))
-    } else {
-      if (recent.includes(search)) {
-        return
+    try {
+      const recentData = localStorage.getItem('Recent')
+      let recent: string[] | null = null
+
+      if (recentData) {
+        try {
+          recent = JSON.parse(recentData)
+          // Validate it's an array
+          if (!Array.isArray(recent)) {
+            recent = null
+          }
+        } catch {
+          // If parsing fails, treat as null
+          recent = null
+        }
       }
-      recent.push(search)
-      localStorage.setItem('Recent', JSON.stringify(recent))
+
+      if (recent === null) {
+        localStorage.setItem('Recent', JSON.stringify([search]))
+      } else {
+        if (recent.includes(search)) {
+          return
+        }
+        recent.push(search)
+        localStorage.setItem('Recent', JSON.stringify(recent))
+      }
+    } catch (error) {
+      console.error('Failed to update recent searches:', error)
     }
   }
   const updateRecent = (search: string) => {

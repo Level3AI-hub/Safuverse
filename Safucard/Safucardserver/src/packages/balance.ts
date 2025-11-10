@@ -24,8 +24,11 @@ const WHALE_STATUS = {
 const provider = new ethers.JsonRpcProvider(
   `https://bnb-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
 );
-const getWhaleStatus = (balance: number) => {
-  if (balance < WHALE_STATUS.FISH.min || balance == Infinity) {
+type WhaleStatusType = typeof WHALE_STATUS[keyof typeof WHALE_STATUS];
+
+const getWhaleStatus = (balance: number): WhaleStatusType => {
+  // Use Number.isFinite instead of loose equality comparison
+  if (balance < WHALE_STATUS.FISH.min || !Number.isFinite(balance)) {
     return WHALE_STATUS.FISH;
   } else if (balance <= WHALE_STATUS.DOLPHIN.min) {
     return WHALE_STATUS.DOLPHIN;
@@ -38,10 +41,10 @@ const getWhaleStatus = (balance: number) => {
   }
 };
 
-export async function calculateTotalBNBValue(address: string) {
+export async function calculateTotalBNBValue(address: string): Promise<{ status: string }> {
   const balance = await provider.getBalance(address);
   console.log(balance);
-  let parsed = Number(balance) / 1e18;
+  const parsed = Number(balance) / 1e18;
   const whaleStatus = getWhaleStatus(parsed);
 
   return { status: whaleStatus.tag };

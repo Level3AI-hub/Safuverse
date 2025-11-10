@@ -24,11 +24,29 @@ async function graphqlFetch<T>(
     },
     body: JSON.stringify({ query, variables }),
   });
-  const j = await resp.json();
+
+  if (!resp.ok) {
+    throw new Error(`GraphQL HTTP error: ${resp.status} ${resp.statusText}`);
+  }
+
+  let j;
+  try {
+    j = await resp.json();
+  } catch (parseError) {
+    console.error("Failed to parse GraphQL response:", parseError);
+    throw new Error("Invalid JSON response from GraphQL endpoint");
+  }
+
   if (j.errors) {
     console.error("GraphQL errors:", j.errors);
     throw new Error("GraphQL query failed");
   }
+
+  if (!j.data) {
+    console.error("GraphQL response missing data field:", j);
+    throw new Error("Invalid GraphQL response structure");
+  }
+
   return j.data as T;
 }
 
@@ -36,7 +54,7 @@ export async function getDefiDegen(address: string): Promise<boolean> {
   const q1 = `
     query HasTxn($wallet: String!) {
         swaps (
-    where: { sender: $wallet } 
+    where: { sender: $wallet }
     first: 1
   ) {
     id
@@ -67,23 +85,30 @@ export async function getDefiDegen(address: string): Promise<boolean> {
 
   let isDefi = false;
 
-  const data1 = await graphqlFetch<{ swaps: Swap[] }>(PANCAKE_V3_SUBGRAPH, q1, {
-    wallet: address,
-  });
+  try {
+    const data1 = await graphqlFetch<{ swaps: Swap[] }>(PANCAKE_V3_SUBGRAPH, q1, {
+      wallet: address,
+    });
 
-  if (data1?.swaps && data1.swaps.length > 0) {
-    isDefi = true;
-  }
-
-  /* if (!isDefi) {
-    const data2 = await graphqlFetch<{ swaps: Swap[] }>(
-      PANCAKE_V2_SUBGRAPH,
-      q2,
-      { wallet: address }
-    );
-    if (data2?.swaps && data2.swaps.length > 0) {
+    if (data1?.swaps && Array.isArray(data1.swaps) && data1.swaps.length > 0) {
       isDefi = true;
     }
-  } */
+
+    /* if (!isDefi) {
+      const data2 = await graphqlFetch<{ swaps: Swap[] }>(
+        PANCAKE_V2_SUBGRAPH,
+        q2,
+        { wallet: address }
+      );
+      if (data2?.swaps && Array.isArray(data2.swaps) && data2.swaps.length > 0) {
+        isDefi = true;
+      }
+    } */
+  } catch (error) {
+    console.error("Error fetching DeFi data:", error);
+    // Return false if GraphQL query fails
+    return false;
+  }
+
   return isDefi;
 }

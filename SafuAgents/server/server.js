@@ -20,6 +20,15 @@ import path from "path";
 import cors from "cors";
 import OpenAI from "openai";
 import { ethers } from "ethers";
+import crypto from "crypto";
+
+// Validate required environment variables on startup
+const requiredEnvVars = ['OPENAI_API_KEY', 'KEY'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  process.exit(1);
+}
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const DB_FILE = process.env.DB_FILE || path.join(process.cwd(), "data.db");
@@ -116,8 +125,50 @@ await dbRun(`
 `);
 
 // ----- Helpers -----
+/**
+ * Safely compare API keys using constant-time comparison to prevent timing attacks
+ */
+function isValidApiKey(providedKey) {
+  const expectedKey = process.env.KEY;
+
+  if (!providedKey || typeof providedKey !== 'string') {
+    return false;
+  }
+
+  // Ensure both strings are the same length before comparison
+  if (providedKey.length !== expectedKey.length) {
+    return false;
+  }
+
+  try {
+    const providedBuffer = Buffer.from(providedKey, 'utf8');
+    const expectedBuffer = Buffer.from(expectedKey, 'utf8');
+
+    return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+  } catch (error) {
+    // If buffers are different lengths, timingSafeEqual throws an error
+    return false;
+  }
+}
+
+/**
+ * Validate Ethereum address format
+ */
+function isValidEthereumAddress(address) {
+  return typeof address === "string" && /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
 function isValidPublicKey(pk) {
-  return typeof pk === "string" && pk.length >= 10 && pk.length <= 200;
+  if (typeof pk !== "string" || pk.length < 10 || pk.length > 200) {
+    return false;
+  }
+
+  // If it looks like an Ethereum address, validate format
+  if (pk.startsWith('0x') && pk.length === 42) {
+    return isValidEthereumAddress(pk);
+  }
+
+  return true;
 }
 
 const prompts = {
@@ -282,13 +333,28 @@ app.use(cors());
 // POST /api/assistant - Handle chat requests with rate limiting
 app.post("/api/assistant", async (req, res) => {
   try {
-    if (req.headers["x-api-key"] !== process.env.KEY) {
+    // Use constant-time comparison for API key validation
+    if (!isValidApiKey(req.headers["x-api-key"])) {
       return res.status(403).json({ error: "Forbidden: Invalid API Key" });
     }
     const { profile, messages, gpt, publicKey } = req.body ?? {};
 
+    // Validate messages array structure
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: "messages array required" });
+    }
+
+    // Validate each message has required fields
+    const validMessages = messages.every(
+      (msg) => msg && typeof msg === 'object' &&
+      typeof msg.role === 'string' &&
+      typeof msg.content === 'string'
+    );
+
+    if (!validMessages) {
+      return res.status(400).json({
+        error: "Invalid message format. Each message must have 'role' and 'content' fields"
+      });
     }
 
     // Get client IP
@@ -309,7 +375,7 @@ app.post("/api/assistant", async (req, res) => {
 
       // IP users have lifetime limit of 5 calls total
       if (ipUser.totalCalls >= 5) {
-        return res.status(201).json({
+        return res.status(429).json({
           error: "Rate limit exceeded",
           reply:
             "You have used all 5 free calls. Please register a .safu domain for continued access.",
@@ -320,8 +386,7 @@ app.post("/api/assistant", async (req, res) => {
 
       // IP users can only access "Be The Replyooor"
       if (gpt !== "Be The Replyooor") {
-        console.log("a");
-        return res.status(201).json({
+        return res.status(403).json({
           error: "Access denied",
           reply:
             'Free users can only access "Be The Replyooor" agent. Register a .safu domain for full access.',
@@ -333,7 +398,7 @@ app.post("/api/assistant", async (req, res) => {
       const currentCalls = await checkAndResetDailyCounter(publicKey);
 
       if (currentCalls >= user.dailyLimit) {
-        return res.status(201).json({
+        return res.status(429).json({
           error: "Daily rate limit exceeded",
           reply: `You have reached your daily limit of ${user.dailyLimit} calls. Reset at midnight UTC.`,
           limit: user.dailyLimit,
@@ -345,8 +410,7 @@ app.post("/api/assistant", async (req, res) => {
 
       // Check if user has access to requested GPT
       if (!user.all_access) {
-        console.log("b");
-        return res.status(201).json({
+        return res.status(403).json({
           error: "Access denied",
           reply:
             "You don't have access to any GPT agents. Please verify your domain.",
@@ -416,14 +480,18 @@ app.post("/api/assistant", async (req, res) => {
     }
   } catch (error) {
     console.error("assistant error:", error);
-    return res.status(500).json({ error: error?.message ?? String(error) });
+    // Don't expose internal error details to clients
+    return res.status(500).json({
+      error: "An internal error occurred. Please try again later."
+    });
   }
 });
 
 // POST /api/verify - Verify domain and set tier, or fallback to IP verification
 app.post("/api/verify", async (req, res) => {
   try {
-    if (req.headers["x-api-key"] !== process.env.KEY) {
+    // Use constant-time comparison for API key validation
+    if (!isValidApiKey(req.headers["x-api-key"])) {
       return res.status(403).json({ error: "Forbidden: Invalid API Key" });
     }
 
@@ -475,7 +543,7 @@ app.post("/api/verify", async (req, res) => {
               )
             );
 
-            const isLifetime = expiry == 31536000000n;
+            const isLifetime = expiry === 31536000000n;
 
             // Calculate tier and daily limit
             const { tier, dailyLimit } = calculateTier(name, isLifetime);

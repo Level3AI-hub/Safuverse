@@ -15,13 +15,54 @@ import { Readable } from "stream";
 import { getDefiDegen } from "./packages/defi";
 import { getMemecoiner } from "./packages/memecoin";
 import { isBuilder } from "./packages/builder";
+import crypto from "crypto";
 
 const pinata = new PinataSDK({
   pinataJwt: `${process.env.JWT}`,
   pinataGateway: `${process.env.GATEWAY_URL}`,
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
+// File upload configuration with size limits and type validation
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+  },
+});
+
+/**
+ * Safely compare bearer tokens using constant-time comparison to prevent timing attacks
+ */
+function isValidBearerToken(providedToken: string | undefined): boolean {
+  const expectedToken = `Bearer ${process.env.UPLOAD_KEY}`;
+
+  if (!providedToken || typeof providedToken !== 'string') {
+    return false;
+  }
+
+  if (providedToken.length !== expectedToken.length) {
+    return false;
+  }
+
+  try {
+    const providedBuffer = Buffer.from(providedToken, 'utf8');
+    const expectedBuffer = Buffer.from(expectedToken, 'utf8');
+
+    return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Validate Ethereum address format
+ */
+function isValidEthereumAddress(address: string): boolean {
+  return typeof address === "string" && /^0x[a-fA-F0-9]{40}$/.test(address);
+}
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -29,11 +70,21 @@ router.use(bodyParser.json());
 router.get("/address/:address", async (req, res) => {
   try {
     const { address } = req.params;
-    console.log(`Searching for wallet with user ID: ${address}`); // Debugging log
+    console.log(`Searching for wallet with user ID: ${address}`);
+
+    // Validate address format
     if (!address) {
-      res.status(500).json({
-        error: "No Address",
+      res.status(400).json({
+        error: "No Address provided",
       });
+      return;
+    }
+
+    if (!isValidEthereumAddress(address)) {
+      res.status(400).json({
+        error: "Invalid Ethereum address format",
+      });
+      return;
     }
     const [r, f, l, u, c, d, m, b] = await Promise.all([
       calculateTotalBNBValue(address),
@@ -72,42 +123,62 @@ router.get("/address/:address", async (req, res) => {
 
 router.post("/nft/upload", upload.single("file"), async (req, res) => {
   try {
-    if (req.headers.authorization !== `Bearer ${process.env.UPLOAD_KEY}`) {
+    // Use constant-time comparison for bearer token
+    if (!isValidBearerToken(req.headers.authorization)) {
       res.status(403).json({ error: "Unauthorized" });
       return;
     }
-    let url = "";
+
     if (!req.file) {
       res.status(400).json({ error: "No file uploaded" });
       return;
     }
+
+    // Validate file type
+    if (!ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
+      res.status(400).json({
+        error: `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`
+      });
+      return;
+    }
+
+    // Validate file size (additional check beyond multer limit)
+    if (req.file.size > MAX_FILE_SIZE) {
+      res.status(400).json({
+        error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      });
+      return;
+    }
+
     const blob = new Blob([req.file.buffer]);
     const file = new File([blob], req.file.originalname, {
       type: req.file.mimetype,
     });
 
-    const upload = await pinata.upload.public.file(file as any, {
+    const uploadResult = await pinata.upload.public.file(file, {
       metadata: {
         name: req.file.originalname,
       },
     });
-    console.log(upload);
-    url = `https://ipfs.io/ipfs/` + upload.cid;
-    res.status(200).json({ message: "Files uploaded successfully", url: url });
+    console.log(uploadResult);
+    const url = `https://ipfs.io/ipfs/${uploadResult.cid}`;
+    res.status(200).json({ message: "File uploaded successfully", url: url });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(500).json({ error: error.message });
-      console.log(error);
+      console.error("Upload error:", error);
+      res.status(500).json({ error: "An error occurred during upload" });
     }
   }
 });
 
 router.post("/nft/uploadMetadata", async (req, res) => {
   try {
-    if (req.headers.authorization !== `Bearer ${process.env.UPLOAD_KEY}`) {
+    // Use constant-time comparison for bearer token
+    if (!isValidBearerToken(req.headers.authorization)) {
       res.status(403).json({ error: "Unauthorized" });
       return;
     }
+
     const metadata = req.body;
     if (!metadata) {
       res.status(400).json({ error: "No metadata provided" });
@@ -117,18 +188,16 @@ router.post("/nft/uploadMetadata", async (req, res) => {
     const blob = new Blob([JSON.stringify(metadata)], {
       type: "application/json",
     });
-    const upload = await pinata.upload.public.file(
-      blob as unknown as globalThis.File
-    );
-    console.log(upload);
-    const url = `https://ipfs.io/ipfs/` + upload.cid;
+    const uploadResult = await pinata.upload.public.file(blob as globalThis.File);
+    console.log(uploadResult);
+    const url = `https://ipfs.io/ipfs/${uploadResult.cid}`;
     res
       .status(200)
       .json({ message: "Metadata uploaded successfully", url: url });
   } catch (error) {
     if (error instanceof Error) {
       console.error("Metadata upload error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "An error occurred during metadata upload" });
     }
   }
 });

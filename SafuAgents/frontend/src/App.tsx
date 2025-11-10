@@ -214,8 +214,7 @@ export default function App() {
                     setGpt(card.title);
                     verifyUser(card.title);
                   }}
-                  className={`border cursor-pointer border-black text-black mx-auto w-full" 
-                   py-2 px-6 rounded-full font-semibold hover:bg-[#FFB000] hover:text-white transition`}
+                  className="border cursor-pointer border-black text-black mx-auto w-full py-2 px-6 rounded-full font-semibold hover:bg-[#FFB000] hover:text-white transition"
                 >
                   Summon Agent
                 </button>

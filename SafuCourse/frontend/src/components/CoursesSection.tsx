@@ -11,7 +11,7 @@ const CoursesSection = ({
 }: any) => {
   const defaultSubtitle = isHomePage
     ? "Explore our top AI-driven courses designed for Web3 creators. Mint your .safu domain to unlock full potential."
-    : 'Mint your <code class="text-primary font-bold p-1.5 rounded-md bg-primary/10 shadow-sm">.safu</code> domain to unlock these exclusive AI-driven courses and supercharge your skills.';
+    : null;
 
   const displayedCourses = isHomePage ? courses.slice(0, 3) : courses;
 
@@ -40,10 +40,17 @@ const CoursesSection = ({
               title
             )}
           </h2>
-          <p
-            className="section-subtitle"
-            dangerouslySetInnerHTML={{ __html: subtitle || defaultSubtitle }}
-          ></p>
+          <p className="section-subtitle">
+            {subtitle || defaultSubtitle || (
+              <>
+                Mint your{" "}
+                <code className="text-primary font-bold p-1.5 rounded-md bg-primary/10 shadow-sm">
+                  .safu
+                </code>{" "}
+                domain to unlock these exclusive AI-driven courses and supercharge your skills.
+              </>
+            )}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">

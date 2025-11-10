@@ -13,10 +13,10 @@ const iconMap = {
 };
 
 const CoursesSection = ({ courses, title = "AI-Powered Learning Hub", subtitle, isHomePage = false }) => {
-  const defaultSubtitle = isHomePage 
-    ? "Learn with AI-powered content designed to help you grow,create, and earn all unlocked through your personalized digital ID."
-    : "Mint your <code class=\"text-primary font-bold p-1.5 rounded-md bg-primary/10 shadow-sm\">.creator</code> domain to unlock these exclusive AI-driven courses and supercharge your skills.";
-  
+  const defaultSubtitle = isHomePage
+    ? "Learn with AI-powered content designed to help you grow, create, and earn all unlocked through your personalized digital ID."
+    : null;
+
   const displayedCourses = isHomePage ? courses.slice(0, 3) : courses;
 
   return (
@@ -32,7 +32,17 @@ const CoursesSection = ({ courses, title = "AI-Powered Learning Hub", subtitle, 
           <h2 className="section-title">
             {title.includes("AI-Powered") ? <>AI-Powered <span className="primary-gradient-text">Learning Hub</span></> : title.includes("Featured") ? <>Featured <span className="primary-gradient-text">AI Courses</span></> : title}
           </h2>
-          <p className="section-subtitle" dangerouslySetInnerHTML={{ __html: subtitle || defaultSubtitle }}></p>
+          <p className="section-subtitle">
+            {subtitle || defaultSubtitle || (
+              <>
+                Mint your{" "}
+                <code className="text-primary font-bold p-1.5 rounded-md bg-primary/10 shadow-sm">
+                  .creator
+                </code>{" "}
+                domain to unlock these exclusive AI-driven courses and supercharge your skills.
+              </>
+            )}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
