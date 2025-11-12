@@ -1,8 +1,6 @@
 # Safuverse Ecosystem
 
-[![Smart Contracts CI](https://github.com/Level3AI-hub/Safuverse/actions/workflows/smart-contracts.yml/badge.svg)](https://github.com/Level3AI-hub/Safuverse/actions/workflows/smart-contracts.yml)
-[![Frontend Builds CI](https://github.com/Level3AI-hub/Safuverse/actions/workflows/frontend-builds.yml/badge.svg)](https://github.com/Level3AI-hub/Safuverse/actions/workflows/frontend-builds.yml)
-[![Code Quality](https://github.com/Level3AI-hub/Safuverse/actions/workflows/code-quality.yml/badge.svg)](https://github.com/Level3AI-hub/Safuverse/actions/workflows/code-quality.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A comprehensive Web3 ecosystem **deployed on BNB Chain** (BNB Smart Chain - BSC), offering decentralized education, naming services, token launchpad, NFT scorecards, and AI-powered agents.
