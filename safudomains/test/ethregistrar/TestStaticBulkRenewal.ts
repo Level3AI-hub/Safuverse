@@ -13,7 +13,7 @@ async function fixture() {
   // Create a base registrar
   const baseRegistrar = await hre.viem.deployContract(
     'BaseRegistrarImplementation',
-    [ensRegistry.address, namehash('eth')],
+    [ensRegistry.address, namehash('safu')],
   )
 
   // Setup reverse registrar
@@ -48,8 +48,12 @@ async function fixture() {
 
   // Set up a dummy price oracle and a controller
   const dummyOracle = await hre.viem.deployContract('DummyOracle', [100000000n])
-  const dummyCakeOracle = await hre.viem.deployContract('DummyOracle', [100000000n])
-  const dummyUsd1Oracle = await hre.viem.deployContract('DummyOracle', [100000000n])
+  const dummyCakeOracle = await hre.viem.deployContract('DummyOracle', [
+    100000000n,
+  ])
+  const dummyUsd1Oracle = await hre.viem.deployContract('DummyOracle', [
+    100000000n,
+  ])
   const priceOracle = await hre.viem.deployContract('TokenPriceOracle', [
     dummyOracle.address,
     dummyCakeOracle.address,
@@ -58,7 +62,10 @@ async function fixture() {
     100000000000000000000000000n,
     21n,
   ])
-  const referralController = await hre.viem.deployContract('ReferralController', [])
+  const referralController = await hre.viem.deployContract(
+    'ReferralController',
+    [],
+  )
   const controller = await hre.viem.deployContract('ETHRegistrarController', [
     baseRegistrar.address,
     priceOracle.address,
@@ -80,15 +87,15 @@ async function fixture() {
     controller.address,
   ])
 
-  // Transfer .eth node to base registrar
+  // Transfer .safu node to base registrar
   await ensRegistry.write.setSubnodeRecord([
     zeroHash,
-    labelhash('eth'),
+    labelhash('safu'),
     accounts[0].address,
     publicResolver.address,
     0n,
   ])
-  await ensRegistry.write.setOwner([namehash('eth'), baseRegistrar.address])
+  await ensRegistry.write.setOwner([namehash('safu'), baseRegistrar.address])
 
   // Register some names
   for (const name of ['test1', 'test2', 'test3']) {

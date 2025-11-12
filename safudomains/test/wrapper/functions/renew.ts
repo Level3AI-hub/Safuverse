@@ -16,7 +16,7 @@ import {
 export const renewTests = () => {
   describe('renew', () => {
     const label = 'register'
-    const name = `${label}.eth`
+    const name = `${label}.safu`
 
     async function renewFixture() {
       const initial = await loadFixture(fixture)

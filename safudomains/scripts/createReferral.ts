@@ -7,7 +7,7 @@ const main = async () => {
   const base = await viem.getContract('BaseRegistrarImplementation')
 
   const labelhash = namehash('domistro')
-  const expires = await base.read.nameExpires([keccak256(toHex('domistro'))])
+  const expires = await base.read.nameExpires([BigInt(labelhash)])
   if (!expires) return
   console.log(expires)
 

@@ -11,7 +11,7 @@ import {
 export const setResolverTests = () => {
   describe('setResolver', () => {
     const label = 'setresolver'
-    const name = `${label}.eth`
+    const name = `${label}.safu`
 
     async function setResolverFixture() {
       const initial = await loadFixture(fixture)

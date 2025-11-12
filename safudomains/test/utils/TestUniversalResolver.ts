@@ -78,7 +78,7 @@ async function fixture() {
   await ensRegistry.write.setOwner([zeroHash, root.address])
 
   await root.write.setSubnodeOwner([labelhash('reverse'), accounts[0].address])
-  await root.write.setSubnodeOwner([labelhash('eth'), accounts[0].address])
+  await root.write.setSubnodeOwner([labelhash('safu'), accounts[0].address])
   await ensRegistry.write.setSubnodeOwner([
     namehash('reverse'),
     labelhash('addr'),
@@ -114,7 +114,7 @@ async function fixture() {
     resolverAddress?: Address
   }) => {
     await ensRegistry.write.setSubnodeRecord([
-      namehash('test.eth'),
+      namehash('test.safu'),
       labelhash(label),
       accounts[0].address,
       resolverAddress,
@@ -123,21 +123,21 @@ async function fixture() {
   }
 
   await ensRegistry.write.setSubnodeRecord([
-    namehash('eth'),
+    namehash('safu'),
     labelhash('test'),
     accounts[0].address,
     publicResolver.address,
     0n,
   ])
   await ensRegistry.write.setSubnodeRecord([
-    namehash('eth'),
+    namehash('safu'),
     labelhash('legacy-resolver'),
     accounts[0].address,
     legacyResolver.address,
     0n,
   ])
   await ensRegistry.write.setSubnodeRecord([
-    namehash('test.eth'),
+    namehash('test.safu'),
     labelhash('sub'),
     accounts[0].address,
     accounts[1].address,
@@ -159,7 +159,7 @@ async function fixture() {
     resolverAddress: accounts[0].address,
   })
 
-  let name = 'test.eth'
+  let name = 'test.safu'
   for (let i = 0; i < 5; i += 1) {
     const parent = name
     const label = `sub${i}`
@@ -172,10 +172,10 @@ async function fixture() {
   }
 
   await publicResolver.write.setAddr([
-    namehash('test.eth'),
+    namehash('test.safu'),
     accounts[1].address,
   ])
-  await publicResolver.write.setText([namehash('test.eth'), 'foo', 'bar'])
+  await publicResolver.write.setText([namehash('test.safu'), 'foo', 'bar'])
 
   await reverseRegistrar.write.claim([accounts[0].address])
   await ensRegistry.write.setResolver([
@@ -184,7 +184,7 @@ async function fixture() {
   ])
   await publicResolver.write.setName([
     getReverseNodeHash(accounts[0].address),
-    'test.eth',
+    'test.safu',
   ])
 
   await reverseRegistrar.write.claim([accounts[10].address], {
@@ -221,10 +221,10 @@ describe('UniversalResolver', () => {
       const { universalResolver, publicResolver } = await loadFixture(fixture)
 
       await expect(
-        universalResolver.read.findResolver([dnsEncodeName('test.eth')]),
+        universalResolver.read.findResolver([dnsEncodeName('test.safu')]),
       ).resolves.toMatchObject([
         getAddress(publicResolver.address),
-        namehash('test.eth'),
+        namehash('test.safu'),
         0n,
       ])
     })
@@ -233,10 +233,10 @@ describe('UniversalResolver', () => {
       const { universalResolver, publicResolver } = await loadFixture(fixture)
 
       await expect(
-        universalResolver.read.findResolver([dnsEncodeName('foo.test.eth')]),
+        universalResolver.read.findResolver([dnsEncodeName('foo.test.safu')]),
       ).resolves.toMatchObject([
         getAddress(publicResolver.address),
-        namehash('foo.test.eth'),
+        namehash('foo.test.safu'),
         4n,
       ])
     })
@@ -245,10 +245,10 @@ describe('UniversalResolver', () => {
       const { universalResolver, accounts } = await loadFixture(fixture)
 
       await expect(
-        universalResolver.read.findResolver([dnsEncodeName('sub.test.eth')]),
+        universalResolver.read.findResolver([dnsEncodeName('sub.test.safu')]),
       ).resolves.toMatchObject([
         getAddress(accounts[1].address),
-        namehash('sub.test.eth'),
+        namehash('sub.test.safu'),
         0n,
       ])
     })
@@ -259,12 +259,12 @@ describe('UniversalResolver', () => {
       await expect(
         universalResolver.read.findResolver([
           dnsEncodeName(
-            '[9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658].eth',
+            '[9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658].safu',
           ),
         ]),
       ).resolves.toMatchObject([
         getAddress(publicResolver.address),
-        namehash('test.eth'),
+        namehash('test.safu'),
         0n,
       ])
     })
@@ -274,11 +274,11 @@ describe('UniversalResolver', () => {
 
       await expect(
         universalResolver.read.findResolver([
-          dnsEncodeName('sub4.sub3.sub2.sub1.sub0.test.eth'),
+          dnsEncodeName('sub4.sub3.sub2.sub1.sub0.test.safu'),
         ]),
       ).resolves.toMatchObject([
         getAddress(publicResolver.address),
-        namehash('sub4.sub3.sub2.sub1.sub0.test.eth'),
+        namehash('sub4.sub3.sub2.sub1.sub0.test.safu'),
         25n,
       ])
     })
@@ -290,7 +290,7 @@ describe('UniversalResolver', () => {
         fixture,
       )
 
-      const args = [namehash('test.eth')] as [Hex]
+      const args = [namehash('test.safu')] as [Hex]
 
       const data = encodeFunctionData({
         abi: publicResolver.abi,
@@ -299,7 +299,7 @@ describe('UniversalResolver', () => {
       })
 
       const [result] = (await universalResolver.read.resolve([
-        dnsEncodeName('test.eth'),
+        dnsEncodeName('test.safu'),
         data,
       ])) as ReadContractReturnType<
         (typeof universalResolver)['abi'],
@@ -315,7 +315,7 @@ describe('UniversalResolver', () => {
         abi: publicResolver.abi,
         functionName: 'addr',
         data: result,
-        args: [namehash('test.eth')],
+        args: [namehash('test.safu')],
       })
       expect(decodedAddress).toEqualAddress(accounts[1].address)
     })
@@ -340,12 +340,12 @@ describe('UniversalResolver', () => {
       const data = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('non-contract-resolver.test.eth')],
+        args: [namehash('non-contract-resolver.test.safu')],
       })
 
       await expect(universalResolver)
         .read('resolve', [
-          dnsEncodeName('non-contract-resolver.test.eth'),
+          dnsEncodeName('non-contract-resolver.test.safu'),
           data,
         ])
         .toBeRevertedWithCustomError('ResolverNotContract')
@@ -357,7 +357,7 @@ describe('UniversalResolver', () => {
       const data = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('revert-resolver.test.eth')],
+        args: [namehash('revert-resolver.test.safu')],
       })
 
       const notSupportedError = encodeErrorResult({
@@ -367,7 +367,7 @@ describe('UniversalResolver', () => {
       })
 
       await expect(universalResolver)
-        .read('resolve', [dnsEncodeName('revert-resolver.test.eth'), data])
+        .read('resolve', [dnsEncodeName('revert-resolver.test.safu'), data])
         .toBeRevertedWithCustomError('ResolverError')
         .withArgs(notSupportedError)
     })
@@ -378,11 +378,11 @@ describe('UniversalResolver', () => {
       const data = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('no-resolver.test.eth')],
+        args: [namehash('no-resolver.test.safu')],
       })
 
       await expect(universalResolver)
-        .read('resolve', [dnsEncodeName('no-resolver.test.eth'), data])
+        .read('resolve', [dnsEncodeName('no-resolver.test.safu'), data])
         .toBeRevertedWithCustomError('ResolverWildcardNotSupported')
     })
 
@@ -390,7 +390,7 @@ describe('UniversalResolver', () => {
       const { universalResolver, publicResolver, legacyResolver } =
         await loadFixture(fixture)
 
-      const args = [namehash('legacy-resolver.eth')] as [Hex]
+      const args = [namehash('legacy-resolver.safu')] as [Hex]
 
       const data = encodeFunctionData({
         abi: publicResolver.abi,
@@ -399,7 +399,7 @@ describe('UniversalResolver', () => {
       })
 
       const [result, resolverAddress] = (await universalResolver.read.resolve([
-        dnsEncodeName('legacy-resolver.eth'),
+        dnsEncodeName('legacy-resolver.safu'),
         data,
       ])) as ReadContractReturnType<
         (typeof universalResolver)['abi'],
@@ -425,7 +425,7 @@ describe('UniversalResolver', () => {
       const { universalResolver, publicResolver, legacyResolver } =
         await loadFixture(fixture)
 
-      const args = [namehash('legacy-resolver.eth'), 60n] as [Hex, bigint]
+      const args = [namehash('legacy-resolver.safu'), 60n] as [Hex, bigint]
 
       const data = encodeFunctionData({
         abi: publicResolver.abi,
@@ -434,7 +434,7 @@ describe('UniversalResolver', () => {
       })
 
       await expect(universalResolver)
-        .read('resolve', [dnsEncodeName('legacy-resolver.eth'), data])
+        .read('resolve', [dnsEncodeName('legacy-resolver.safu'), data])
         .toBeRevertedWithCustomError('ResolverError')
         .withArgs('0x')
     })
@@ -450,7 +450,7 @@ describe('UniversalResolver', () => {
       const callData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('offchain.test.eth')],
+        args: [namehash('offchain.test.safu')],
       })
 
       const extraData = encodeExtraData({
@@ -483,7 +483,7 @@ describe('UniversalResolver', () => {
       })
 
       await expect(universalResolver)
-        .read('resolve', [dnsEncodeName('offchain.test.eth'), callData])
+        .read('resolve', [dnsEncodeName('offchain.test.safu'), callData])
         .toBeRevertedWithCustomError('OffchainLookup')
         .withArgs(
           getAddress(universalResolver.address),
@@ -497,7 +497,7 @@ describe('UniversalResolver', () => {
     it('should use custom gateways when specified', async () => {
       const { universalResolver, publicResolver } = await loadFixture(fixture)
 
-      const args = [namehash('offchain.test.eth'), 60n] as [Hex, bigint]
+      const args = [namehash('offchain.test.safu'), 60n] as [Hex, bigint]
 
       const data = encodeFunctionData({
         abi: publicResolver.abi,
@@ -507,7 +507,7 @@ describe('UniversalResolver', () => {
 
       await expect(universalResolver)
         .read('resolve', [
-          dnsEncodeName('offchain.test.eth'),
+          dnsEncodeName('offchain.test.safu'),
           data,
           ['https://custom.local'],
         ])
@@ -532,7 +532,7 @@ describe('UniversalResolver', () => {
       const addrCall = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('offchain.test.eth')],
+        args: [namehash('offchain.test.safu')],
       })
       const onchainDataCall = '0x12345678'
 
@@ -553,7 +553,7 @@ describe('UniversalResolver', () => {
             data: encodeFunctionData({
               abi: universalResolver.abi,
               functionName: 'resolve',
-              args: [dnsEncodeName('offchain.test.eth'), onchainDataCall],
+              args: [dnsEncodeName('offchain.test.safu'), onchainDataCall],
             }),
           },
         ],
@@ -575,7 +575,7 @@ describe('UniversalResolver', () => {
 
       await expect(universalResolver)
         .read('resolve', [
-          dnsEncodeName('offchain.test.eth'),
+          dnsEncodeName('offchain.test.safu'),
           [addrCall, onchainDataCall],
         ])
         .toBeRevertedWithCustomError('OffchainLookup')
@@ -691,11 +691,11 @@ describe('UniversalResolver', () => {
       const { universalResolver, publicResolver, accounts } = await loadFixture(
         fixture,
       )
-      const addrArgs = [namehash('test.eth')] as [Hex]
+      const addrArgs = [namehash('test.safu')] as [Hex]
       const textData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'text',
-        args: [namehash('test.eth'), 'foo'],
+        args: [namehash('test.safu'), 'foo'],
       })
       const addrData = encodeFunctionData({
         abi: publicResolver.abi,
@@ -705,7 +705,7 @@ describe('UniversalResolver', () => {
 
       const [[textResultEncoded, addrResultEncoded]] =
         (await universalResolver.read.resolve([
-          dnsEncodeName('test.eth'),
+          dnsEncodeName('test.safu'),
           [textData, addrData],
         ])) as ReadContractReturnType<
           (typeof universalResolver)['abi'],
@@ -720,7 +720,7 @@ describe('UniversalResolver', () => {
         abi: publicResolver.abi,
         functionName: 'text',
         data: textResultEncoded.returnData,
-        args: [namehash('test.eth'), 'foo'],
+        args: [namehash('test.safu'), 'foo'],
       })
       const addrResult = decodeFunctionResult<
         (typeof publicResolver)['abi'],
@@ -745,11 +745,11 @@ describe('UniversalResolver', () => {
         batchGatewayAbi,
       } = await loadFixture(fixture)
 
-      const addrArgs = [namehash('offchain.test.eth')] as [Hex]
+      const addrArgs = [namehash('offchain.test.safu')] as [Hex]
       const textData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'text',
-        args: [namehash('offchain.test.eth'), 'foo'],
+        args: [namehash('offchain.test.safu'), 'foo'],
       })
       const addrData = encodeFunctionData({
         abi: publicResolver.abi,
@@ -799,7 +799,7 @@ describe('UniversalResolver', () => {
 
       await expect(universalResolver)
         .read('resolve', [
-          dnsEncodeName('offchain.test.eth'),
+          dnsEncodeName('offchain.test.safu'),
           [textData, addrData],
         ])
         .toBeRevertedWithCustomError('OffchainLookup')
@@ -822,7 +822,7 @@ describe('UniversalResolver', () => {
         batchGatewayAbi,
       } = await loadFixture(fixture)
 
-      const addrArgs = [namehash('offchain.test.eth')] as [Hex]
+      const addrArgs = [namehash('offchain.test.safu')] as [Hex]
       const addrData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
@@ -929,7 +929,7 @@ describe('UniversalResolver', () => {
         batchGatewayAbi,
       } = await loadFixture(fixture)
 
-      const addrArgs = [namehash('offchain.test.eth')] as [Hex]
+      const addrArgs = [namehash('offchain.test.safu')] as [Hex]
       const addrData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
@@ -1042,12 +1042,12 @@ describe('UniversalResolver', () => {
       const onchainCall = encodeFunctionData({
         abi: universalResolver.abi,
         functionName: 'resolve',
-        args: [dnsEncodeName('offchain.test.eth'), '0x12345678'],
+        args: [dnsEncodeName('offchain.test.safu'), '0x12345678'],
       })
       const textData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'text',
-        args: [namehash('offchain.test.eth'), 'foo'],
+        args: [namehash('offchain.test.safu'), 'foo'],
       })
 
       const extraData = encodeExtraData({
@@ -1085,7 +1085,7 @@ describe('UniversalResolver', () => {
         abi: publicResolver.abi,
         functionName: 'text',
         data: encodedResult.returnData,
-        args: [namehash('offchain.test.eth'), 'foo'],
+        args: [namehash('offchain.test.safu'), 'foo'],
       })
 
       const decodedResultTwo = decodeFunctionResult<
@@ -1096,7 +1096,7 @@ describe('UniversalResolver', () => {
         abi: publicResolver.abi,
         functionName: 'addr',
         data: encodedResultTwo.returnData,
-        args: [namehash('offchain.test.eth')],
+        args: [namehash('offchain.test.safu')],
       })
 
       expect(decodedResult).toEqual('foo')
@@ -1114,12 +1114,12 @@ describe('UniversalResolver', () => {
       const addrData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'addr',
-        args: [namehash('offchain.test.eth'), 60n],
+        args: [namehash('offchain.test.safu'), 60n],
       })
       const textData = encodeFunctionData({
         abi: publicResolver.abi,
         functionName: 'text',
-        args: [namehash('offchain.test.eth'), 'foo'],
+        args: [namehash('offchain.test.safu'), 'foo'],
       })
       const extraData = encodeExtraData({
         isWildcard: false,
@@ -1159,7 +1159,7 @@ describe('UniversalResolver', () => {
         abi: publicResolver.abi,
         functionName: 'addr',
         data: text.returnData,
-        args: [namehash('offchain.test.eth')],
+        args: [namehash('offchain.test.safu')],
       })
 
       expect(addr.success).toBe(false)
@@ -1175,12 +1175,12 @@ describe('UniversalResolver', () => {
 
       const metadata = encodeAbiParameters(
         [{ type: 'string' }, { type: 'address' }],
-        ['offchain.test.eth', offchainResolver.address],
+        ['offchain.test.safu', offchainResolver.address],
       )
       const addrCall = encodeFunctionData({
         abi: offchainResolver.abi,
         functionName: 'addr',
-        args: [namehash('offchain.test.eth')],
+        args: [namehash('offchain.test.safu')],
       })
 
       const extraData = encodeExtraData({
@@ -1235,7 +1235,7 @@ describe('UniversalResolver', () => {
 
       const metadata = encodeAbiParameters(
         [{ type: 'string' }, { type: 'address' }],
-        ['offchain.test.eth', offchainResolver.address],
+        ['offchain.test.safu', offchainResolver.address],
       )
       const extraData = encodeExtraData({
         isWildcard: false,
@@ -1262,7 +1262,7 @@ describe('UniversalResolver', () => {
         extraData,
       ])
 
-      expect(name).toEqual('offchain.test.eth')
+      expect(name).toEqual('offchain.test.safu')
       expect(a1).toEqualAddress(offchainResolver.address)
       expect(a2).toEqualAddress(offchainResolver.address)
       expect(a3).toEqualAddress(offchainResolver.address)
@@ -1291,7 +1291,7 @@ describe('UniversalResolver', () => {
 
       const metadata = encodeAbiParameters(
         [{ type: 'string' }, { type: 'address' }],
-        ['offchain.test.eth', offchainResolver.address],
+        ['offchain.test.safu', offchainResolver.address],
       )
       const extraData = encodeExtraData({
         isWildcard: false,
@@ -1335,7 +1335,7 @@ describe('UniversalResolver', () => {
           [Hex]
         >
 
-      expect(name).toEqual('test.eth')
+      expect(name).toEqual('test.safu')
       expect(resolvedAddress).toEqualAddress(accounts[1].address)
       expect(reverseResolverAddress).toEqualAddress(publicResolver.address)
       expect(resolverAddress).toEqualAddress(publicResolver.address)

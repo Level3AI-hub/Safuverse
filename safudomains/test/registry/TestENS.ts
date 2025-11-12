@@ -82,14 +82,14 @@ describe('ENSRegistry', () => {
     await expect(ensRegistry)
       .write('setSubnodeOwner', [
         zeroHash,
-        labelhash('eth'),
+        labelhash('safu'),
         accounts[1].address,
       ])
       .toEmitEvent('NewOwner')
-      .withArgs(zeroHash, labelhash('eth'), accounts[1].address)
+      .withArgs(zeroHash, labelhash('safu'), accounts[1].address)
 
     await expect(
-      ensRegistry.read.owner([namehash('eth')]),
+      ensRegistry.read.owner([namehash('safu')]),
     ).resolves.toEqualAddress(accounts[1].address)
   })
 
@@ -99,7 +99,7 @@ describe('ENSRegistry', () => {
     await expect(ensRegistry)
       .write(
         'setSubnodeOwner',
-        [zeroHash, labelhash('eth'), accounts[1].address],
+        [zeroHash, labelhash('safu'), accounts[1].address],
         { account: accounts[1] },
       )
       .toBeRevertedWithoutReason()

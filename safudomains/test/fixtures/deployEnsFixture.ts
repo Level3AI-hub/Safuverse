@@ -100,7 +100,7 @@ const setEthResolverInterface = async ({
   const contractInterface = await hre.artifacts.readArtifact(interfaceName)
   const interfaceId = createInterfaceId(contractInterface.abi)
   return await ethOwnedResolver.write.setInterface(
-    [namehash('eth'), interfaceId, contract.address],
+    [namehash('safu'), interfaceId, contract.address],
     {
       account: owner as Address,
     },
@@ -141,7 +141,7 @@ export async function deployEnsStack(): Promise<EnsStack> {
 
   const baseRegistrarImplementation = await hre.viem.deployContract(
     'BaseRegistrarImplementation',
-    [ensRegistry.address, namehash('eth')],
+    [ensRegistry.address, namehash('safu')],
   )
 
   await baseRegistrarImplementation.write.transferOwnership([
@@ -149,7 +149,7 @@ export async function deployEnsStack(): Promise<EnsStack> {
   ])
   await setRootSubnodeOwner({
     root,
-    label: 'eth',
+    label: 'safu',
     owner: baseRegistrarImplementation,
   })
 
@@ -172,17 +172,14 @@ export async function deployEnsStack(): Promise<EnsStack> {
   const dummyUsd1Oracle = await hre.viem.deployContract('DummyOracle', [
     160000000000n,
   ])
-  const tokenPriceOracle = await hre.viem.deployContract(
-    'TokenPriceOracle',
-    [
-      dummyOracle.address,
-      dummyCakeOracle.address,
-      dummyUsd1Oracle.address,
-      [0n, 0n, 20294266869609n, 5073566717402n, 158548959919n],
-      100000000000000000000000000n,
-      21n,
-    ],
-  )
+  const tokenPriceOracle = await hre.viem.deployContract('TokenPriceOracle', [
+    dummyOracle.address,
+    dummyCakeOracle.address,
+    dummyUsd1Oracle.address,
+    [0n, 0n, 20294266869609n, 5073566717402n, 158548959919n],
+    100000000000000000000000000n,
+    21n,
+  ])
 
   const staticMetadataService = await hre.viem.deployContract(
     'StaticMetadataService',
@@ -205,7 +202,10 @@ export async function deployEnsStack(): Promise<EnsStack> {
     contract: nameWrapper,
   })
 
-  const referralController = await hre.viem.deployContract('ReferralController', [])
+  const referralController = await hre.viem.deployContract(
+    'ReferralController',
+    [],
+  )
   const ethRegistrarController = await hre.viem.deployContract(
     'ETHRegistrarController',
     [
