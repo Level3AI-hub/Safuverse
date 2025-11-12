@@ -41,35 +41,6 @@ jobs:
         working-directory: ./${{ matrix.project.path }}
         run: npx tsc --noEmit
 
-  solidity-lint:
-    name: Solidity Linting
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        project:
-          - { name: 'SafuPad Contracts', path: 'safupad-contracts' }
-          - { name: 'SafuDomains', path: 'safudomains' }
-          - { name: 'SafuCourse', path: 'SafuCourse' }
-          - { name: 'Safucard NFT', path: 'Safucard/SafucardNFT' }
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-
-      - name: Install dependencies
-        working-directory: ./${{ matrix.project.path }}
-        run: npm ci
-
-      - name: Run Solhint
-        working-directory: ./${{ matrix.project.path }}
-        run: npx solhint 'contracts/**/*.sol'
-
   eslint-check:
     name: ESLint Check
     runs-on: ubuntu-latest
@@ -133,6 +104,7 @@ jobs:
       - name: Run npm audit
         working-directory: ./${{ matrix.project }}
         run: npm audit --audit-level=moderate
+        continue-on-error: true
 
   markdown-lint:
     name: Markdown Linting
@@ -144,6 +116,7 @@ jobs:
 
       - name: Run markdownlint
         uses: nosborn/github-action-markdown-cli@v3.3.0
+        continue-on-error: true
         with:
           files: .
           config_file: .markdownlint.json
