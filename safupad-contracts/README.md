@@ -128,6 +128,16 @@ Chainlink integration for BNB/USD pricing on BSC.
 - Uses Chainlink BNB/USD feed on BNB Chain
 - Accurate price discovery for launches
 
+## Deployed Contracts
+
+### BSC Testnet (Unverified)
+
+- **LaunchpadManager**: `0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c`
+- **BondingCurveDEX**: `0x14eB3B6C297ff6fefc25c0E0d289Bf8348e864f6`
+- **TokenFactory**: `0xcb7526b9598240A737237C52f852705e6A449cD0`
+- **PriceOracle**: `0x56f0b1f80F8cc37f875Be42e2f4D09810514F346`
+- **LPFeeHarvester**: `0xa886B8897814193f99A88701d70b31b4a8E27a1E`
+
 ## Technology Stack
 
 - **Blockchain**: BNB Smart Chain (BSC)
