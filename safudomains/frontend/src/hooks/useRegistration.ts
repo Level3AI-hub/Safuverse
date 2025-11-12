@@ -8,13 +8,13 @@ import {
   keccak256,
   toBytes,
   parseEther,
-} from 'viem'
+} from 'node_modules/viem/_types'
 import { ethers } from 'ethers'
 import { buildTextRecords } from './setText'
 import { Controller, ERC20_ABI, addrResolver } from '../constants/registerAbis'
 import { constants, Params } from '../constant'
 import { useEthersSigner } from './gasEstimation'
-import { normalize } from 'viem/ens'
+import { normalize } from 'node_modules/viem/_types/ens'
 
 export const useRegistration = () => {
   const [secret, setSecret] = useState<`0x${string}`>('0x')
@@ -119,7 +119,7 @@ export const useRegistration = () => {
     token: `0x${string}`,
     usd1TokenData: any,
     cakeTokenData: any,
-    priceData: any
+    priceData: any,
   ) => {
     setIsLoading(true)
     const resolver = constants.PublicResolver

@@ -1,4 +1,9 @@
-import { hexToBigInt, labelhash, namehash, type Hex } from 'viem'
+import {
+  hexToBigInt,
+  labelhash,
+  namehash,
+  type Hex,
+} from '../../node_modules/viem/_types'
 
 export const toTokenId = (hash: Hex) => hexToBigInt(hash)
 export const toLabelId = (label: string) => toTokenId(labelhash(label))

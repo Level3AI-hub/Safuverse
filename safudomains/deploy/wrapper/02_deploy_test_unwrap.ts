@@ -1,5 +1,5 @@
-import type { DeployFunction } from 'hardhat-deploy/types.js'
-import type { Address } from 'viem'
+import type { DeployFunction } from 'hardhat-deploy/types'
+import type { Address } from '../../node_modules/viem/_types'
 
 const TESTNET_WRAPPER_ADDRESSES = {
   goerli: [

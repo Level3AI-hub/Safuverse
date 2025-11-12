@@ -7,7 +7,7 @@ import {
   padHex,
   zeroAddress,
   type Address,
-} from 'viem'
+} from '../../../node_modules/viem/_types/index.js'
 import { DAY, FUSES } from '../../fixtures/constants.js'
 import { dnsEncodeName } from '../../fixtures/dnsEncodeName.js'
 import { toLabelId, toNameId } from '../../fixtures/utils.js'

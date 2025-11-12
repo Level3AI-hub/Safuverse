@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { keccak256, namehash } from 'viem'
+import { keccak256, namehash } from 'node_modules/viem/_types'
 import { useReadContract } from 'wagmi'
 import { constants } from '../constant'
 import {
@@ -16,7 +16,7 @@ import {
 } from '../constants/resolveAbis'
 import { useTextRecords } from './getTextRecords'
 import { useENSName } from './getPrimaryName'
-import { zeroAddress } from 'viem'
+import { zeroAddress } from 'node_modules/viem/_types'
 
 export const useResolveData = (label: string, walletAddress: `0x${string}`) => {
   const node = namehash(`${label}.safu`)

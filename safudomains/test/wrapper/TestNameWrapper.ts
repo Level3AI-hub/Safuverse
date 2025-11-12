@@ -1,6 +1,12 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers.js'
 import { expect } from 'chai'
-import { getAddress, labelhash, namehash, zeroAddress, zeroHash } from 'viem'
+import {
+  getAddress,
+  labelhash,
+  namehash,
+  zeroAddress,
+  zeroHash,
+} from '../../node_modules/viem/_types/index.js'
 import { DAY } from '../fixtures/constants.js'
 import { dnsEncodeName } from '../fixtures/dnsEncodeName.js'
 import { toLabelId, toNameId } from '../fixtures/utils.js'

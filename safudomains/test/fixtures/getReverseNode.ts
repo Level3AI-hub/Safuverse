@@ -1,4 +1,4 @@
-import { namehash, type Address } from 'viem'
+import { namehash, type Address } from '../../node_modules/viem/_types'
 
 export const getReverseNode = (address: Address) =>
   `${address.slice(2)}.addr.reverse`

@@ -2,8 +2,8 @@ import type {
   KeyedClient,
   DeployContractConfig as OriginalDeployContractConfig,
 } from '@nomicfoundation/hardhat-viem/types.js'
-import { extendEnvironment } from 'hardhat/config.js'
-import { lazyObject } from 'hardhat/plugins.js'
+import { extendEnvironment } from 'hardhat/config'
+import { lazyObject } from 'hardhat/plugins'
 import type {
   Artifact,
   HardhatRuntimeEnvironment,
@@ -23,7 +23,7 @@ import {
   type Hex,
   type TransactionReceipt,
   type Address as viemAddress,
-} from 'viem'
+} from '../node_modules/viem/_types'
 import type Config from '../hardhat.config.cjs'
 
 type ContractTypesMap = Omit<

@@ -313,8 +313,8 @@ npm run build
 
 Safucard integrates with other Safuverse components on BNB Chain:
 
-- **safudomains**: Domain holder scorecard bonuses
-- **SafuCourse**: Achievement-based NFT updates
+- **SafuDomains**: Domain holder scorecard bonuses
+- **SafuAcademyy**: Achievement-based NFT updates
 - **safupad**: Token launch participation scoring
 - **SafuAgents**: AI-powered score analysis
 

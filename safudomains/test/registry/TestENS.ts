@@ -1,7 +1,12 @@
-import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers.js'
+import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { labelhash, namehash, padHex, zeroHash } from 'viem'
+import {
+  labelhash,
+  namehash,
+  padHex,
+  zeroHash,
+} from '../../node_modules/viem/_types'
 
 const placeholderAddr = padHex('0x1234', { size: 20 })
 

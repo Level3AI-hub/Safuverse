@@ -1,6 +1,6 @@
 import hre from 'hardhat'
-import { namehash } from 'viem/ens'
-import { normalize } from 'viem/ens'
+import { namehash } from '../node_modules/viem/_types/ens'
+import { normalize } from '../node_modules/viem/_types/ens'
 async function main() {
   const { viem } = hre
   const { deployer } = await hre.viem.getNamedClients()
@@ -8,11 +8,7 @@ async function main() {
   const base = await viem.getContract('BaseRegistrarImplementation')
   const registry = await viem.getContract('ENSRegistry')
 
-  const DOMAIN_NAMES = [
-    'Oscar',
-    'domistro',
-    'destro',
-  ]
+  const DOMAIN_NAMES = ['Oscar', 'domistro', 'destro']
 
   for (const name of DOMAIN_NAMES) {
     const label = normalize(name)

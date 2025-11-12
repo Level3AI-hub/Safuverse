@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { namehash } from 'viem'
+import { namehash } from 'node_modules/viem/_types'
 import { useReadContracts } from 'wagmi'
-import type { Abi } from 'viem'
+import type { Abi } from 'node_modules/viem/_types'
 
 const resolverAbi: Abi = [
   {

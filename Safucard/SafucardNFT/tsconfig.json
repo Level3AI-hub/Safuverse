@@ -12,13 +12,13 @@
     "resolveJsonModule": true
   },
   "include": [
-    "./utils/**/*.ts",
-    "./scripts/**/*.ts",
-    "./test/**/*.ts",
-    "./tasks/**/*.ts",
-    "./deploy/**/*.ts",
-    "./typings-custom/**/*.ts",
-    "./artifacts/**/*.d.ts",
+    "utils/**/*.ts",
+    "scripts/**/*.ts",
+    "test/**/*.ts",
+    "tasks/**/*.ts",
+    "deploy/**/*.ts",
+    "typings-custom/**/*.ts",
+    "artifacts/**/*.d.ts",
     "tasks/hardhat-deploy-viem.ts",
     "tasks/deploy-test.ts"
   ],

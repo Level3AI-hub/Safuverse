@@ -9,14 +9,14 @@ import {
   darkTheme,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit'
-import { bsc } from 'wagmi/chains'
+import { bsc } from 'node_modules/wagmi/dist/types/exports/chains.ts'
 import type { ApolloClient } from '@apollo/client'
 import {
   rainbowWallet,
   walletConnectWallet,
   metaMaskWallet,
   coinbaseWallet,
-  binanceWallet
+  binanceWallet,
 } from '@rainbow-me/rainbowkit/wallets'
 import { createConfig, http } from 'wagmi'
 
@@ -29,7 +29,7 @@ const connectors = connectorsForWallets(
         binanceWallet,
         metaMaskWallet,
         coinbaseWallet,
-        walletConnectWallet
+        walletConnectWallet,
       ],
     },
   ],

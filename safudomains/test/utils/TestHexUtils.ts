@@ -1,7 +1,11 @@
-import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers.js'
+import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { stringToHex, zeroAddress, zeroHash } from 'viem'
+import {
+  stringToHex,
+  zeroAddress,
+  zeroHash,
+} from '../../node_modules/viem/_types'
 
 async function fixture() {
   const hexUtils = await hre.viem.deployContract('TestHexUtils', [])

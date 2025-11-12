@@ -1,7 +1,6 @@
-import { namehash } from 'viem'
+import { namehash } from 'node_modules/viem/_types'
 import { useReadContract } from 'wagmi'
-import {constants} from '../constant'
-
+import { constants } from '../constant'
 
 const isWrappeda = [
   {
@@ -34,15 +33,22 @@ function isWrapped(name: string) {
     args: [node],
   })
   return wrapped
-
 }
 
-export function WrappedBadge({ name, tag }: { name: string, tag: string }) {
-  
+export function WrappedBadge({ name, tag }: { name: string; tag: string }) {
   const wrapped = isWrapped(name) // ✅ hook at top level
-  const color = wrapped && tag == "Manager" ? 'bg-neutral-700' : wrapped && tag == "Owner" ? 'bg-blue-800' : !wrapped && tag == "Owner" || "Manager" ? 'bg-blue-800'  : 'bg-neutral-700'
+  const color =
+    wrapped && tag == 'Manager'
+      ? 'bg-neutral-700'
+      : wrapped && tag == 'Owner'
+      ? 'bg-blue-800'
+      : (!wrapped && tag == 'Owner') || 'Manager'
+      ? 'bg-blue-800'
+      : 'bg-neutral-700'
   return (
-    <span className={`px-2 py-1 ${color} text-gray-300 text-xs rounded-full text-center`}>
+    <span
+      className={`px-2 py-1 ${color} text-gray-300 text-xs rounded-full text-center`}
+    >
       {tag}
     </span>
   )

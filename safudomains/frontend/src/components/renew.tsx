@@ -5,7 +5,7 @@ import Modal from 'react-modal'
 import Controller from '../../../deployments/testnet/ETHRegistrarController.json'
 import DatePicker from 'react-datepicker'
 import { useEstimateENSFees } from '../hooks/gasEstimation'
-import { zeroAddress } from 'viem'
+import { zeroAddress } from 'node_modules/viem/_types'
 import { constants } from '../constant'
 
 interface RenewProps {
@@ -243,8 +243,8 @@ const Renew = ({ expires, label, setIsOpen, isOpen, number }: RenewProps) => {
         value: base + premium,
       })
     } catch (error) {
-      console.error(error);
-      console.error(renewError);
+      console.error(error)
+      console.error(renewError)
     }
   }
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

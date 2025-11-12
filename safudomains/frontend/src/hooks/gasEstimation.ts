@@ -1,8 +1,17 @@
 import { BigNumber, ethers } from 'ethers'
-import { keccak256, encodeAbiParameters, bytesToHex } from 'viem'
+import {
+  keccak256,
+  encodeAbiParameters,
+  bytesToHex,
+} from 'node_modules/viem/_types'
 import { providers } from 'ethers'
 import { useMemo, useCallback, useState, useEffect } from 'react'
-import type { Account, Chain, Client, Transport } from 'viem'
+import type {
+  Account,
+  Chain,
+  Client,
+  Transport,
+} from 'node_modules/viem/_types'
 import { Config, useConnectorClient } from 'wagmi'
 import { constants } from '../constant'
 
@@ -213,7 +222,7 @@ export function useEstimateENSFees({
           dummyData,
           false,
           0,
-          true
+          true,
         ],
       )
       const commitment = keccak256(encoded)
@@ -274,9 +283,9 @@ export function useEstimateENSFees({
     }
   }, [signer, name, owner, duration])
 
-   useEffect(() => {
-     estimate()
-   }, [estimate])
+  useEffect(() => {
+    estimate()
+  }, [estimate])
 
-   return { fees, loading, error, refetch: estimate }
+  return { fees, loading, error, refetch: estimate }
 }

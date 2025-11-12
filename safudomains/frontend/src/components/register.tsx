@@ -6,7 +6,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { useParams, useNavigate } from 'react-router'
 import Countdown from 'react-countdown'
 import { useENSName } from '../hooks/getPrimaryName'
-import { normalize } from 'viem/ens'
+import { normalize } from 'node_modules/viem/_types/ens'
 import { useEstimateENSFees } from '../hooks/gasEstimation'
 import { constants } from '../constant'
 import UserForm from './userForm'
@@ -95,17 +95,12 @@ const Register = () => {
   const [validationError, setValidationError] = useState<string>('')
 
   // Use custom hooks
-  const {
-    price,
-    loading,
-    usd1TokenData,
-    cakeTokenData,
-    priceData,
-  } = useRegistrationPrice({
-    label: label as string,
-    seconds,
-    lifetime,
-  })
+  const { price, loading, usd1TokenData, cakeTokenData, priceData } =
+    useRegistrationPrice({
+      label: label as string,
+      seconds,
+      lifetime,
+    })
 
   const { fees, loading: estimateLoading } = useEstimateENSFees({
     name: `${label}`,
@@ -201,7 +196,9 @@ const Register = () => {
       const newValue = prev + 1
       // Validate before setting
       if (newValue > VALIDATION_CONSTANTS.MAX_YEARS) {
-        setValidationError(`Maximum ${VALIDATION_CONSTANTS.MAX_YEARS} years allowed`)
+        setValidationError(
+          `Maximum ${VALIDATION_CONSTANTS.MAX_YEARS} years allowed`,
+        )
         return prev
       }
       setValidationError('')
@@ -245,7 +242,9 @@ const Register = () => {
       const newValue = prev - 1
       // Validate before setting
       if (newValue < VALIDATION_CONSTANTS.MIN_YEARS) {
-        setValidationError(`Minimum ${VALIDATION_CONSTANTS.MIN_YEARS} year required`)
+        setValidationError(
+          `Minimum ${VALIDATION_CONSTANTS.MIN_YEARS} year required`,
+        )
         return prev
       }
       setValidationError('')
@@ -317,7 +316,7 @@ const Register = () => {
       token,
       usd1TokenData,
       cakeTokenData,
-      priceData
+      priceData,
     )
     setIsOpen(false)
   }
@@ -448,7 +447,9 @@ const Register = () => {
               {/* Validation Error Message */}
               {validationError && (
                 <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/50">
-                  <p className="text-sm text-red-400 text-center">{validationError}</p>
+                  <p className="text-sm text-red-400 text-center">
+                    {validationError}
+                  </p>
                 </div>
               )}
               {date && !lifetime ? (
@@ -561,7 +562,7 @@ const Register = () => {
                     className="mt-2 py-2 placeholder:text-gray-400 max-w-2/3 w-3/4"
                     type="text"
                     onChange={(e) => {
-                      if (e.target.value.includes('.') ) {
+                      if (e.target.value.includes('.')) {
                         setReferrer('')
                       } else {
                         setReferrer(e.target.value.toLowerCase())

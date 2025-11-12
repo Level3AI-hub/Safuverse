@@ -6,8 +6,8 @@ Marketing and landing page for the **Safuverse ecosystem on BNB Chain**. This we
 
 SafuLanding is the public-facing website that introduces users to the Safuverse ecosystem, including:
 
-- SafuCourse: Educational platform on BNB Chain
-- safudomains: .safu domain name system on BSC
+- SafuAcademyy: Educational platform on BNB Chain
+- SafuDomains: .safu domain name system on BSC
 - safupad: Token launchpad on BNB Chain
 - Safucard: NFT scorecard system
 - SafuAgents: AI-powered Web3 interface
@@ -194,8 +194,8 @@ VITE_BSC_NETWORK=mainnet
 
 This landing page serves as the entry point to:
 
-- **SafuCourse** (academy.safuverse.com): Educational platform on BNB Chain
-- **safudomains** (names.safuverse.com): Domain registration on BSC
+- **SafuAcademyy** (academy.safuverse.com): Educational platform on BNB Chain
+- **SafuDomains** (names.safuverse.com): Domain registration on BSC
 - **safupad**: Token launchpad on BNB Chain
 - **Safucard**: NFT scorecard minting on BSC
 - **SafuAgents**: AI agents with BNB Chain wallet integration

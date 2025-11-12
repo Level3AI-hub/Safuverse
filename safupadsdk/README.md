@@ -861,8 +861,7 @@ const tokenUrl = sdk.getExplorerUrl('address', tokenAddress);
 ### Integration with Safuverse Ecosystem
 
 The SafuPad SDK is part of the larger Safuverse ecosystem on BNB Chain:
-- **safudomains**: Domain verification for enhanced launch permissions
-- **SafuCourse**: Token economics education integration
+- **SafuAcademyy**: Token economics education integration
 - **Safucard**: Project scorecard NFTs on BSC
 - **SafuAgents**: AI-powered launch analytics
 

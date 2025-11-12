@@ -1,7 +1,7 @@
-import { labelhash, namehash } from 'viem/ens'
+import { labelhash, namehash } from '../node_modules/viem/_types/ens'
 import * as dotenv from 'dotenv'
-import { task } from 'hardhat/config.js'
-import { Address, Hex, hexToBigInt } from 'viem'
+import { task } from 'hardhat/config'
+import { Address, Hex, hexToBigInt } from '../node_modules/viem/_types'
 
 function getOpenSeaUrl(contract: Address, namehashedname: Hex) {
   const tokenId = hexToBigInt(namehashedname).toString()

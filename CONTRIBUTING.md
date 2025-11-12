@@ -39,11 +39,11 @@ Thank you for your interest in contributing to Safuverse! We welcome contributio
 
    ```bash
    # For smart contract projects
-   cd safupad-contracts
+   cd SafuPad
    npm install
 
    # For frontend projects
-   cd SafuCourse/frontend
+   cd SafuAcademyy/frontend
    npm install
    ```
 
@@ -106,6 +106,7 @@ Thank you for your interest in contributing to Safuverse! We welcome contributio
    ```
 
    We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
    - `feat:` - New feature
    - `fix:` - Bug fix
    - `docs:` - Documentation changes
@@ -236,15 +237,16 @@ Good documentation helps everyone:
 ```
 Safuverse/
 ├── SafuAgents/          # AI agents interface
-├── SafuCourse/          # Educational platform
+├── SafuAcademyy/          # Educational platform
 ├── SafuLanding/         # Marketing website
 ├── Safucard/            # NFT scorecard system
-├── safudomains/         # Naming service
-├── safupad-contracts/   # Token launchpad
-└── safupadsdk/          # TypeScript SDK
+├── SafuDomains/         # Naming service
+├── SafuPad/   # Token launchpad
+└── SafuPadSDK/          # TypeScript SDK
 ```
 
 Each project has its own:
+
 - `contracts/` - Smart contracts (if applicable)
 - `test/` - Test files
 - `scripts/` - Deployment scripts
@@ -281,12 +283,14 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ### Our Standards
 
 **Positive behavior:**
+
 - Using welcoming and inclusive language
 - Respecting differing viewpoints
 - Accepting constructive criticism
 - Focusing on what's best for the community
 
 **Unacceptable behavior:**
+
 - Harassment, trolling, or personal attacks
 - Publishing others' private information
 - Other conduct that's inappropriate in a professional setting

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { keccak256, toBytes } from 'viem'
+import { keccak256, toBytes } from 'node_modules/viem/_types'
 import { useAccount, useWriteContract } from 'wagmi'
 import Modal from 'react-modal'
 import { constants } from '@/constant'

@@ -1,4 +1,4 @@
-# safudomains (dns-contracts)
+# SafuDomains (dns-contracts)
 
 A decentralized naming system **deployed on BNB Chain** (BNB Smart Chain), inspired by ENS, with the custom .safu TLD. Features dynamic pricing in BNB, CAKE, and USD1 tokens via Chainlink oracles, plus a built-in referral rewards system.
 
@@ -209,7 +209,7 @@ This repo runs a husky precommit to prettify all contract files to keep them con
 
 ```bash
 git clone https://github.com/Level3AI-Hub/Safuverse
-cd Safuverse/safudomains
+cd Safuverse/SafuDomains
 bun install
 # or
 npm install
@@ -389,7 +389,7 @@ The ReferralController allocates a portion of each domain registration fee to re
 
 The .safu domain system integrates with other Safuverse components on BNB Chain:
 
-- **SafuCourse**: Domain-gated course enrollment
+- **SafuAcademyy**: Domain-gated course enrollment
 - **Safucard**: Domain holder NFT bonuses
 - **safupad**: Enhanced launch permissions for domain owners
 - **SafuAgents**: Domain-based identity for AI agents
@@ -398,7 +398,7 @@ All integrations occur on-chain on BNB Chain.
 
 ## Frontend Application
 
-The safudomains frontend is a modern React-based web application deployed at [names.safuverse.com](https://names.safuverse.com), providing a user-friendly interface for domain registration and management on BNB Chain.
+The SafuDomains frontend is a modern React-based web application deployed at [names.safuverse.com](https://names.safuverse.com), providing a user-friendly interface for domain registration and management on BNB Chain.
 
 ### Frontend Technology Stack
 
@@ -436,7 +436,7 @@ The safudomains frontend is a modern React-based web application deployed at [na
 ```bash
 # Clone the repository
 git clone https://github.com/Level3AI-hub/Safuverse.git
-cd Safuverse/safudomains/frontend
+cd Safuverse/SafuDomains/frontend
 
 # Install dependencies
 npm install

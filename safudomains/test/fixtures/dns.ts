@@ -1,6 +1,6 @@
 import { SignedSet } from '@ensdomains/dnsprovejs'
 import type { Answer, Rrsig } from 'dns-packet'
-import { bytesToHex, type Address } from 'viem'
+import { bytesToHex, type Address } from '../../node_modules/viem/_types'
 
 export const hexEncodeSignedSet = ({
   rrs,

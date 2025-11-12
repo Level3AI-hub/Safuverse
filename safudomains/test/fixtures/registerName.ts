@@ -1,5 +1,9 @@
 import hre from 'hardhat'
-import { Address, Hex, zeroAddress } from 'viem'
+import {
+  Address,
+  Hex,
+  zeroAddress,
+} from '../../node_modules/viem/_types/index.js'
 import { EnsStack } from './deployEnsFixture.js'
 
 export type Mutable<T> = {
@@ -96,9 +100,11 @@ export const commitName = async (
     readonly `0x${string}`[],
     boolean,
     number,
-    boolean
+    boolean,
   ]
-  const commitmentHash = await ethRegistrarController.read.makeCommitment(commitmentArgs)
+  const commitmentHash = await ethRegistrarController.read.makeCommitment(
+    commitmentArgs,
+  )
   await ethRegistrarController.write.commit([commitmentHash], {
     account: deployer.account,
   })
@@ -134,9 +140,11 @@ export const registerName = async (
     readonly `0x${string}`[],
     boolean,
     number,
-    boolean
+    boolean,
   ]
-  const commitmentHash = await ethRegistrarController.read.makeCommitment(commitmentArgs)
+  const commitmentHash = await ethRegistrarController.read.makeCommitment(
+    commitmentArgs,
+  )
   await ethRegistrarController.write.commit([commitmentHash], {
     account: deployer.account,
   })

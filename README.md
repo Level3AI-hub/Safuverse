@@ -1,6 +1,5 @@
 # Safuverse Ecosystem
 
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A comprehensive Web3 ecosystem **deployed on BNB Chain** (BNB Smart Chain - BSC), offering decentralized education, naming services, token launchpad, NFT scorecards, and AI-powered agents.
@@ -16,7 +15,7 @@ All smart contracts in this ecosystem are deployed and operational on BNB Chain,
 
 ## Ecosystem Components
 
-### 1. SafuCourse - Decentralized Education Platform
+### 1. SafuAcademyy - Decentralized Education Platform
 
 On-chain educational platform with gasless transactions, allowing domain owners to create and participate in blockchain courses.
 
@@ -27,11 +26,11 @@ On-chain educational platform with gasless transactions, allowing domain owners 
 - Gasless on-chain courses via a backend relayer
 - Domain-gated access control
 - Progress tracking stored on BSC
-- Integration with Safudomains naming service
+- Integration with SafuDomains naming service
 
-**Directory**: `SafuCourse/`
+**Directory**: `SafuAcademyy/`
 
-### 2. safudomains - Decentralized Naming Service
+### 2. SafuDomains - Decentralized Naming Service
 
 ENS-inspired domain name system with custom .safu TLD deployed on BNB Chain.
 
@@ -45,9 +44,9 @@ ENS-inspired domain name system with custom .safu TLD deployed on BNB Chain.
 - Complete ENS registry implementation
 - Chainlink price oracles for BNB/USD
 
-**Directory**: `safudomains/`
+**Directory**: `SafuDomains/`
 
-### 3. safupad-contracts - Token Launchpad (In Development)
+### 3. SafuPad - Token Launchpad (In Development)
 
 Fair launch platform with bonding curve mechanics and automatic PancakeSwap integration on BNB Chain.
 
@@ -59,9 +58,9 @@ Fair launch platform with bonding curve mechanics and automatic PancakeSwap inte
 - Anti-bot protection mechanisms
 - BNB-denominated token launches (50-500 BNB)
 
-**Directory**: `safupad-contracts/`
+**Directory**: `SafuPad/`
 
-### 4. safupadsdk - TypeScript SDK
+### 4. SafuPadSDK - TypeScript SDK
 
 Comprehensive TypeScript SDK for interacting with SafuPad launchpad on BNB Chain.
 
@@ -72,7 +71,7 @@ Comprehensive TypeScript SDK for interacting with SafuPad launchpad on BNB Chain
 - Event handling and volume tracking
 - Browser and Node.js compatible
 
-**Directory**: `safupadsdk/`
+**Directory**: `SafuPadSDK/`
 
 ### 5. Safucard - NFT Scorecard System
 
@@ -144,15 +143,15 @@ Landing page and marketing website for the Safuverse ecosystem.
 ```
 Safuverse/
 ├── SafuAgents/          # AI agents interface
-├── SafuCourse/          # Educational platform contracts & frontend
+├── SafuAcademyy/          # Educational platform contracts & frontend
 ├── SafuLanding/         # Marketing website
 ├── Safucard/            # NFT scorecard system
 │   ├── SafucardNFT/     # Smart contracts
 │   ├── Safucardserver/  # Backend API
 │   └── frontend/        # User interface
-├── safudomains/         # DNS naming service
-├── safupad-contracts/   # Token launchpad contracts
-└── safupadsdk/          # TypeScript SDK for launchpad
+├── SafuDomains/         # DNS naming service
+├── SafuPad/   # Token launchpad contracts
+└── SafuPadSDK/          # TypeScript SDK for launchpad
 ```
 
 ## Getting Started
@@ -192,15 +191,17 @@ RPC endpoints are configured in each project's `hardhat.config.ts` or frontend c
 
 All smart contracts are deployed and verified on BSCScan. Below are the deployed contract addresses for each component:
 
-### SafuCourse - Education Platform
+### SafuAcademyy - Education Platform
 
 **BSC Mainnet (Chain ID: 56)**:
+
 - **Course Factory**: `0xE796bc81c3F372237641998c24C755e710832bA9`
 - **Level3Course**: `0xD0cB04cB20Dff62E26b7069B95Fa9fF3D4694d13`
 
-### safudomains - Naming Service
+### SafuDomains - Naming Service
 
 **BSC Mainnet (Chain ID: 56)**:
+
 - **Controller**: `0x48511b6c15fe1F89bAf6b30dBFA35bF0eAaEB751`
 - **Registry**: `0x6aEFc7ac590096c08187a9052030dA59dEd7E996`
 - **ReverseRegistrar**: `0xc070aAcE207ad5eb2A460D059785ffC9D4D2C536`
@@ -209,9 +210,10 @@ All smart contracts are deployed and verified on BSCScan. Below are the deployed
 - **PublicResolver**: `0xcAa73Cd19614523F9F3cfCa4A447120ceA8fd357`
 - **Referral**: `0x182690bD985ef02Ae44A6F8a2e71666bDe1196E2`
 
-### safupad-contracts - Token Launchpad (In Development)
+### SafuPad - Token Launchpad (In Development)
 
 **BSC Testnet (Chain ID: 97) - Unverified**:
+
 - **LaunchpadManager**: `0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c`
 - **BondingCurveDEX**: `0x14eB3B6C297ff6fefc25c0E0d289Bf8348e864f6`
 - **TokenFactory**: `0xcb7526b9598240A737237C52f852705e6A449cD0`
@@ -221,6 +223,7 @@ All smart contracts are deployed and verified on BSCScan. Below are the deployed
 ### Safucard - NFT Scorecard
 
 **BSC Mainnet (Chain ID: 56)**:
+
 - **ScorecardNFT**: Deployed with Chainlink oracle integration
 - Dynamic USD-pegged pricing ($5 USD per mint)
 
@@ -271,8 +274,8 @@ This ecosystem leverages BNB Chain's unique advantages:
 
 ## Live Deployments on BNB Chain
 
-- **SafuCourse**: https://academy.safuverse.com
-- **safudomains**: https://names.safuverse.com
+- **SafuAcademyy**: https://academy.safuverse.com
+- **SafuDomains**: https://names.safuverse.com
 - **Safucard**: https://safucard.xyz
 - **SafuAgents**: https://ai.safuverse.com
 
@@ -281,6 +284,7 @@ This ecosystem leverages BNB Chain's unique advantages:
 We welcome contributions from the community! Whether you're fixing bugs, adding features, improving documentation, or writing tests, your help is appreciated.
 
 **Quick Start:**
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes and test thoroughly
@@ -295,13 +299,14 @@ For detailed guidelines, please read our [CONTRIBUTING.md](CONTRIBUTING.md).
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 Individual projects also contain their own LICENSE files:
-- [safupad-contracts/LICENSE](safupad-contracts/LICENSE)
-- [SafuCourse/LICENSE](SafuCourse/LICENSE)
-- [safudomains/LICENSE.txt](safudomains/LICENSE.txt)
+
+- [SafuPad/LICENSE](SafuPad/LICENSE)
+- [SafuAcademyy/LICENSE]SafuAcademymy/LICENSE)
+- [SafuDomains/LICENSE.txt](SafuDomains/LICENSE.txt)
 - [Safucard/SafucardNFT/LICENSE](Safucard/SafucardNFT/LICENSE)
 - [SafuAgents/LICENSE](SafuAgents/LICENSE)
 - [SafuLanding/LICENSE](SafuLanding/LICENSE)
-- [safupadsdk/LICENSE](safupadsdk/LICENSE)
+- [SafuPadSDK/LICENSE](SafuPadSDK/LICENSE)
 
 ## Security
 

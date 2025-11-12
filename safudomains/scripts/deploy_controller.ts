@@ -1,4 +1,4 @@
-import { namehash, zeroAddress } from 'viem'
+import { namehash, zeroAddress } from '../node_modules/viem/_types/index.js'
 import { createInterfaceId } from '../test/fixtures/createInterfaceId.js'
 import hre from 'hardhat'
 const main = async () => {
@@ -6,7 +6,7 @@ const main = async () => {
 
   const { deployer, owner } = await viem.getNamedClients()
 
- /*  const registry = await viem.getContract('ENSRegistry', owner)
+  /*  const registry = await viem.getContract('ENSRegistry', owner)
   const tokenAddresses: any[] = [
     {
       token: 'cake',
@@ -25,7 +25,7 @@ const main = async () => {
   const refferal = await viem.getContract('ReferralController', owner) */
   await viem.deploy('Airdrop', [])
 
- /*  const controllerDeployment = await viem.deploy('ETHRegistrarController', [
+  /*  const controllerDeployment = await viem.deploy('ETHRegistrarController', [
     registrar.address,
     priceOracle.address,
     60n,
@@ -42,8 +42,8 @@ const main = async () => {
   const airdropHash = await controller.write.controlAirdrop([false])
 
   await viem.waitForTransactionSuccess(airdropHash)
-  
- /*  if (owner.address !== deployer.address) {
+
+  /*  if (owner.address !== deployer.address) {
     const hash = await controller.write.transferOwnership([owner.address])
     console.log(
       `Transferring ownership of ETHRegistrarController to ${owner.address} (tx: ${hash})...`,
@@ -54,7 +54,7 @@ const main = async () => {
 
   const anohash = await airdrop.write.setController([controller.address])
   await viem.waitForTransactionSuccess(anohash)
-/*   for (const tokenAddress of tokenAddresses) {
+  /*   for (const tokenAddress of tokenAddresses) {
     const hash = await controller.write.setToken([
       tokenAddress,
       tokenAddress.tokenAddress,
@@ -62,7 +62,7 @@ const main = async () => {
     console.log(`Adding ${tokenAddress} to ETHRegistrarController`)
     await viem.waitForTransactionSuccess(hash)
   } */
-/* 
+  /* 
   // Only attempt to make controller etc changes directly on testnets
   if (network.name === 'mainnet') return
 

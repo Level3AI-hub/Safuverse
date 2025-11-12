@@ -1,7 +1,11 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers.js'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { labelhash, namehash, zeroHash } from 'viem'
+import {
+  labelhash,
+  namehash,
+  zeroHash,
+} from '../../node_modules/viem/_types/index.js'
 import { getReverseNode } from '../fixtures/getReverseNode.js'
 
 async function fixture() {

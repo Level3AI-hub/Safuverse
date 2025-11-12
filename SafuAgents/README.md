@@ -355,8 +355,8 @@ If you own a .safu domain on BNB Chain:
 
 SafuAgents is part of the **Safuverse ecosystem**, all components deployed on **BNB Chain**:
 
-- **SafuCourse**: Educational platform
-- **safudomains**: ENS-like domain system on BSC
+- **SafuAcademyy**: Educational platform
+- **SafuDomains**: ENS-like domain system on BSC
 - **safupad**: Token launch platform
 - **Safucard**: NFT scorecard system
 - **SafuAgents**: AI agent platform (this repository)

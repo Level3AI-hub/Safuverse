@@ -1,9 +1,14 @@
 // scripts/estimate-deploy.ts
 import hre from 'hardhat'
-import { createPublicClient, encodeDeployData, formatUnits, http } from 'viem'
-import { namehash } from 'viem/ens'
+import {
+  createPublicClient,
+  encodeDeployData,
+  formatUnits,
+  http,
+} from '../node_modules/viem/_types'
+import { namehash } from '../node_modules/viem/_types/ens'
 import ENSRegistryArtifact from '../artifacts/contracts/registry/ENSRegistry.sol/ENSRegistry.json'
-import { defineChain } from 'viem'
+import { defineChain } from '../node_modules/viem/_types'
 
 export const plasmaTestnet = /*#__PURE__*/ defineChain({
   id: 9746,

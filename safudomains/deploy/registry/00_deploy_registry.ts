@@ -1,5 +1,5 @@
-import type { DeployFunction } from 'hardhat-deploy/types.js'
-import { zeroAddress, zeroHash } from 'viem'
+import type { DeployFunction } from 'hardhat-deploy/types'
+import { zeroAddress, zeroHash } from '../../node_modules/viem/_types'
 
 const func: DeployFunction = async function (hre) {
   const { deployments, network, viem } = hre
@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre) {
   if (network.tags.legacy) {
     const contract = await viem.deploy('LegacyENSRegistry', [], {
       client: owner,
-      artifact: await deployments.getArtifact('ENSRegistry')
+      artifact: await deployments.getArtifact('ENSRegistry'),
     })
     const legacyRegistry = await viem.getContract('LegacyENSRegistry', owner)
     const setRootHash = await legacyRegistry.write.setOwner(

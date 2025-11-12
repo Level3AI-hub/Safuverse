@@ -14,7 +14,7 @@ import {
   type AbiFunction,
   type Address,
   type Hex,
-} from 'viem'
+} from '../../node_modules/viem/_types/index.js'
 import { createInterfaceId } from '../fixtures/createInterfaceId.js'
 
 type SupportsInterfaceAbi = {

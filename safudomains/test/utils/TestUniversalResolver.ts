@@ -19,7 +19,7 @@ import {
   type Address,
   type Hex,
   type ReadContractReturnType,
-} from 'viem'
+} from '../../node_modules/viem/_types/index.js'
 import { encodedRealAnchors } from '../fixtures/anchors.js'
 import { dnsEncodeName } from '../fixtures/dnsEncodeName.js'
 import {

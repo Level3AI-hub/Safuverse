@@ -1,6 +1,6 @@
-import type { DeployFunction } from 'hardhat-deploy/types.js'
-import type { Address } from 'viem'
-import { parseUnits } from 'viem'
+import type { DeployFunction } from 'hardhat-deploy/types'
+import type { Address } from '../../node_modules/viem/_types'
+import { parseUnits } from '../../node_modules/viem/_types'
 
 const func: DeployFunction = async function (hre) {
   const { network, viem } = hre

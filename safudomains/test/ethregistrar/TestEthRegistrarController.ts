@@ -9,7 +9,7 @@ import {
   namehash,
   zeroAddress,
   zeroHash,
-} from 'viem'
+} from '../../node_modules/viem/_types/index.js'
 import { DAY, FUSES } from '../fixtures/constants.js'
 import { getReverseNode } from '../fixtures/getReverseNode.js'
 import {
@@ -216,7 +216,9 @@ describe('ETHRegistrarController', () => {
     const timestamp = await publicClient.getBlock().then((b) => b.timestamp)
 
     await expect(ethRegistrarController)
-      .write('register', args as unknown as any, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', args as unknown as any, {
+        value: BUFFERED_REGISTRATION_COST,
+      })
       .toEmitEvent('NameRegistered')
       .withArgs(
         params.label,
@@ -341,7 +343,7 @@ describe('ETHRegistrarController', () => {
       readonly `0x${string}`[],
       boolean,
       number,
-      boolean
+      boolean,
     ]
 
     await expect(ethRegistrarController)

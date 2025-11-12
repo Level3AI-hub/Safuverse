@@ -4,7 +4,7 @@ import {
   AbiParametersToPrimitiveTypes,
   ExtractAbiFunction,
   ExtractAbiFunctionNames,
-} from 'abitype'
+} from '../../node_modules/abitype/dist/types/exports/index.js'
 import { expect } from 'chai'
 import hre from 'hardhat'
 import {
@@ -15,7 +15,7 @@ import {
   encodeFunctionData,
   namehash,
   stringToHex,
-} from 'viem'
+} from '../../node_modules/viem/_types/index.js'
 import { packetToBytes } from '../fixtures/dnsEncodeName.js'
 
 type GetNodeFunctions<

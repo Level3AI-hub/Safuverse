@@ -1,4 +1,4 @@
-import { labelhash } from 'viem/ens'
+import { labelhash } from '../node_modules/viem/_types/ens'
 import hre from 'hardhat'
 async function main() {
   const { viem } = hre
@@ -23,37 +23,47 @@ async function main() {
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring root ownership to final owner (tx: ${hash1})...`,)
+  console.log(`Transferring root ownership to final owner (tx: ${hash1})...`)
   await viem.waitForTransactionSuccess(hash1)
   const hash2 = await reverse.write.transferOwnership(
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring ownership of ReverseRegistrar to final owner (tx: ${hash2})...`,)
+  console.log(
+    `Transferring ownership of ReverseRegistrar to final owner (tx: ${hash2})...`,
+  )
   await viem.waitForTransactionSuccess(hash2)
   const hash3 = await base.write.transferOwnership(
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring ownership of BaseRegistrar to final owner (tx: ${hash3})...`,)
+  console.log(
+    `Transferring ownership of BaseRegistrar to final owner (tx: ${hash3})...`,
+  )
   await viem.waitForTransactionSuccess(hash3)
   const hash4 = await controller.write.transferOwnership(
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring ownership of ETHRegistrarController to final owner (tx: ${hash4})...`,)
+  console.log(
+    `Transferring ownership of ETHRegistrarController to final owner (tx: ${hash4})...`,
+  )
   await viem.waitForTransactionSuccess(hash4)
   const hash5 = await nameWrapper.write.transferOwnership(
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring ownership of NameWrapper to final owner (tx: ${hash5})...`,)
+  console.log(
+    `Transferring ownership of NameWrapper to final owner (tx: ${hash5})...`,
+  )
   await viem.waitForTransactionSuccess(hash5)
   const hash6 = await referal.write.transferOwnership(
     ['0x235799785E387C2612d4A881919436B612ed391D'],
     { account: owner.account },
   )
-  console.log(`Transferring ownership of ReferralController to final owner (tx: ${hash6})...`,) 
+  console.log(
+    `Transferring ownership of ReferralController to final owner (tx: ${hash6})...`,
+  )
   await viem.waitForTransactionSuccess(hash6)
 }
 

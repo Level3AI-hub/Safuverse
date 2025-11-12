@@ -1,6 +1,9 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers.js'
 import { expect } from 'chai'
-import { getAddress, namehash } from 'viem'
+import {
+  getAddress,
+  namehash,
+} from '../../../node_modules/viem/_types/index.js'
 import {
   CANNOT_SET_TTL,
   CANNOT_UNWRAP,

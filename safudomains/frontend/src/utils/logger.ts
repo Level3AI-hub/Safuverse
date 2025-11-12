@@ -66,7 +66,9 @@ class Logger {
    */
   private formatMessage(level: LogLevel, message: string): string {
     const timestamp = new Date().toISOString()
-    return `${this.config.prefix} [${level.toUpperCase()}] ${timestamp} - ${message}`
+    return `${
+      this.config.prefix
+    } [${level.toUpperCase()}] ${timestamp} - ${message}`
   }
 
   /**
@@ -102,11 +104,15 @@ class Logger {
     const formattedMessage = this.formatMessage(LogLevel.ERROR, message)
 
     if (error instanceof Error) {
-      console.error(formattedMessage, {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      }, ...args)
+      console.error(
+        formattedMessage,
+        {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        },
+        ...args,
+      )
 
       // TODO: Send to error tracking service (Sentry, etc.)
       // this.sendToErrorTracking(message, error)

@@ -188,8 +188,8 @@ While primarily deployed for BNB Chain:
 
 SafuAgents is part of the larger Safuverse ecosystem on BNB Chain:
 
-- **SafuCourse**: Educational platform integration
-- **safudomains**: Domain name resolution
+- **SafuAcademyy**: Educational platform integration
+- **SafuDomains**: Domain name resolution
 - **safupad**: Token launch platform interaction
 - **Safucard**: NFT scorecard display
 

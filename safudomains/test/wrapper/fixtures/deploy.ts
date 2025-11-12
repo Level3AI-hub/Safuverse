@@ -1,5 +1,10 @@
 import hre from 'hardhat'
-import { labelhash, namehash, zeroAddress, zeroHash } from 'viem'
+import {
+  labelhash,
+  namehash,
+  zeroAddress,
+  zeroHash,
+} from '../../../node_modules/viem/_types'
 
 export async function deployNameWrapperFixture() {
   const accounts = await hre.viem

@@ -1,5 +1,5 @@
 import type { DeployFunction } from 'hardhat-deploy/types.js'
-import { namehash, zeroAddress } from 'viem'
+import { namehash, zeroAddress } from '../../node_modules/viem/_types/index.js'
 import { getInterfaceId } from '../../test/fixtures/createInterfaceId.js'
 
 const func: DeployFunction = async function (hre) {

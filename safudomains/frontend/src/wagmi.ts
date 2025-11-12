@@ -1,6 +1,10 @@
 import { http, createConfig } from 'wagmi'
-import { bscTestnet } from 'wagmi/chains'
-import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
+import { bscTestnet } from 'node_modules/wagmi/dist/types/exports/chains'
+import {
+  coinbaseWallet,
+  injected,
+  walletConnect,
+} from 'node_modules/wagmi/dist/types/exports/connectors'
 
 export const config = createConfig({
   chains: [bscTestnet],

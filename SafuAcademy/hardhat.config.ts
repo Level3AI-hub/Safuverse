@@ -5,7 +5,7 @@ import "dotenv/config"
 
 const { API_URL, PRIVATE_KEY } = process.env
 
-import './tasks/etherscan-multichain.ts'
+import './tasks/etherscan-multichain.js'
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [

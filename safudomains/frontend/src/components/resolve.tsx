@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { keccak256, toBytes } from 'viem'
+import { keccak256, toBytes } from 'node_modules/viem/_types'
 import { useAccount } from 'wagmi'
 import Update from './updateTextRecords'
 import Unwrap from './unwrap'

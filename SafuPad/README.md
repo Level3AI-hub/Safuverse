@@ -1,4 +1,4 @@
-# safupad-contracts - Token Launchpad Platform
+# SafuPad - Token Launchpad Platform
 
 Smart contract system for fair token launches **deployed on BNB Chain** (BNB Smart Chain). Features bonding curve mechanics, automatic PancakeSwap integration, and two launch modes: Project Raise and Instant Launch.
 
@@ -161,7 +161,7 @@ Chainlink integration for BNB/USD pricing on BSC.
 ### Installation
 
 ```bash
-cd safupad-contracts
+cd SafuPad
 npm install
 ```
 
@@ -388,8 +388,7 @@ Estimated gas costs on BSC (very affordable):
 
 safupad integrates with other Safuverse components on BNB Chain:
 
-- **safudomains**: Enhanced launch permissions for .safu domain holders
-- **SafuCourse**: Token economics education courses
+- **SafuAcademyy**: Token economics education courses
 - **Safucard**: Project scorecard NFTs
 - **SafuAgents**: AI-powered launch analytics
 

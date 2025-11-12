@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { namehash } from 'viem'
+import { namehash } from 'node_modules/viem/_types'
 import { useWriteContract } from 'wagmi'
 import Modal from 'react-modal'
 import { constants } from '../constant'
@@ -46,10 +46,10 @@ const ChangeResolver = ({
     isPending: setResolverPending,
     writeContractAsync: setResolverContract,
   } = useWriteContract()
-   function onRequestClose(): void {
-     setNext(0)
-     setIsOpen(false)
-   }
+  function onRequestClose(): void {
+    setNext(0)
+    setIsOpen(false)
+  }
 
   const [next, setNext] = useState(0)
   const [resolver, setResolverState] = useState(
@@ -65,8 +65,7 @@ const ChangeResolver = ({
           functionName: 'setResolver',
           args: [namehash(`${label}.safu`), resolver],
         })
-      } catch (error) {
-      }
+      } catch (error) {}
     } else {
       try {
         await setResolverContract({

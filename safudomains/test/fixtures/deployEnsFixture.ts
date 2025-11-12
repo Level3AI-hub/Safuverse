@@ -1,7 +1,11 @@
 import type { GetContractReturnType } from '@nomicfoundation/hardhat-viem/types.js'
 import hre from 'hardhat'
-import type { ArtifactsMap } from 'hardhat/types'
-import { labelhash, namehash, type Address } from 'viem'
+import type { ArtifactsMap } from 'hardhat/types/index.js'
+import {
+  labelhash,
+  namehash,
+  type Address,
+} from '../../node_modules/viem/_types/index.js'
 import { createInterfaceId } from './createInterfaceId.js'
 
 export const ZERO_HASH =

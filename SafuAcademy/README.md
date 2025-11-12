@@ -1,4 +1,4 @@
-# SafuCourse (EduFi-contracts)
+# SafuAcademyy (EduFi-contracts)
 
 Decentralized educational platform **deployed on BNB Chain** with on-chain courses linked to domain ownership. This smart contract system enables gasless course enrollment and progress tracking through a backend relayer integration on BNB Smart Chain.
 
@@ -32,14 +32,14 @@ networks: {
 ## Features
 
 - **Gasless Transactions**: Zero gas fees for users through a backend relayer controlled by the owner on BNB Chain
-- **Domain-Gated Access**: Only domain owners from the safudomains system (deployed on BSC) can enroll
+- **Domain-Gated Access**: Only domain owners from the SafuDomains system (deployed on BSC) can enroll
 - **On-Chain Progress**: Course completion tracked transparently on BNB Chain
 - **Course Creation**: Deploy courses as individual smart contracts on BSC
 
 
 ## How It Works
 
-1. Users must own a primary .safu domain from the safudomains system on BNB Chain
+1. Users must own a primary .safu domain from the SafuDomains system on BNB Chain
 2. Course creators deploy courses via the CourseFactory contract
 3. Domain owners enroll in courses without paying gas (relayer-enabled)
 4. Progress is tracked on-chain on BNB Chain
@@ -54,7 +54,7 @@ networks: {
 
 ### Integration
 
-- **IReverseRegistrar.sol**: Integration with safudomains DNS on BNB Chain
+- **IReverseRegistrar.sol**: Integration with SafuDomains DNS on BNB Chain
 
 ## Getting Started
 
@@ -70,7 +70,7 @@ networks: {
 
 ```bash
 git clone https://github.com/Level3AI-hub/Safuverse.git
-cd Safuverse/SafuCourse
+cd Safuverse/SafuAcademyy
 npm install
 ```
 
@@ -138,7 +138,7 @@ npx hardhat run scripts/createCourse.ts --network bsc
 
 ### Prerequisites for Course Enrollment
 
-1. **Domain Ownership**: User must own a .safu domain from safudomains (deployed on BNB Chain)
+1. **Domain Ownership**: User must own a .safu domain from SafuDomains (deployed on BNB Chain)
 2. **Funded Relayer**: Ensure your Backend relayer has BNB for gas
 3. **Deployed Courses**: Course contracts must be deployed on BSC
 
@@ -183,14 +183,14 @@ const config: HardhatUserConfig = {
 
 - **Low Gas Costs**: Enables gasless transactions for users via affordable relayer operations
 - **Fast Confirmations**: Quick enrollment and progress updates
-- **BSC Ecosystem**: Integration with other Safuverse components (safudomains, safupad)
+- **BSC Ecosystem**: Integration with other Safuverse components (SafuDomains, safupad)
 - **Proven Infrastructure**: Reliable network for educational platform operations
 
 ## Integration with Safuverse Ecosystem
 
-SafuCourse integrates with other BNB Chain components:
+SafuAcademyy integrates with other BNB Chain components:
 
-- **safudomains**: Domain ownership verification on BSC
+- **SafuDomains**: Domain ownership verification on BSC
 - **Safucard**: NFT scorecard integration
 - **SafuAgents**: AI-powered course recommendations
 
@@ -198,17 +198,17 @@ All components deployed on BNB Chain for seamless interoperability.
 
 ## Frontend Application
 
-The SafuCourse platform is live at [academy.safuverse.com](https://academy.safuverse.com), providing a user-friendly interface for course enrollment, progress tracking, and educational content delivery on BNB Chain.
+The SafuAcademyy platform is live at [academy.safuverse.com](https://academy.safuverse.com), providing a user-friendly interface for course enrollment, progress tracking, and educational content delivery on BNB Chain.
 
 ### Frontend Status
 
-The frontend application is **fully implemented** and operational. The `frontend/` directory contains the complete source code for the SafuCourse web application.
+The frontend application is **fully implemented** and operational. The `frontend/` directory contains the complete source code for the SafuAcademyy web application.
 
 **Live Application**: [academy.safuverse.com](https://academy.safuverse.com)
 
 ### Frontend Technology Stack
 
-The SafuCourse frontend is built with modern web technologies:
+The SafuAcademyy frontend is built with modern web technologies:
 
 - **Framework**: React 18.2.0 with TypeScript
 - **Build Tool**: Vite 5.2.11 for fast, modern development
@@ -245,7 +245,7 @@ The frontend source code is available in the `frontend/` directory. Follow these
 
 ```bash
 # Navigate to frontend directory
-cd SafuCourse/frontend
+cd SafuAcademyy/frontend
 
 # Install dependencies
 npm install
@@ -397,7 +397,7 @@ The frontend uses Wagmi hooks for contract interactions:
 
 #### 5. **Domain-Gated Access**
    - Verify .safu domain ownership via `getPrimaryName` hook
-   - Automatic eligibility checking using safudomains reverse registrar
+   - Automatic eligibility checking using SafuDomains reverse registrar
    - Gasless enrollment via relayer transactions
    - User points and achievement tracking
 
@@ -412,7 +412,7 @@ The frontend uses Wagmi hooks for contract interactions:
 #### Build for Production
 
 ```bash
-cd SafuCourse/frontend
+cd SafuAcademyy/frontend
 npm run build
 ```
 
@@ -434,7 +434,7 @@ The project includes a `vercel.json` configuration for Vercel deployment:
    - `VITE_API_KEY`
    - `VITE_API_URL`
    - `VITE_PINATA_KEY`
-3. Deploy from the `SafuCourse/frontend` directory
+3. Deploy from the `SafuAcademyy/frontend` directory
 4. Vercel automatically builds and deploys on push
 
 **Alternative Deployment Options**:
@@ -445,9 +445,9 @@ The project includes a `vercel.json` configuration for Vercel deployment:
 
 ### Integration with Safuverse Ecosystem
 
-The SafuCourse frontend integrates with:
+The SafuAcademyy frontend integrates with:
 
-1. **safudomains** - Verify domain ownership for enrollment
+1. **SafuDomains** - Verify domain ownership for enrollment
 2. **Safucard** - Issue NFT-based course certificates
 3. **SafuAgents** - AI-powered course recommendations
 4. **SafuLanding** - Ecosystem navigation and discovery
@@ -489,7 +489,7 @@ All integrations occur seamlessly on BNB Chain.
 
 3. **Domain Verification Issues**
    - Confirm user owns a .safu domain on BNB Chain
-   - Check safudomains reverse registrar integration
+   - Check SafuDomains reverse registrar integration
    - Verify the primary name is set for the wallet address
    - Use the `getPrimaryName` hook to debug domain lookup
 
@@ -564,12 +564,12 @@ REPORT_GAS=true npx hardhat test
 ## Project Structure
 
 ```
-SafuCourse/
+SafuAcademyy/
 ├── contracts/                      # Smart contracts
 │   ├── CourseFactory.sol          # Course deployment factory
 │   ├── Coursecontract.sol         # Main course logic (Level3Course)
 │   ├── ILevel3Course.sol          # Course interface
-│   ├── INameResolver.sol          # safudomains DNS integration
+│   ├── INameResolver.sol          # SafuDomains DNS integration
 │   ├── ENS.sol                    # ENS registry integration
 │   └── IReverseRegistrar.sol      # Reverse registrar integration
 ├── frontend/                       # React web application

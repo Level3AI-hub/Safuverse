@@ -5,8 +5,8 @@ import {
   useSignTypedData,
   useWaitForTransactionReceipt,
 } from 'wagmi'
-import type { Abi } from 'abitype'
-import { encodeFunctionData } from 'viem'
+import type { Abi } from 'node_modules/abitype/dist/types/exports'
+import { encodeFunctionData } from 'node_modules/viem/_types'
 
 type ForwardRequest = {
   from: `0x${string}`
@@ -95,7 +95,7 @@ export function useGaslessContractWrite({
     args: [
       userAddress ??
         ('0x0000000000000000000000000000000000000000' as `0x${string}`),
-    ]
+    ],
   })
 
   // Convert returned nonce to bigint (viem returns bigint)

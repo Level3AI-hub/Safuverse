@@ -1,6 +1,6 @@
 import { network } from 'hardhat'
 import hre from 'hardhat'
-import type { Address } from 'viem'
+import type { Address } from '../node_modules/viem/_types'
 async function main() {
   const { deployments, viem } = hre
   const { run } = deployments

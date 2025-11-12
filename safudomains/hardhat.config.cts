@@ -14,7 +14,7 @@ import 'hardhat-deploy'
 import '@nomicfoundation/hardhat-ethers'
 import { HardhatUserConfig } from 'hardhat/config'
 
-import('@ensdomains/hardhat-chai-matchers-viem')
+import('./node_modules/@ensdomains/hardhat-chai-matchers-viem/dist/types')
 // hardhat actions
 import './tasks/esm_fix.cjs'
 
