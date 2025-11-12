@@ -22,7 +22,7 @@ const myTheme = merge(darkTheme(), {
 } as Theme);
 
 export const config = getDefaultConfig({
-  appName: "ScorecardSafu",
+  appName: "Safucard",
   projectId: import.meta.env.VITE_REOWN as string,
   chains: [bsc],
   transports: {

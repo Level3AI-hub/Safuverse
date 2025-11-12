@@ -44,7 +44,7 @@ ENS-inspired domain name system with custom .safu TLD deployed on BNB Chain.
 
 **Directory**: `safudomains/`
 
-### 3. safupad-contracts - Token Launchpad
+### 3. safupad-contracts - Token Launchpad (In Development)
 
 Fair launch platform with bonding curve mechanics and automatic PancakeSwap integration on BNB Chain.
 
@@ -206,7 +206,7 @@ All smart contracts are deployed and verified on BSCScan. Below are the deployed
 - **PublicResolver**: `0xcAa73Cd19614523F9F3cfCa4A447120ceA8fd357`
 - **Referral**: `0x182690bD985ef02Ae44A6F8a2e71666bDe1196E2`
 
-### safupad-contracts - Token Launchpad
+### safupad-contracts - Token Launchpad (In Development)
 
 **BSC Testnet (Chain ID: 97) - Unverified**:
 - **LaunchpadManager**: `0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c`
