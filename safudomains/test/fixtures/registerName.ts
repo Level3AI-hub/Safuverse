@@ -87,7 +87,17 @@ export const commitName = async (
   const [deployer] = await hre.viem.getWalletClients()
 
   // makeCommitment takes 9 params (without referree), while register takes 10 params
-  const commitmentArgs = args.slice(0, 9) as Mutable<typeof args>
+  const commitmentArgs = args.slice(0, 9) as [
+    string,
+    `0x${string}`,
+    bigint,
+    `0x${string}`,
+    `0x${string}`,
+    readonly `0x${string}`[],
+    boolean,
+    number,
+    boolean
+  ]
   const commitmentHash = await ethRegistrarController.read.makeCommitment(commitmentArgs)
   await ethRegistrarController.write.commit([commitmentHash], {
     account: deployer.account,
@@ -115,7 +125,17 @@ export const registerName = async (
   const [deployer] = await hre.viem.getWalletClients()
 
   // makeCommitment takes 9 params (without referree), while register takes 10 params
-  const commitmentArgs = args.slice(0, 9) as Mutable<typeof args>
+  const commitmentArgs = args.slice(0, 9) as [
+    string,
+    `0x${string}`,
+    bigint,
+    `0x${string}`,
+    `0x${string}`,
+    readonly `0x${string}`[],
+    boolean,
+    number,
+    boolean
+  ]
   const commitmentHash = await ethRegistrarController.read.makeCommitment(commitmentArgs)
   await ethRegistrarController.write.commit([commitmentHash], {
     account: deployer.account,
