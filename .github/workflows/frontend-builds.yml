@@ -1,11 +1,12 @@
 name: Frontend Builds CI
 
 on:
-  push:
-    branches: [ main, develop, claude/** ]
-  pull_request:
-    branches: [ main, develop ]
   workflow_dispatch:
+  # Disabled for now - only runs manually
+  # push:
+  #   branches: [ main, develop, claude/** ]
+  # pull_request:
+  #   branches: [ main, develop ]
 
 jobs:
   build-safucourse-frontend:
