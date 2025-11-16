@@ -10,9 +10,10 @@ export class PriceOracle extends BaseContract {
     address: string,
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: any // SafuPadGraph type imported in BaseContract
   ) {
-    super(address, PriceOracleABI, provider, signer, eventQueryProvider);
+    super(address, PriceOracleABI, provider, signer, eventQueryProvider, graph);
   }
   /**
    * Get current BNB price in USD (8 decimals)

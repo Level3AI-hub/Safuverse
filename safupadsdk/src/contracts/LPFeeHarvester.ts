@@ -17,9 +17,10 @@ export class LPFeeHarvester extends BaseContract {
     address: string,
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: any // SafuPadGraph type imported in BaseContract
   ) {
-    super(address, LPFeeHarvesterABI, provider, signer, eventQueryProvider);
+    super(address, LPFeeHarvesterABI, provider, signer, eventQueryProvider, graph);
   }
 
   /**

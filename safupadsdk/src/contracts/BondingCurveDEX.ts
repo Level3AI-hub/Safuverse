@@ -54,9 +54,10 @@ export class BondingCurveDEX extends BaseContract {
     address: string,
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: any // SafuPadGraph type imported in BaseContract
   ) {
-    super(address, BondingCurveDEXABI, provider, signer, eventQueryProvider);
+    super(address, BondingCurveDEXABI, provider, signer, eventQueryProvider, graph);
   }
 
   /**
@@ -361,10 +362,31 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get total trading volume for a token (all time)
+   * Uses The Graph if available, falls back to events
    */
   async getTotalVolume(tokenAddress: string, fromBlock: number = 0): Promise<VolumeData> {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      const pool = await this.graph.getPool(tokenAddress.toLowerCase());
+      if (pool) {
+        return {
+          totalBuyVolumeBNB: BigInt(pool.totalVolume) / 2n, // Rough estimate
+          totalSellVolumeBNB: BigInt(pool.totalVolume) / 2n, // Rough estimate
+          totalVolumeBNB: BigInt(pool.totalVolume),
+          totalBuyVolumeTokens: 0n, // Not available in pool stats
+          totalSellVolumeTokens: 0n, // Not available in pool stats
+          buyCount: Number(pool.totalBuys),
+          sellCount: Number(pool.totalSells),
+          uniqueBuyers: 0, // Would need separate query
+          uniqueSellers: 0, // Would need separate query
+          uniqueTraders: 0, // Would need separate query
+        };
+      }
+    }
+
+    // ⚠️ Fallback to events
     const latestBlock = await this.provider.getBlockNumber();
     return this.getVolumeForPeriod(tokenAddress, fromBlock, latestBlock);
   }
@@ -373,6 +395,7 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get trading volume for a specific time period
+   * Uses The Graph if available, falls back to events
    */
   async getVolumeForPeriod(
     tokenAddress: string,
@@ -382,6 +405,43 @@ export class BondingCurveDEX extends BaseContract {
   ): Promise<VolumeData> {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph && minTimestamp) {
+      const trades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: 1000, orderBy: 'timestamp', orderDirection: 'desc' }
+      );
+
+      // Filter by timestamp
+      const filteredTrades = trades.filter((t: any) => Number(t.timestamp) >= minTimestamp);
+
+      const buyTrades = filteredTrades.filter((t: any) => t.isBuy);
+      const sellTrades = filteredTrades.filter((t: any) => !t.isBuy);
+
+      const buyVolumeBNB = buyTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+      const sellVolumeBNB = sellTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+      const buyVolumeTokens = buyTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.tokenAmount), 0n);
+      const sellVolumeTokens = sellTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.tokenAmount), 0n);
+
+      const buyers = new Set(buyTrades.map((t: any) => t.trader.toLowerCase()));
+      const sellers = new Set(sellTrades.map((t: any) => t.trader.toLowerCase()));
+      const allTraders = new Set([...buyers, ...sellers]);
+
+      return {
+        totalBuyVolumeBNB: buyVolumeBNB,
+        totalSellVolumeBNB: sellVolumeBNB,
+        totalVolumeBNB: buyVolumeBNB + sellVolumeBNB,
+        totalBuyVolumeTokens: buyVolumeTokens,
+        totalSellVolumeTokens: sellVolumeTokens,
+        buyCount: buyTrades.length,
+        sellCount: sellTrades.length,
+        uniqueBuyers: buyers.size,
+        uniqueSellers: sellers.size,
+        uniqueTraders: allTraders.size,
+      };
+    }
+
+    // ⚠️ Fallback to events
     const [buyEvents, sellEvents] = await Promise.all([
       this.getTokensBoughtEvents(tokenAddress, fromBlock, toBlock),
       this.getTokensSoldEvents(tokenAddress, fromBlock, toBlock),
@@ -501,6 +561,7 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get recent trades for a token
+   * Uses The Graph if available, falls back to events
    */
   async getRecentTrades(
     tokenAddress: string,
@@ -509,6 +570,28 @@ export class BondingCurveDEX extends BaseContract {
   ): Promise<TradeData[]> {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      const trades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: limit, orderBy: 'timestamp', orderDirection: 'desc' }
+      );
+
+      return trades.map((t: any) => ({
+        type: t.isBuy ? 'buy' : 'sell',
+        trader: t.trader,
+        tokenAddress: t.token.id,
+        bnbAmount: BigInt(t.bnbAmount),
+        tokenAmount: BigInt(t.tokenAmount),
+        price: BigInt(t.price),
+        feeRate: BigInt(t.feeRate),
+        blockNumber: Number(t.blockNumber),
+        timestamp: Number(t.timestamp),
+        txHash: t.transactionHash,
+      }));
+    }
+
+    // ⚠️ Fallback to events (slower, use only when Graph not available)
     const latestBlock = await this.provider.getBlockNumber();
     const startBlock = fromBlock || Math.max(0, latestBlock - 10000); // Last ~8 hours
 

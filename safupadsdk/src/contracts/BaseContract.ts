@@ -2,6 +2,7 @@
 import { ethers } from 'ethers';
 import { TxOptions, EventFilterOptions, ContractError } from '../types';
 import { ERROR_MESSAGES } from '../constants';
+import type { SafuPadGraph } from '../graph';
 
 /**
  * Base contract class with common functionality
@@ -12,19 +13,22 @@ export abstract class BaseContract {
   protected eventQueryProvider: ethers.Provider; // Separate provider for event queries (uses Alchemy if configured)
   protected signer?: ethers.Signer;
   protected address: string;
+  protected graph?: SafuPadGraph; // The Graph client for efficient data queries
 
   constructor(
     address: string,
     abi: any[],
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: SafuPadGraph
   ) {
     this.address = address;
     this.provider = provider;
     this.signer = signer;
     // Use eventQueryProvider if provided, otherwise use the regular provider
     this.eventQueryProvider = eventQueryProvider || provider;
+    this.graph = graph;
 
     if (signer) {
       this.contract = new ethers.Contract(address, abi, signer);
@@ -64,6 +68,20 @@ export abstract class BaseContract {
       this.contract.interface,
       signer
     );
+  }
+
+  /**
+   * Update graph client
+   */
+  updateGraph(graph: SafuPadGraph): void {
+    this.graph = graph;
+  }
+
+  /**
+   * Check if The Graph client is available
+   */
+  protected hasGraphSupport(): boolean {
+    return this.graph !== undefined;
   }
 
   /**
