@@ -48,9 +48,10 @@ export class LaunchpadManager extends BaseContract {
     address: string,
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: any // SafuPadGraph type imported in BaseContract
   ) {
-    super(address, LaunchpadManagerABI, provider, signer, eventQueryProvider);
+    super(address, LaunchpadManagerABI, provider, signer, eventQueryProvider, graph);
   }
 
   /**

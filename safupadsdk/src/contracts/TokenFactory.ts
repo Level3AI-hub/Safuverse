@@ -11,9 +11,10 @@ export class TokenFactory extends BaseContract {
     address: string,
     provider: ethers.Provider,
     signer?: ethers.Signer,
-    eventQueryProvider?: ethers.Provider
+    eventQueryProvider?: ethers.Provider,
+    graph?: any // SafuPadGraph type imported in BaseContract
   ) {
-    super(address, TokenFactoryABI, provider, signer, eventQueryProvider);
+    super(address, TokenFactoryABI, provider, signer, eventQueryProvider, graph);
   }
   /**
    * Get total number of tokens created
