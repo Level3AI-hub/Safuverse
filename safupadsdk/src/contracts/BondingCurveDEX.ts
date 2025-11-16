@@ -918,10 +918,24 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get holder count estimate from trading activity
+   * Uses The Graph if available, falls back to events
    */
   async getEstimatedHolderCount(tokenAddress: string, fromBlock: number = 0): Promise<number> {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster and more accurate!)
+    if (this.hasGraphSupport() && this.graph) {
+      const holders = await this.graph.getTokenHolders(tokenAddress.toLowerCase(), {
+        first: 1000,
+        orderBy: 'balance',
+        orderDirection: 'desc'
+      });
+
+      // Count holders with positive balance
+      return holders.filter((h: any) => BigInt(h.balance) > 0n).length;
+    }
+
+    // ⚠️ Fallback to events (slower and less accurate)
     const latestBlock = await this.provider.getBlockNumber();
     const [buyEvents, sellEvents] = await Promise.all([
       this.getTokensBoughtEvents(tokenAddress, fromBlock, latestBlock),
@@ -955,6 +969,7 @@ export class BondingCurveDEX extends BaseContract {
   /**
    * Get 24h trading volume in BNB
    * Returns both the bigint value and formatted string
+   * Uses The Graph if available, falls back to events
    */
   async get24hVolume(tokenAddress: string): Promise<{
     volumeBNB: bigint;
@@ -965,6 +980,36 @@ export class BondingCurveDEX extends BaseContract {
   }> {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      const currentTime = Math.floor(Date.now() / 1000);
+      const time24hAgo = currentTime - (24 * 60 * 60);
+
+      const allTrades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: 1000, orderBy: 'timestamp', orderDirection: 'desc' }
+      );
+
+      // Filter trades from last 24 hours
+      const recent24hTrades = allTrades.filter((t: any) => Number(t.timestamp) >= time24hAgo);
+
+      const buyTrades = recent24hTrades.filter((t: any) => t.isBuy);
+      const sellTrades = recent24hTrades.filter((t: any) => !t.isBuy);
+
+      const buyVolume = buyTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+      const sellVolume = sellTrades.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+      const totalVolume = buyVolume + sellVolume;
+
+      return {
+        volumeBNB: totalVolume,
+        volumeFormatted: this.safeFormatEther(totalVolume),
+        buyVolumeBNB: buyVolume,
+        sellVolumeBNB: sellVolume,
+        tradeCount: recent24hTrades.length,
+      };
+    }
+
+    // ⚠️ Fallback to events (slower, use only when Graph not available)
     // Calculate blocks in last 24 hours (BSC: ~3 seconds per block = ~28,800 blocks/day)
     const latestBlock = await this.provider.getBlockNumber();
     const blocksPerDay = 28800;
