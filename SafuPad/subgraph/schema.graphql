@@ -1,4 +1,4 @@
-type Token @entity(immutable: true) {
+type Token @entity(immutable: false) {
   id: ID! # Token address
   name: String!
   symbol: String!
@@ -27,7 +27,7 @@ type Token @entity(immutable: true) {
   totalTrades: BigInt!
 }
 
-type Launch @entity(immutable: true) {
+type Launch @entity(immutable: false) {
   id: ID! # Token address
   token: Token!
   founder: Bytes!
@@ -71,7 +71,7 @@ enum LaunchType {
   INSTANT_LAUNCH
 }
 
-type Contribution @entity(immutable: true) {
+type Contribution @entity(immutable: false) {
   id: ID! # token-contributor
   launch: Launch!
   contributor: Bytes!
@@ -81,7 +81,7 @@ type Contribution @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type Pool @entity(immutable: true) {
+type Pool @entity(immutable: false) {
   id: ID! # Token address
   token: Token!
   creator: Bytes!
@@ -143,7 +143,7 @@ type Trade @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type TokenHolder @entity(immutable: true) {
+type TokenHolder @entity(immutable: false) {
   id: ID! # token-holder
   token: Token!
   holder: Bytes!
@@ -176,7 +176,7 @@ enum TransactionType {
   SELL
 }
 
-type CreatorFees @entity(immutable: true) {
+type CreatorFees @entity(immutable: false) {
   id: ID! # token-creator
   token: Token!
   creator: Bytes!
@@ -187,7 +187,7 @@ type CreatorFees @entity(immutable: true) {
   claimCount: BigInt!
 }
 
-type PlatformStats @entity(immutable: true) {
+type PlatformStats @entity(immutable: false) {
   id: ID! # "platform"
   # Totals
   totalLaunches: BigInt!
@@ -204,7 +204,7 @@ type PlatformStats @entity(immutable: true) {
   lastUpdated: BigInt!
 }
 
-type DailyStats @entity(immutable: true) {
+type DailyStats @entity(immutable: false) {
   id: ID! # day-timestamp
   date: BigInt!
 
