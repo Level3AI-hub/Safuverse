@@ -483,6 +483,7 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get trading volume grouped by time intervals (hourly, daily, etc.)
+   * Uses The Graph if available, falls back to events
    */
   async getVolumeHistory(
     tokenAddress: string,
@@ -492,8 +493,80 @@ export class BondingCurveDEX extends BaseContract {
   ): Promise<Array<VolumeData & { timestamp: number; intervalStart: number }>> {
     this.validateAddress(tokenAddress);
 
-    const latestBlock = await this.provider.getBlockNumber();
     const currentTime = Math.floor(Date.now() / 1000);
+
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      // Calculate time range
+      const startTime = currentTime - (periods * intervalSeconds);
+
+      // Fetch all trades in the time range
+      const allTrades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: 1000, orderBy: 'timestamp', orderDirection: 'desc' }
+      );
+
+      // Filter trades within our time range
+      const relevantTrades = allTrades.filter((t: any) => {
+        const tradeTime = Number(t.timestamp);
+        return tradeTime >= startTime && tradeTime <= currentTime;
+      });
+
+      // Group trades by interval
+      const intervals: Map<number, { buys: any[]; sells: any[] }> = new Map();
+
+      for (const trade of relevantTrades) {
+        const tradeTime = Number(trade.timestamp);
+        const intervalStart = Math.floor(tradeTime / intervalSeconds) * intervalSeconds;
+
+        if (!intervals.has(intervalStart)) {
+          intervals.set(intervalStart, { buys: [], sells: [] });
+        }
+
+        if (trade.isBuy) {
+          intervals.get(intervalStart)!.buys.push(trade);
+        } else {
+          intervals.get(intervalStart)!.sells.push(trade);
+        }
+      }
+
+      // Generate results for all periods
+      const results: Array<VolumeData & { timestamp: number; intervalStart: number }> = [];
+
+      for (let i = 0; i < periods; i++) {
+        const intervalStart = currentTime - (periods - i) * intervalSeconds;
+        const data = intervals.get(intervalStart) || { buys: [], sells: [] };
+
+        const buyVolumeBNB = data.buys.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+        const sellVolumeBNB = data.sells.reduce((sum: bigint, t: any) => sum + BigInt(t.bnbAmount), 0n);
+        const buyVolumeTokens = data.buys.reduce((sum: bigint, t: any) => sum + BigInt(t.tokenAmount), 0n);
+        const sellVolumeTokens = data.sells.reduce((sum: bigint, t: any) => sum + BigInt(t.tokenAmount), 0n);
+
+        const buyers = new Set(data.buys.map((t: any) => t.trader.toLowerCase()));
+        const sellers = new Set(data.sells.map((t: any) => t.trader.toLowerCase()));
+        const allTraders = new Set([...buyers, ...sellers]);
+
+        results.push({
+          timestamp: intervalStart + intervalSeconds,
+          intervalStart,
+          totalBuyVolumeBNB: buyVolumeBNB,
+          totalSellVolumeBNB: sellVolumeBNB,
+          totalVolumeBNB: buyVolumeBNB + sellVolumeBNB,
+          totalBuyVolumeTokens: buyVolumeTokens,
+          totalSellVolumeTokens: sellVolumeTokens,
+          buyCount: data.buys.length,
+          sellCount: data.sells.length,
+          uniqueBuyers: buyers.size,
+          uniqueSellers: sellers.size,
+          uniqueTraders: allTraders.size,
+        });
+      }
+
+      return results;
+    }
+
+    // ⚠️ Fallback to events (slower, use only when Graph not available)
+    const latestBlock = await this.provider.getBlockNumber();
 
     // Calculate blocks to fetch (estimate)
     const totalSeconds = intervalSeconds * periods;
@@ -699,6 +772,7 @@ export class BondingCurveDEX extends BaseContract {
 
   /**
    * Get top traders by volume
+   * Uses The Graph if available, falls back to events
    */
   async getTopTraders(
     tokenAddress: string,
@@ -717,6 +791,65 @@ export class BondingCurveDEX extends BaseContract {
   > {
     this.validateAddress(tokenAddress);
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      const allTrades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: 1000, orderBy: 'timestamp', orderDirection: 'desc' }
+      );
+
+      // Aggregate by trader
+      const traderMap = new Map<
+        string,
+        {
+          buyVolumeBNB: bigint;
+          sellVolumeBNB: bigint;
+          buyCount: number;
+          sellCount: number;
+          netTokens: bigint;
+        }
+      >();
+
+      for (const trade of allTrades) {
+        const addr = trade.trader.toLowerCase();
+        const existing = traderMap.get(addr) || {
+          buyVolumeBNB: 0n,
+          sellVolumeBNB: 0n,
+          buyCount: 0,
+          sellCount: 0,
+          netTokens: 0n,
+        };
+
+        if (trade.isBuy) {
+          existing.buyVolumeBNB += BigInt(trade.bnbAmount);
+          existing.buyCount++;
+          existing.netTokens += BigInt(trade.tokenAmount);
+        } else {
+          existing.sellVolumeBNB += BigInt(trade.bnbAmount);
+          existing.sellCount++;
+          existing.netTokens -= BigInt(trade.tokenAmount);
+        }
+
+        traderMap.set(addr, existing);
+      }
+
+      // Convert to array and sort by total volume
+      const traders = Array.from(traderMap.entries())
+        .map(([address, data]) => ({
+          address,
+          buyVolumeBNB: data.buyVolumeBNB,
+          sellVolumeBNB: data.sellVolumeBNB,
+          totalVolumeBNB: data.buyVolumeBNB + data.sellVolumeBNB,
+          buyCount: data.buyCount,
+          sellCount: data.sellCount,
+          netTokens: data.netTokens,
+        }))
+        .sort((a, b) => (a.totalVolumeBNB > b.totalVolumeBNB ? -1 : 1));
+
+      return traders.slice(0, limit);
+    }
+
+    // ⚠️ Fallback to events (slower, use only when Graph not available)
     const latestBlock = await this.provider.getBlockNumber();
     const [buyEvents, sellEvents] = await Promise.all([
       this.getTokensBoughtEvents(tokenAddress, fromBlock, latestBlock),
@@ -858,6 +991,7 @@ export class BondingCurveDEX extends BaseContract {
   /**
    * Get 24h price change percentage
    * Returns the price change over the last 24 hours
+   * Uses The Graph if available, falls back to events
    */
   async get24hPriceChange(tokenAddress: string): Promise<{
     priceChange: number;
@@ -871,6 +1005,45 @@ export class BondingCurveDEX extends BaseContract {
     const poolInfo = await this.getPoolInfo(tokenAddress);
     const currentPrice = poolInfo.currentPrice;
 
+    // ✅ Use The Graph if available (much faster!)
+    if (this.hasGraphSupport() && this.graph) {
+      const currentTime = Math.floor(Date.now() / 1000);
+      const time24hAgo = currentTime - (24 * 60 * 60);
+
+      const allTrades = await this.graph.getTrades(
+        { token: tokenAddress.toLowerCase() },
+        { first: 1000, orderBy: 'timestamp', orderDirection: 'asc' }
+      );
+
+      // Find the first trade around 24h ago
+      const trade24hAgo = allTrades.find((t: any) => Number(t.timestamp) >= time24hAgo);
+
+      // If no trades found 24h ago, return 0 change
+      if (!trade24hAgo) {
+        return {
+          priceChange: 0,
+          priceChangePercent: 0,
+          currentPrice,
+          price24hAgo: currentPrice,
+        };
+      }
+
+      const price24hAgo = BigInt(trade24hAgo.price);
+
+      // Calculate change
+      const priceDiff = currentPrice - price24hAgo;
+      const priceChange = Number(priceDiff) / Number(price24hAgo);
+      const priceChangePercent = priceChange * 100;
+
+      return {
+        priceChange,
+        priceChangePercent,
+        currentPrice,
+        price24hAgo,
+      };
+    }
+
+    // ⚠️ Fallback to events (slower, use only when Graph not available)
     // Calculate blocks in last 24 hours
     const latestBlock = await this.provider.getBlockNumber();
     const blocksPerDay = 28800;
