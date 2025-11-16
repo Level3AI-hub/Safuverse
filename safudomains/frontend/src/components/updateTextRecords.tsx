@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { namehash, encodeFunctionData } from 'node_modules/viem/_types'
+import { namehash, encodeFunctionData } from 'viem'
 import { buildTextRecords } from '../hooks/setText'
 import { useWriteContract } from 'wagmi'
 import Modal from 'react-modal'

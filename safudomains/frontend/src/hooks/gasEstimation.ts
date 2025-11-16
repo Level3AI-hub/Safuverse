@@ -3,7 +3,7 @@ import {
   keccak256,
   encodeAbiParameters,
   bytesToHex,
-} from 'node_modules/viem/_types'
+} from 'viem'
 import { providers } from 'ethers'
 import { useMemo, useCallback, useState, useEffect } from 'react'
 import type {
@@ -11,7 +11,7 @@ import type {
   Chain,
   Client,
   Transport,
-} from 'node_modules/viem/_types'
+} from 'viem'
 import { Config, useConnectorClient } from 'wagmi'
 import { constants } from '../constant'
 

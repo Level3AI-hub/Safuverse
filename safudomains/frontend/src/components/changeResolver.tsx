@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { namehash } from 'node_modules/viem/_types'
+import { namehash } from 'viem'
 import { useWriteContract } from 'wagmi'
 import Modal from 'react-modal'
 import { constants } from '../constant'

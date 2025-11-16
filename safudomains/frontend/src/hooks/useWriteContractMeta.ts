@@ -5,8 +5,8 @@ import {
   useSignTypedData,
   useWaitForTransactionReceipt,
 } from 'wagmi'
-import type { Abi } from 'node_modules/abitype/dist/types/exports'
-import { encodeFunctionData } from 'node_modules/viem/_types'
+import type { Abi } from 'abitype'
+import { encodeFunctionData } from 'viem'
 
 type ForwardRequest = {
   from: `0x${string}`

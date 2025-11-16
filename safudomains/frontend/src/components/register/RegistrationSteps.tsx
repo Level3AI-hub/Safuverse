@@ -1,8 +1,5 @@
-interface RegistrationStepsProps {
-  step: number
-}
 
-const RegistrationSteps = ({ step }: RegistrationStepsProps) => {
+const RegistrationSteps = () => {
   const steps = [
     {
       number: 1,

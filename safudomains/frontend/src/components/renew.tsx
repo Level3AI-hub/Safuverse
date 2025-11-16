@@ -5,7 +5,7 @@ import Modal from 'react-modal'
 import Controller from '../../../deployments/testnet/ETHRegistrarController.json'
 import DatePicker from 'react-datepicker'
 import { useEstimateENSFees } from '../hooks/gasEstimation'
-import { zeroAddress } from 'node_modules/viem/_types'
+import { zeroAddress } from 'viem'
 import { constants } from '../constant'
 
 interface RenewProps {

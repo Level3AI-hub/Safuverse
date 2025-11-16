@@ -28,9 +28,7 @@ export const CustomConnect = () => {
           account &&
           chain &&
           (!authenticationStatus || authenticationStatus === 'authenticated')
-        if (!connected && location.pathname != '/') {
-          openConnectModal()
-        }
+
         return (
           <div
             {...(!ready && {

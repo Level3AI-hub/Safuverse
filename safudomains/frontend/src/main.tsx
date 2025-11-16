@@ -9,7 +9,7 @@ import {
   darkTheme,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit'
-import { bsc } from 'node_modules/wagmi/dist/types/exports/chains.ts'
+import { bsc } from 'wagmi/chains'
 import type { ApolloClient } from '@apollo/client'
 import {
   rainbowWallet,
@@ -59,7 +59,7 @@ async function createApolloClient() {
 
   return new ApolloClient({
     link: new HttpLink({
-      uri: 'https://api.studio.thegraph.com/query/112443/ens-subgraph/v0.0.1',
+      uri: 'https://api.studio.thegraph.com/query/112443/safunames/version/latest',
     }),
     cache: new InMemoryCache(),
   })

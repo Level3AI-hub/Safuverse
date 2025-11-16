@@ -6,7 +6,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { useParams, useNavigate } from 'react-router'
 import Countdown from 'react-countdown'
 import { useENSName } from '../hooks/getPrimaryName'
-import { normalize } from 'node_modules/viem/_types/ens'
+import { normalize } from 'viem/ens'
 import { useEstimateENSFees } from '../hooks/gasEstimation'
 import { constants } from '../constant'
 import UserForm from './userForm'
@@ -668,7 +668,7 @@ const Register = () => {
             />
           ) : next == 2 ? (
             <div className="rounded-xl bg-neutral-800 px-5 md:px-10 py-5 mt-5 border-[0.5px] border-gray-400">
-              <RegistrationSteps step={0} />
+              <RegistrationSteps />
               <div className="mt-10">
                 <div className="inline-flex bg-neutral-900 rounded-full p-1">
                   {(['BNB', 'USD'] as const).map((curr) => {

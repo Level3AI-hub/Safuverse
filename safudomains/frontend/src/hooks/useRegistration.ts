@@ -8,13 +8,13 @@ import {
   keccak256,
   toBytes,
   parseEther,
-} from 'node_modules/viem/_types'
+} from 'viem'
 import { ethers } from 'ethers'
 import { buildTextRecords } from './setText'
 import { Controller, ERC20_ABI, addrResolver } from '../constants/registerAbis'
 import { constants, Params } from '../constant'
 import { useEthersSigner } from './gasEstimation'
-import { normalize } from 'node_modules/viem/_types/ens'
+import { normalize } from 'viem/ens'
 
 export const useRegistration = () => {
   const [secret, setSecret] = useState<`0x${string}`>('0x')

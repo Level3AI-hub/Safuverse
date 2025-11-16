@@ -10,6 +10,7 @@ import { FaSnapchatGhost, FaGithub } from 'react-icons/fa'
 import { SiBnbchain } from 'react-icons/si'
 import { shortenAddress, getCID } from '../../utils/domainUtils'
 import Renew from '../renew'
+import React from 'react'
 
 interface ProfileTabProps {
   label: string
@@ -32,7 +33,7 @@ interface ProfileTabProps {
   handleRenewal: () => void
   expires: bigint
   isOpen: boolean
-  setIsOpen: (open: boolean) => void
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   next: number
 }
 
@@ -53,7 +54,6 @@ const ProfileTab = ({
   expiry,
   primaryName,
   referrals,
-  walletAddress,
   handleRenewal,
   expires,
   isOpen,

@@ -138,15 +138,15 @@ class Logger {
   /**
    * Future: Send to error tracking service
    */
-  private sendToErrorTracking(message: string, error: Error): void {
-    // Example: Sentry integration
-    // if (import.meta.env.PROD && window.Sentry) {
-    //   window.Sentry.captureException(error, {
-    //     tags: { component: 'logger' },
-    //     extra: { message },
-    //   })
-    // }
-  }
+  // private sendToErrorTracking(message: string, error: Error): void {
+  //   // Example: Sentry integration
+  //   // if (import.meta.env.PROD && window.Sentry) {
+  //   //   window.Sentry.captureException(error, {
+  //   //     tags: { component: 'logger' },
+  //   //     extra: { message },
+  //   //   })
+  //   // }
+  // }
 }
 
 /**

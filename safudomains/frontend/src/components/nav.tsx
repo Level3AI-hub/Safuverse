@@ -276,7 +276,7 @@ export default function Nav() {
             ))}
             {}
             <a
-              href="https://dns.safuverse.com/courses/all"
+              href="https://academy.safuverse.com/courses/all"
               className={`text-gray-200 hover:text-yellow-400 transition-colors duration-200 flex items-center font-semibold -mt-3
             `}
             >

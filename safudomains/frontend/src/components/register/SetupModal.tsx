@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { zeroAddress } from 'node_modules/viem/_types'
+import { zeroAddress } from 'viem'
 import { FaPlus } from 'react-icons/fa6'
 
 type SetupProps = {

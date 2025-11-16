@@ -1,4 +1,4 @@
-import { namehash } from 'node_modules/viem/_types'
+import { namehash } from 'viem'
 import { useReadContract } from 'wagmi'
 import { constants } from '../constant'
 

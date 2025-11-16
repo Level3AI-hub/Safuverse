@@ -1,4 +1,4 @@
-import { encodeFunctionData } from 'node_modules/viem/_types'
+import { encodeFunctionData } from 'viem'
 
 interface TextRecord {
   key: string // e.g. 'description', 'avatar', 'com.twitter'
