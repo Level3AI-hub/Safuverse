@@ -21,12 +21,14 @@ export function handleLaunchCreated(event: LaunchCreated): void {
 
   launch.token = tokenAddress;
   launch.founder = event.params.founder;
-  launch.launchType = event.params.launchType == 0 ? "PROJECT_RAISE" : "INSTANT_LAUNCH";
+  launch.launchType =
+    event.params.launchType == 0 ? "PROJECT_RAISE" : "INSTANT_LAUNCH";
   launch.totalSupply = event.params.totalSupply;
   launch.raiseTarget = event.params.raiseTargetBNB;
   launch.raiseMax = event.params.raiseMaxBNB;
   launch.raiseDeadline = event.params.deadline;
   launch.totalRaised = BigInt.fromI32(0);
+  launch.founderTokens = BigInt.fromI32(0); // ADD THIS
   launch.raiseCompleted = false;
   launch.liquidityAdded = false;
   launch.graduatedToPancakeSwap = false;
@@ -54,13 +56,20 @@ export function handleLaunchCreated(event: LaunchCreated): void {
   if (stats) {
     stats.totalLaunches = stats.totalLaunches.plus(BigInt.fromI32(1));
     if (launch.launchType == "PROJECT_RAISE") {
-      stats.totalProjectRaises = stats.totalProjectRaises.plus(BigInt.fromI32(1));
+      stats.totalProjectRaises = stats.totalProjectRaises.plus(
+        BigInt.fromI32(1)
+      );
     }
     stats.save();
   }
 
   // Update daily stats
-  updateDailyStats(event.block.timestamp, BigInt.fromI32(0), BigInt.fromI32(0), BigInt.fromI32(0));
+  updateDailyStats(
+    event.block.timestamp,
+    BigInt.fromI32(0),
+    BigInt.fromI32(0),
+    BigInt.fromI32(0)
+  );
 }
 
 export function handleInstantLaunchCreated(event: InstantLaunchCreated): void {
@@ -72,6 +81,7 @@ export function handleInstantLaunchCreated(event: InstantLaunchCreated): void {
   launch.launchType = "INSTANT_LAUNCH";
   launch.totalSupply = event.params.totalSupply;
   launch.totalRaised = BigInt.fromI32(0);
+  launch.founderTokens = BigInt.fromI32(0); // ADD THIS
   launch.raiseCompleted = true;
   launch.liquidityAdded = true;
   launch.graduatedToPancakeSwap = false;
@@ -98,7 +108,9 @@ export function handleInstantLaunchCreated(event: InstantLaunchCreated): void {
   let stats = PlatformStats.load("platform");
   if (stats) {
     stats.totalLaunches = stats.totalLaunches.plus(BigInt.fromI32(1));
-    stats.totalInstantLaunches = stats.totalInstantLaunches.plus(BigInt.fromI32(1));
+    stats.totalInstantLaunches = stats.totalInstantLaunches.plus(
+      BigInt.fromI32(1)
+    );
     stats.save();
   }
 }
@@ -188,7 +200,7 @@ export function handleFounderTokensClaimed(event: FounderTokensClaimed): void {
   let launch = Launch.load(tokenAddress);
 
   if (launch) {
-    launch.founderTokensClaimed = launch.founderTokensClaimed.plus(event.params.amount);
+    launch.founderTokensClaimed = (launch.founderTokensClaimed !== null ? launch.founderTokensClaimed : BigInt.fromI32(0)).plus(event.params.amount);
     launch.save();
   }
 }
@@ -198,7 +210,7 @@ export function handleRaisedFundsClaimed(event: RaisedFundsClaimed): void {
   let launch = Launch.load(tokenAddress);
 
   if (launch) {
-    launch.raisedFundsClaimed = launch.raisedFundsClaimed.plus(event.params.amount);
+    launch.raisedFundsClaimed = (launch.raisedFundsClaimed !== null ? launch.raisedFundsClaimed : BigInt.fromI32(0)).plus(event.params.amount);
     launch.save();
   }
 }

@@ -1,4 +1,4 @@
-type Token @entity {
+type Token @entity(immutable: true) {
   id: ID! # Token address
   name: String!
   symbol: String!
@@ -27,7 +27,7 @@ type Token @entity {
   totalTrades: BigInt!
 }
 
-type Launch @entity {
+type Launch @entity(immutable: true) {
   id: ID! # Token address
   token: Token!
   founder: Bytes!
@@ -49,14 +49,14 @@ type Launch @entity {
   # Vesting
   vestingDuration: BigInt
   vestingStartTime: BigInt
-  founderTokens: BigInt
-  founderTokensClaimed: BigInt
+  founderTokens: BigInt!
+  founderTokensClaimed: BigInt!
 
   # Liquidity
   liquidityBNB: BigInt
   liquidityTokens: BigInt
-  raisedFundsVesting: BigInt
-  raisedFundsClaimed: BigInt
+  raisedFundsVesting: BigInt!
+  raisedFundsClaimed: BigInt!
 
   # Timestamps
   createdAt: BigInt!
@@ -71,7 +71,7 @@ enum LaunchType {
   INSTANT_LAUNCH
 }
 
-type Contribution @entity {
+type Contribution @entity(immutable: true) {
   id: ID! # token-contributor
   launch: Launch!
   contributor: Bytes!
@@ -81,7 +81,7 @@ type Contribution @entity {
   transactionHash: Bytes!
 }
 
-type Pool @entity {
+type Pool @entity(immutable: true) {
   id: ID! # Token address
   token: Token!
   creator: Bytes!
@@ -123,7 +123,7 @@ type Pool @entity {
   trades: [Trade!]! @derivedFrom(field: "pool")
 }
 
-type Trade @entity {
+type Trade @entity(immutable: true) {
   id: ID! # tx-hash-log-index
   pool: Pool!
   token: Token!
@@ -143,7 +143,7 @@ type Trade @entity {
   transactionHash: Bytes!
 }
 
-type TokenHolder @entity {
+type TokenHolder @entity(immutable: true) {
   id: ID! # token-holder
   token: Token!
   holder: Bytes!
@@ -156,7 +156,7 @@ type TokenHolder @entity {
   lastActivityTimestamp: BigInt
 }
 
-type Transaction @entity {
+type Transaction @entity(immutable: true) {
   id: ID! # tx-hash
   token: Token
   from: Bytes!
@@ -176,7 +176,7 @@ enum TransactionType {
   SELL
 }
 
-type CreatorFees @entity {
+type CreatorFees @entity(immutable: true) {
   id: ID! # token-creator
   token: Token!
   creator: Bytes!
@@ -187,9 +187,8 @@ type CreatorFees @entity {
   claimCount: BigInt!
 }
 
-type PlatformStats @entity {
+type PlatformStats @entity(immutable: true) {
   id: ID! # "platform"
-
   # Totals
   totalLaunches: BigInt!
   totalProjectRaises: BigInt!
@@ -205,7 +204,7 @@ type PlatformStats @entity {
   lastUpdated: BigInt!
 }
 
-type DailyStats @entity {
+type DailyStats @entity(immutable: true) {
   id: ID! # day-timestamp
   date: BigInt!
 

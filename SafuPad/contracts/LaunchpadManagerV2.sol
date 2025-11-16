@@ -87,7 +87,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./PriceOracle.sol";
-import "./MockPancakeRouter.sol";
+import "./mocks/MockPancakeRouter.sol";
 
 interface ITokenFactoryV2 {
     struct TokenMetadata {

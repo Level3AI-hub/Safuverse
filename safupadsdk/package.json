@@ -1,6 +1,6 @@
 {
   "name": "@safupad/sdk",
-  "version": "2.0.76",
+  "version": "2.0.77",
   "description": "TypeScript SDK for interacting with SafuPad smart contracts",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

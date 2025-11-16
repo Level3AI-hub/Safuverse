@@ -9,18 +9,18 @@ const path = require('path');
 const contracts = [
   {
     name: 'LaunchpadManager',
-    artifactPath: 'artifacts/contracts/LaunchpadManagerV2.sol/LaunchpadManagerV3.json',
-    outputPath: 'subgraph/abis/LaunchpadManager.json'
+    artifactPath: '../artifacts/contracts/LaunchpadManagerV2.sol/LaunchpadManagerV3.json',
+    outputPath: 'abis/LaunchpadManager.json'
   },
   {
     name: 'TokenFactory',
-    artifactPath: 'artifacts/contracts/TokenFactoryV2.sol/TokenFactoryV2.json',
-    outputPath: 'subgraph/abis/TokenFactory.json'
+    artifactPath: '../artifacts/contracts/TokenFactoryV2.sol/TokenFactoryV2.json',
+    outputPath: 'abis/TokenFactory.json'
   },
   {
     name: 'BondingDEX',
-    artifactPath: 'artifacts/contracts/BondingDEX.sol/BondingDEX.json',
-    outputPath: 'subgraph/abis/BondingDEX.json'
+    artifactPath: '../artifacts/contracts/BondingDEX.sol/BondingCurveDEX.json',
+    outputPath: 'abis/BondingDEX.json'
   }
 ];
 
@@ -121,7 +121,7 @@ function createERC20ABI() {
     }
   ];
 
-  fs.writeFileSync('subgraph/abis/ERC20.json', JSON.stringify(erc20ABI, null, 2));
+  fs.writeFileSync('abis/ERC20.json', JSON.stringify(erc20ABI, null, 2));
   console.log('✓ Created ERC20.json');
 }
 
