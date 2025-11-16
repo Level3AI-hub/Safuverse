@@ -105,47 +105,52 @@ export class SafuPadSDK {
       this.eventQueryProvider = this.provider;
     }
 
-    // Initialize contract instances
+    // Initialize The Graph client first (if subgraph URL is available)
+    const subgraphUrl = this.config.subgraphUrl || this.networkConfig.subgraphUrl;
+    if (subgraphUrl) {
+      this.graph = new SafuPadGraph(subgraphUrl);
+    }
+
+    // Initialize contract instances with The Graph client
     this.launchpad = new LaunchpadManager(
       this.networkConfig.contracts.launchpadManager,
       this.provider,
       this.signer,
-      this.eventQueryProvider
+      this.eventQueryProvider,
+      this.graph
     );
 
     this.bondingDex = new BondingCurveDEX(
       this.networkConfig.contracts.bondingCurveDEX,
       this.provider,
       this.signer,
-      this.eventQueryProvider
+      this.eventQueryProvider,
+      this.graph
     );
 
     this.tokenFactory = new TokenFactory(
       this.networkConfig.contracts.tokenFactory,
       this.provider,
       this.signer,
-      this.eventQueryProvider
+      this.eventQueryProvider,
+      this.graph
     );
 
     this.priceOracle = new PriceOracle(
       this.networkConfig.contracts.priceOracle,
       this.provider,
       this.signer,
-      this.eventQueryProvider
+      this.eventQueryProvider,
+      this.graph
     );
 
     this.lpHarvester = new LPFeeHarvester(
       this.networkConfig.contracts.lpFeeHarvester,
       this.provider,
       this.signer,
-      this.eventQueryProvider
+      this.eventQueryProvider,
+      this.graph
     );
-
-    // Initialize The Graph client if subgraph URL is available
-    const subgraphUrl = this.config.subgraphUrl || this.networkConfig.subgraphUrl;
-    if (subgraphUrl) {
-      this.graph = new SafuPadGraph(subgraphUrl);
-    }
   }
 
   /**
