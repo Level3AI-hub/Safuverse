@@ -525,8 +525,8 @@ describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () 
         "Test Token",
         "TEST",
         1_000_000_000,
-        ethers.parseEther("0.1"),
-        ethers.parseEther("0.5"),
+        ethers.parseEther("50"),
+        ethers.parseEther("100"),
         90 * 24 * 60 * 60,
         defaultMetadata,
         false // Don't burn LP
@@ -682,8 +682,8 @@ describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () 
         "Test Token",
         "TEST",
         1_000_000_000,
-        ethers.parseEther("0.1"),
-        ethers.parseEther("0.5"),
+        ethers.parseEther("50"),
+        ethers.parseEther("100"),
         90 * 24 * 60 * 60, // 90 days vesting
         defaultMetadata,
         false

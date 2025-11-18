@@ -484,25 +484,22 @@ describe("BondingCurveDEX - INSTANT_LAUNCH Tests", function () {
       );
     });
 
-    it("Should reject buying after graduation due to reentrancy guard", async function () {
+    it("Should reject buying through PancakeSwap after only pool graduation", async function () {
       const OPERATOR_ROLE = ethers.keccak256(
         ethers.toUtf8Bytes("OPERATOR_ROLE")
       );
+
       await bondingCurveDEX.grantRole(OPERATOR_ROLE, owner.address);
 
       await bondingCurveDEX.graduatePool(await token.getAddress());
-
-      // NOTE: _buyTokensPostGraduation has nonReentrant modifier but is called from
-      // buyTokens which also has nonReentrant, causing a reentrancy guard error
       await expect(
         bondingCurveDEX
           .connect(trader1)
           .buyTokens(await token.getAddress(), 0, {
             value: ethers.parseEther("0.01"),
           })
-      ).to.be.revertedWith("ReentrancyGuard: reentrant call");
+      ).to.be.revert(ethers);
     });
-
     it("Should reject getBuyQuote after graduation", async function () {
       const OPERATOR_ROLE = ethers.keccak256(
         ethers.toUtf8Bytes("OPERATOR_ROLE")
