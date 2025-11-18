@@ -633,7 +633,7 @@ const tx = await launchpadManager.createProjectRaise(
   "MTK",
   ethers.parseEther("50"), // 50 BNB goal
   ethers.parseEther("0.01"), // Min contribution
-  ethers.parseEther("5"), // Max contribution
+  ethers.parseEther("4.44"), // Max contribution
   tokenAmount,
   founderAmount,
   vestingSchedule
