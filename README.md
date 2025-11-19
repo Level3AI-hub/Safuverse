@@ -921,6 +921,255 @@ For detailed documentation on each component:
 - Explorer: https://testnet.bscscan.com
 - Faucet: https://testnet.bnbchain.org/faucet-smart
 
+## Docker Deployment
+
+The entire Safuverse ecosystem is fully dockerized for easy deployment and development. You can run all services with a single command using Docker Compose.
+
+### Prerequisites
+
+- Docker Engine 20.10+ installed
+- Docker Compose v2.0+ installed
+- At least 4GB RAM available for Docker
+- 10GB free disk space
+
+### Quick Start with Docker
+
+1. **Clone the repository**:
+```bash
+git clone https://github.com/Level3AI-hub/Safuverse.git
+cd Safuverse
+```
+
+2. **Set up environment variables**:
+
+Create `.env` files for services that require them:
+
+```bash
+# SafuAgents Server
+cp SafuAgents/server/.env.example SafuAgents/server/.env
+# Edit SafuAgents/server/.env with your API keys
+
+# Safucard Server
+cp Safucard/Safucardserver/.env.example Safucard/Safucardserver/.env
+# Edit Safucard/Safucardserver/.env with your configuration
+```
+
+3. **Build and run all services**:
+```bash
+docker-compose up --build
+```
+
+Or run in detached mode:
+```bash
+docker-compose up -d --build
+```
+
+4. **Access the services**:
+
+Once all containers are running, you can access:
+
+- **SafuAcademy Frontend**: http://localhost:3001
+- **SafuAgents Frontend**: http://localhost:3002
+- **SafuAgents Server API**: http://localhost:3003
+- **SafuLanding**: http://localhost:3004
+- **Safucard Frontend**: http://localhost:3005
+- **Safucard Server API**: http://localhost:3006
+- **SafuDomains Frontend**: http://localhost:3007
+- **MongoDB**: localhost:27017 (credentials in docker-compose.yml)
+- **Redis**: localhost:6379
+
+### Docker Services Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Network                        │
+│                  (safuverse-network)                     │
+├─────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────────┐  ┌──────────────────┐            │
+│  │ SafuAcademy      │  │ SafuAgents       │            │
+│  │ Frontend :3001   │  │ Frontend :3002   │            │
+│  └──────────────────┘  └──────────────────┘            │
+│                                                           │
+│  ┌──────────────────┐  ┌──────────────────┐            │
+│  │ SafuAgents       │  │ SafuLanding      │            │
+│  │ Server :3003     │  │ :3004            │            │
+│  └──────────────────┘  └──────────────────┘            │
+│                                                           │
+│  ┌──────────────────┐  ┌──────────────────┐            │
+│  │ Safucard         │  │ Safucard         │            │
+│  │ Frontend :3005   │  │ Server :3006     │            │
+│  └──────────────────┘  └────────┬─────────┘            │
+│                                  │                        │
+│  ┌──────────────────┐           │                        │
+│  │ SafuDomains      │           │                        │
+│  │ Frontend :3007   │           │                        │
+│  └──────────────────┘           │                        │
+│                                  │                        │
+│                    ┌─────────────┴──────────┐           │
+│                    │                         │           │
+│              ┌─────▼─────┐           ┌──────▼────┐      │
+│              │ MongoDB    │           │  Redis    │      │
+│              │ :27017     │           │  :6379    │      │
+│              └────────────┘           └───────────┘      │
+│                                                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Docker Commands Reference
+
+**Start all services**:
+```bash
+docker-compose up -d
+```
+
+**Stop all services**:
+```bash
+docker-compose down
+```
+
+**Stop and remove volumes** (⚠️ This will delete database data):
+```bash
+docker-compose down -v
+```
+
+**View logs**:
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f safuagents-server
+docker-compose logs -f safucard-server
+```
+
+**Rebuild a specific service**:
+```bash
+docker-compose up -d --build safuagents-frontend
+```
+
+**Check service status**:
+```bash
+docker-compose ps
+```
+
+**Execute commands in a container**:
+```bash
+# Access MongoDB shell
+docker-compose exec mongodb mongosh -u admin -p safuverse2024
+
+# Access Redis CLI
+docker-compose exec redis redis-cli
+
+# Access a service shell
+docker-compose exec safucard-server sh
+```
+
+### Individual Service Dockerfiles
+
+Each service has its own Dockerfile optimized for production:
+
+- `SafuAcademy/frontend/Dockerfile` - Multi-stage build with Nginx
+- `SafuAgents/frontend/Dockerfile` - Multi-stage build with Nginx
+- `SafuAgents/server/Dockerfile` - Node.js server
+- `SafuLanding/Dockerfile` - Multi-stage build with Nginx
+- `Safucard/frontend/Dockerfile` - Multi-stage build with Nginx
+- `Safucard/Safucardserver/Dockerfile` - TypeScript compiled Node.js server
+- `safudomains/frontend/Dockerfile` - Multi-stage build with Nginx
+
+You can build and run individual services:
+
+```bash
+# Build individual service
+cd SafuAcademy/frontend
+docker build -t safuacademy-frontend .
+
+# Run individual service
+docker run -p 3001:80 safuacademy-frontend
+```
+
+### Production Deployment
+
+For production deployment, consider:
+
+1. **Environment Variables**: Use proper secret management (e.g., Docker Secrets, AWS Secrets Manager)
+2. **Reverse Proxy**: Use Nginx or Traefik as a reverse proxy
+3. **HTTPS**: Configure SSL/TLS certificates (Let's Encrypt recommended)
+4. **Resource Limits**: Set CPU and memory limits in docker-compose.yml
+5. **Health Checks**: Add health check endpoints and Docker health checks
+6. **Logging**: Configure proper log aggregation (ELK stack, CloudWatch, etc.)
+7. **Monitoring**: Set up Prometheus + Grafana for monitoring
+8. **Backups**: Regular backups of MongoDB and Redis data volumes
+
+Example production configuration additions:
+
+```yaml
+services:
+  safucard-server:
+    # ... existing config
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+### Troubleshooting
+
+**Port conflicts**:
+If ports are already in use, edit `docker-compose.yml` and change the port mappings:
+```yaml
+ports:
+  - "8001:80"  # Change 3001 to 8001
+```
+
+**Build failures**:
+```bash
+# Clean Docker cache and rebuild
+docker-compose build --no-cache
+docker system prune -a
+```
+
+**Container won't start**:
+```bash
+# Check logs for errors
+docker-compose logs <service-name>
+
+# Inspect container
+docker inspect <container-name>
+```
+
+**Database connection issues**:
+- Ensure MongoDB and Redis are fully started before dependent services
+- Check network connectivity: `docker-compose exec safucard-server ping mongodb`
+- Verify environment variables are correctly set
+
+### Development vs Production
+
+**Development**:
+- Use `docker-compose up` to see logs in real-time
+- Mount volumes for hot-reloading (add to docker-compose.yml):
+  ```yaml
+  volumes:
+    - ./SafuAgents/server:/app
+    - /app/node_modules
+  ```
+
+**Production**:
+- Use `docker-compose up -d` for detached mode
+- Implement proper monitoring and logging
+- Use production-grade databases (managed services recommended)
+- Enable Docker restart policies
+
 ---
 
 **Built on BNB Chain** - Leveraging the power of BNB Smart Chain for scalable, efficient Web3 applications.

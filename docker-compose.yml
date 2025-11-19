@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # SafuAcademy Frontend
+  safuacademy-frontend:
+    build:
+      context: ./SafuAcademy/frontend
+      dockerfile: Dockerfile
+    container_name: safuacademy-frontend
+    ports:
+      - "3001:80"
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # SafuAgents Frontend
+  safuagents-frontend:
+    build:
+      context: ./SafuAgents/frontend
+      dockerfile: Dockerfile
+    container_name: safuagents-frontend
+    ports:
+      - "3002:80"
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # SafuAgents Server
+  safuagents-server:
+    build:
+      context: ./SafuAgents/server
+      dockerfile: Dockerfile
+    container_name: safuagents-server
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./SafuAgents/server/.env
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # SafuLanding
+  safulanding:
+    build:
+      context: ./SafuLanding
+      dockerfile: Dockerfile
+    container_name: safulanding
+    ports:
+      - "3004:80"
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # Safucard Frontend
+  safucard-frontend:
+    build:
+      context: ./Safucard/frontend
+      dockerfile: Dockerfile
+    container_name: safucard-frontend
+    ports:
+      - "3005:80"
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # Safucard Server
+  safucard-server:
+    build:
+      context: ./Safucard/Safucardserver
+      dockerfile: Dockerfile
+    container_name: safucard-server
+    ports:
+      - "3006:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./Safucard/Safucardserver/.env
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # SafuDomains Frontend
+  safudomains-frontend:
+    build:
+      context: ./safudomains/frontend
+      dockerfile: Dockerfile
+    container_name: safudomains-frontend
+    ports:
+      - "3007:80"
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # MongoDB (for Safucard server)
+  mongodb:
+    image: mongo:7-jammy
+    container_name: safuverse-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=safuverse2024
+      - MONGO_INITDB_DATABASE=safucard
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+  # Redis (for Safucard server)
+  redis:
+    image: redis:7-alpine
+    container_name: safuverse-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - safuverse-network
+    restart: unless-stopped
+
+networks:
+  safuverse-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+    driver: local
+  redis-data:
+    driver: local
