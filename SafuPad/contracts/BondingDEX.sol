@@ -119,7 +119,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 platformFee;
         uint256 creatorFee;
         uint256 infoFiFee;
-        uint256 liquidityFee;
+        uint256 academyFee;
     }
     struct CreatorFees {
         uint256 accumulatedFees;
@@ -136,7 +136,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     // Constants
 
     uint256 public constant TOTAL_TOKEN_SUPPLY = 1_000_000_000 * 10 ** 18;
-    uint256 public constant GRADUATION_BNB_THRESHOLD = 15 ether;
+    uint256 public constant GRADUATION_BNB_THRESHOLD = 1_000_000 ether;
     uint256 public constant TARGET_PRICE_MULTIPLIER = 6;
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant CLAIM_COOLDOWN = 24 hours;
@@ -274,13 +274,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
 
         _grantRole(EMERGENCY_ROLE, _admin);
-        // INSTANT_LAUNCH fee distribution: 5% platform, 50% creator, 45% InfoFi, 0% liquidity
+        // INSTANT_LAUNCH fee distribution: 5% platform, 50% creator, 30% InfoFi, 15% academy
 
         feeDistribution = FeeDistribution({
             platformFee: 5,
             creatorFee: 50,
-            infoFiFee: 45,
-            liquidityFee: 0
+            infoFiFee: 30,
+            academyFee: 15
         });
         paused = false;
     }
