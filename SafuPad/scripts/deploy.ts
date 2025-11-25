@@ -75,12 +75,12 @@ async function main(): Promise<void> {
     infoFiAddress: string;
     adminAddress: string;
   } = {
-    priceFeed: "0x2514895c72f50D8bd4B4F9b1110F0D6bD2c97526", // BSC Mainnet
-    pancakeRouter: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", // BSC Mainnet
-    pancakeFactory: "0x6725F303b657a9451d8BA641348b6761A6CC7a17", // BSC Mainnet
-    platformFeeAddress: deployerAddress,
-    academyFeeAddress: deployerAddress,
-    infoFiAddress: deployerAddress,
+    priceFeed: "0xBcD78f76005B7515837af6b50c7C52BCf73822fb", // MON Mainnet
+    pancakeRouter: "0xB1Bc24c34e88f7D43D5923034E3a14B24DaACfF9", // MON Mainnet
+    pancakeFactory: "0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E", // MON Mainnet
+    platformFeeAddress: "0x235799785E387C2612d4A881919436B612ed391D",
+    academyFeeAddress: "0x235799785E387C2612d4A881919436B612ed391D",
+    infoFiAddress: "0x7d378514f15fd176745902b9662cffc30b0d794c",
     adminAddress: deployerAddress,
   };
 

@@ -10,18 +10,19 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     rpcUrl: 'https://bsc-dataseed.binance.org/',
     alchemyRpcUrlTemplate: 'https://bnb-mainnet.g.alchemy.com/v2/{apiKey}',
     explorerUrl: 'https://bscscan.com',
-    subgraphUrl: 'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-subgraph/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
+    subgraphUrl:
+      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-subgraph/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
     nativeCurrency: {
       name: 'BNB',
       symbol: 'BNB',
       decimals: 18,
     },
     contracts: {
-      launchpadManager: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      bondingCurveDEX: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      tokenFactory: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      priceOracle: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      lpFeeHarvester: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      launchpadManager: '0xcCfcfeB17609f0C5aE604bC71c4907B90B94a3e9', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      bondingCurveDEX: '0xE96baB0D0661Fbfc710d79d58Cdb32bcD7bB8815', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      tokenFactory: '0x15E2ccAeb4D1eeA1A7b8d839FFA30D63519D1c50', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      priceOracle: '0x3De1d0D44c9609b99D05BA14Ff48c691fF6059Ff', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      lpFeeHarvester: '0x8b4499143ac1CDb7bDB25a2FEc1786F8BD9772F9', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
       pancakeRouter: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
       pancakeFactory: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
     },
@@ -33,7 +34,8 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
     alchemyRpcUrlTemplate: 'https://bnb-testnet.g.alchemy.com/v2/{apiKey}',
     explorerUrl: 'https://testnet.bscscan.com',
-    subgraphUrl: 'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-testnet/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
+    subgraphUrl:
+      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-testnet/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
     nativeCurrency: {
       name: 'BNB',
       symbol: 'BNB',

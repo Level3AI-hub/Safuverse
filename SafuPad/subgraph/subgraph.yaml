@@ -5,11 +5,11 @@ dataSources:
   # LaunchpadManagerV2
   - kind: ethereum/contract
     name: LaunchpadManager
-    network: chapel
+    network: bsc
     source:
-      address: "0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c" # Replace with deployed address
+      address: "0xcCfcfeB17609f0C5aE604bC71c4907B90B94a3e9" # Replace with deployed address
       abi: LaunchpadManager
-      startBlock: 70508979 # Replace with deployment block
+      startBlock: 68856238 # Replace with deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -51,11 +51,11 @@ dataSources:
   # TokenFactoryV2
   - kind: ethereum/contract
     name: TokenFactory
-    network: chapel
+    network: bsc
     source:
-      address: "0xcb7526b9598240A737237C52f852705e6A449cD0" # Replace with deployed address
+      address: "0x15E2ccAeb4D1eeA1A7b8d839FFA30D63519D1c50" # Replace with deployed address
       abi: TokenFactory
-      startBlock: 70508949 # Replace with deployment block
+      startBlock: 68856238 # Replace with deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -75,11 +75,11 @@ dataSources:
   # BondingDEX
   - kind: ethereum/contract
     name: BondingDEX
-    network: chapel
+    network: bsc
     source:
-      address: "0x14eB3B6C297ff6fefc25c0E0d289Bf8348e864f6" # Replace with deployed address
+      address: "0xE96baB0D0661Fbfc710d79d58Cdb32bcD7bB8815" # Replace with deployed address
       abi: BondingDEX
-      startBlock: 70508964 # Replace with deployment block
+      startBlock: 68856238 # Replace with deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

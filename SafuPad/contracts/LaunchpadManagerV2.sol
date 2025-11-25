@@ -268,17 +268,17 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         bool claimed;
     }
 
-    uint256 public constant MIN_RAISE_BNB = 50 ether;
-    uint256 public constant MAX_RAISE_BNB = 500 ether;
+    uint256 public constant MIN_RAISE_BNB = 5000000 ether;
+    uint256 public constant MAX_RAISE_BNB = 20000000 ether;
     uint256 public constant MAX_LIQUIDITY_BNB = 100 ether;
-    uint256 public constant MAX_CONTRIBUTION_PER_WALLET = 4.44 ether; // ✅ NEW: Per-wallet contribution cap
-    uint256 public constant RAISE_DURATION = 24 hours;
+    uint256 public constant MAX_CONTRIBUTION_PER_WALLET = 50000 ether; // ✅ NEW: Per-wallet contribution cap
+    uint256 public constant RAISE_DURATION = 72 hours;
     uint256 public constant FOUNDER_ALLOCATION = 20;
-    uint256 public constant CONTRIBUTOR_ALLOCATION = 70; // ✅ NEW: 70% for contributors
+    uint256 public constant CONTRIBUTOR_ALLOCATION = 20; // ✅ NEW: 70% for contributors
     uint256 public constant PANCAKESWAP_ALLOCATION = 10; // ✅ NEW: 10% for PancakeSwap
     uint256 public constant IMMEDIATE_FOUNDER_RELEASE = 10;
-    uint256 public constant LIQUIDITY_PERCENT = 10;
-    uint256 public constant LIQUIDITY_BNB_PERCENT = 50;
+    uint256 public constant LIQUIDITY_PERCENT = 20;
+    uint256 public constant LIQUIDITY_BNB_PERCENT = 20;
     uint256 public constant PLATFORM_FEE_BPS = 100; // ✅ NEW: 1% platform fee (100 basis points)
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant MIN_VESTING_DURATION = 90 days;
@@ -293,7 +293,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     IBondingCurveDEXV3 public bondingCurveDEX;
     IPancakeRouter02 public pancakeRouter;
     PriceOracle public priceOracle;
-    address public infoFiAddress; // ✅ Global InfoFi address
+    address public infoFiAddress; // ✅ Global InfoFi fee address
     address public platformFeeAddress; // ✅ NEW: Platform fee recipient
     ILPFeeHarvester public lpFeeHarvester;
     address public pancakeFactory;
@@ -443,6 +443,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         ITokenFactoryV2.TokenMetadata memory metadata,
         bool burnLP
     ) external nonReentrant returns (address) {
+        vestingDuration = 180 days;
         return
             _createLaunch(
                 name,
@@ -470,6 +471,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         bytes32 vanitySalt,
         bool burnLP
     ) external nonReentrant returns (address) {
+        vestingDuration = 180 days;
         return
             _createLaunch(
                 name,
