@@ -1149,12 +1149,19 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
 
     function claimRaisedFunds(address token) external nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
+        LaunchVesting storage vesting = launchVesting[token];
         require(
             basics.launchType == LaunchType.PROJECT_RAISE,
             "Not a project raise"
         );
         require(msg.sender == basics.founder, "Not founder");
         require(launchStatus[token].raiseCompleted, "Raise not completed");
+
+        // CRITICAL: Block raised funds if community control is triggered
+        require(
+            !vesting.communityControlTriggered,
+            "Community control active - raised funds frozen"
+        );
 
         uint256 claimable = _calculateClaimableRaisedFunds(token);
         require(claimable > 0, "No funds to claim");
@@ -1168,17 +1175,28 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     /**
      * @notice Claim vested tokens (10% allocation vested over 6 months)
      * @dev Vesting is conditional on token maintaining starting market cap
+     * @dev Tokens ONLY release if current market cap is above starting market cap
      */
     function claimVestedTokens(address token) external nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
         LaunchVesting storage vesting = launchVesting[token];
+        LaunchStatus storage status = launchStatus[token];
+
         require(
             basics.launchType == LaunchType.PROJECT_RAISE,
             "Not a project raise"
         );
         require(msg.sender == basics.founder, "Not founder");
-        require(launchStatus[token].raiseCompleted, "Raise not completed");
+        require(status.raiseCompleted, "Raise not completed");
+        require(status.graduatedToPancakeSwap, "Not graduated yet");
         require(!vesting.communityControlTriggered, "Community control active");
+
+        // CRITICAL: Check current market cap is above starting market cap
+        uint256 currentMarketCap = _getCurrentMarketCap(token);
+        require(
+            currentMarketCap >= vesting.startMarketCap,
+            "Token below starting market cap - vesting paused"
+        );
 
         uint256 claimable = _calculateClaimableVestedTokens(token);
         require(claimable > 0, "No vested tokens to claim");
@@ -1256,10 +1274,12 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     /**
      * @notice Execute emergency withdrawal after 48-hour timelock
      * @dev Transfers remaining raised funds to founder
+     * @dev BLOCKED if community control is active (3 months below market cap)
      */
     function executeEmergencyWithdrawal(address token) external nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
         LaunchLiquidity storage liquidity = launchLiquidity[token];
+        LaunchVesting storage vesting = launchVesting[token];
 
         require(
             basics.launchType == LaunchType.PROJECT_RAISE,
@@ -1272,6 +1292,12 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         require(
             block.timestamp >= liquidity.emergencyWithdrawalRequest + EMERGENCY_WITHDRAWAL_TIMELOCK,
             "Timelock not expired"
+        );
+
+        // CRITICAL: Block emergency withdrawal if community control is triggered
+        require(
+            !vesting.communityControlTriggered,
+            "Community control active - emergency withdrawal blocked"
         );
 
         uint256 remainingFunds = liquidity.raisedFundsVesting - liquidity.raisedFundsClaimed;
@@ -1303,6 +1329,68 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
 
         liquidity.emergencyWithdrawalRequest = 0;
         liquidity.emergencyWithdrawalRequester = address(0);
+    }
+
+    /**
+     * @notice Community governance function to withdraw funds when control is active
+     * @dev Only callable when 3 consecutive months below starting market cap
+     * @dev This function should be called by a governance contract/multisig
+     * @param recipient Address to send the funds to (decided by community)
+     */
+    function communityWithdrawFunds(address token, address recipient) external onlyOwner nonReentrant {
+        LaunchBasics storage basics = launchBasics[token];
+        LaunchVesting storage vesting = launchVesting[token];
+        LaunchLiquidity storage liquidity = launchLiquidity[token];
+
+        require(
+            basics.launchType == LaunchType.PROJECT_RAISE,
+            "Not a project raise"
+        );
+        require(
+            vesting.communityControlTriggered,
+            "Community control not active"
+        );
+        require(recipient != address(0), "Invalid recipient");
+
+        uint256 remainingFunds = liquidity.raisedFundsVesting - liquidity.raisedFundsClaimed;
+        require(remainingFunds > 0, "No funds to withdraw");
+
+        liquidity.raisedFundsClaimed = liquidity.raisedFundsVesting;
+
+        payable(recipient).transfer(remainingFunds);
+        emit RaisedFundsClaimed(recipient, token, remainingFunds);
+    }
+
+    /**
+     * @notice Get information about community control status
+     * @dev Useful for frontend to display community governance state
+     */
+    function getCommunityControlInfo(address token) external view returns (
+        bool communityControlActive,
+        uint256 consecutiveMonthsBelowStart,
+        uint256 currentMarketCap,
+        uint256 startMarketCap,
+        uint256 remainingFunds,
+        uint256 remainingVestedTokens
+    ) {
+        LaunchBasics storage basics = launchBasics[token];
+        LaunchVesting storage vesting = launchVesting[token];
+        LaunchLiquidity storage liquidity = launchLiquidity[token];
+        LaunchStatus storage status = launchStatus[token];
+
+        uint256 currentMCap = 0;
+        if (status.graduatedToPancakeSwap) {
+            currentMCap = _getCurrentMarketCap(token);
+        }
+
+        return (
+            vesting.communityControlTriggered,
+            vesting.consecutiveMonthsBelowStart,
+            currentMCap,
+            vesting.startMarketCap,
+            liquidity.raisedFundsVesting - liquidity.raisedFundsClaimed,
+            vesting.vestedTokens - vesting.vestedTokensClaimed
+        );
     }
 
    /**
