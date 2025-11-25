@@ -1,23 +1,43 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 /**
-
-* @title BondingCurveDEX - INSTANT_LAUNCH Only Version
-* @dev Version: 2.0.0 (Simplified - PROJECT_RAISE removed)
-*
-* CHANGES FROM v1.1.0:
-* - Removed all PROJECT_RAISE functionality
-* - Only supports INSTANT_LAUNCH tokens
-* - Simplified fee distribution (single structure)
-* - Cleaner, more focused codebase
-*
-* SECURITY FIXES (carried over from v1.1.0):
-* ✅ Fix #1: Added strict input validation in createInstantLaunchPool()
-* ✅ Fix #2: Added slippage protection in _handlePostGraduationSell()
-* ✅ Fix #3: State updates before external calls (CEI pattern) + nonReentrant
-*
-* Status: PRODUCTION READY
-*/
+ * @title BondingCurveDEX - INSTANT_LAUNCH Only Version (Monad)
+ * @dev Version: 3.0.0 (Monad Migration)
+ *
+ * MONAD MIGRATION CHANGES:
+ * - Updated from BNB to MON (Monad native token)
+ * - Graduation threshold: 1M MON
+ * - All BNB references changed to MON
+ *
+ * CHANGES FROM v2.0.0:
+ * - Migrated to Monad blockchain
+ * - Updated all BNB/WBNB references to MON/WMON
+ * - Added graduation fee distribution (70% creator, 20% InfoFi, 10% platform)
+ *
+ * TRADING FEE STRUCTURE (2% total):
+ * - 1% to creator (50% of fees)
+ * - 0.6% to InfoFi (30% of fees)
+ * - 0.1% to platform (5% of fees)
+ * - 0.3% to EduFi incentives (15% of fees)
+ *
+ * GRADUATION BONDING DISTRIBUTION:
+ * - 70% to creator
+ * - 20% to InfoFi
+ * - 10% to platform
+ *
+ * CHANGES FROM v1.1.0:
+ * - Removed all PROJECT_RAISE functionality
+ * - Only supports INSTANT_LAUNCH tokens
+ * - Simplified fee distribution (single structure)
+ * - Cleaner, more focused codebase
+ *
+ * SECURITY FIXES (carried over from v1.1.0):
+ * ✅ Fix #1: Added strict input validation in createInstantLaunchPool()
+ * ✅ Fix #2: Added slippage protection in _handlePostGraduationSell()
+ * ✅ Fix #3: State updates before external calls (CEI pattern) + nonReentrant
+ *
+ * Status: PRODUCTION READY
+ */
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -98,7 +118,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     bytes32 public constant EMERGENCY_ROLE = keccak256("EMERGENCY_ROLE");
     struct Pool {
         address token;
-        uint256 bnbReserve;
+        uint256 monReserve;
         uint256 tokenReserve;
         uint256 reservedTokens;
         uint256 totalTokenSupply;
@@ -107,13 +127,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         bool graduated;
         bool active;
         address creator;
-        uint256 virtualBnbReserve;
-        uint256 bnbForPancakeSwap;
+        uint256 virtualMonReserve;
+        uint256 monForPancakeSwap;
         address lpToken;
         bool burnLP;
         uint256 launchBlock;
-        uint256 graduationBnbThreshold;
-        uint256 graduationMarketCapBNB;
+        uint256 graduationMonThreshold;
+        uint256 graduationMarketCapMON;
     }
     struct FeeDistribution {
         uint256 platformFee;
@@ -134,28 +154,38 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 lpTokensGenerated;
     }
     // Constants
-
     uint256 public constant TOTAL_TOKEN_SUPPLY = 1_000_000_000 * 10 ** 18;
-    uint256 public constant GRADUATION_BNB_THRESHOLD = 1_000_000 ether;
+    uint256 public constant GRADUATION_MON_THRESHOLD = 1_000_000 ether; // 1M MON graduation threshold
     uint256 public constant TARGET_PRICE_MULTIPLIER = 6;
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant CLAIM_COOLDOWN = 24 hours;
     uint256 public constant REDISTRIBUTION_PERIOD = 7 days;
     uint256 public constant INSTANT_LAUNCH_PANCAKESWAP_PERCENT = 20; // 20% reserved for PancakeSwap
     uint256 public constant POST_GRADUATION_FEE_BPS = 100; // 1% post-graduation fee
+
+    // Graduation bonding distribution (when pool graduates to PancakeSwap)
+    uint256 public constant GRADUATION_CREATOR_PERCENT = 70; // 70% to creator
+    uint256 public constant GRADUATION_INFOFI_PERCENT = 20; // 20% to InfoFi
+    uint256 public constant GRADUATION_PLATFORM_PERCENT = 10; // 10% to platform
+
     address public constant LP_BURN_ADDRESS =
         0x000000000000000000000000000000000000dEaD;
-    // Anti-bot dynamic fee structure for INSTANT_LAUNCH
 
+    // Anti-bot dynamic fee structure for INSTANT_LAUNCH
     uint256 public constant INITIAL_FEE_BPS = 1000; // 10% at launch
-    uint256 public constant FINAL_FEE_BPS = 200; // 2% final fee for INSTANT_LAUNCH
+    uint256 public constant FINAL_FEE_BPS = 200; // 2% final trading fee
     uint256 public constant FEE_DECAY_BLOCK_1 = 20;
     uint256 public constant FEE_DECAY_BLOCK_2 = 50;
     uint256 public constant FEE_DECAY_BLOCK_3 = 100;
     uint256 public constant FEE_TIER_1 = 1000; // 10%
     uint256 public constant FEE_TIER_2 = 600; // 6%
     uint256 public constant FEE_TIER_3 = 400; // 4%
-    // Fee distribution structure (no liquidity fee for INSTANT_LAUNCH)
+
+    // Fee distribution structure for 2% trading fee:
+    // - 1% to creator (50% of fees)
+    // - 0.6% to InfoFi (30% of fees)
+    // - 0.1% to platform (5% of fees)
+    // - 0.3% to EduFi/Academy (15% of fees)
 
     FeeDistribution public feeDistribution;
     // State variables
@@ -167,7 +197,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     IPancakeRouter02 public pancakeRouter;
     IPancakeFactory public pancakeFactory;
     ILPFeeHarvester public lpFeeHarvester;
-    address public wbnbAddress;
+    address public wmonAddress;
     mapping(address => Pool) public pools;
 
     mapping(address => CreatorFees) public creatorFees;
@@ -184,13 +214,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 reservedTokens,
         address indexed creator,
         uint256 launchBlock,
-        uint256 virtualBnbReserve,
-        uint256 graduationBnbThreshold
+        uint256 virtualMonReserve,
+        uint256 graduationMonThreshold
     );
     event TokensBought(
         address indexed buyer,
         address indexed token,
-        uint256 bnbAmount,
+        uint256 monAmount,
         uint256 tokensReceived,
         uint256 currentPrice,
         uint256 feeRate
@@ -199,7 +229,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         address indexed seller,
         address indexed token,
         uint256 tokensAmount,
-        uint256 bnbReceived,
+        uint256 monReceived,
         uint256 currentPrice,
         uint256 feeRate
     );
@@ -208,7 +238,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 finalMarketCap,
         uint256 finalPrice,
         uint256 reservedTokens,
-        uint256 bnbForPancakeSwap
+        uint256 monForPancakeSwap
     );
     event FeesCollected(
         address indexed token,
@@ -222,14 +252,14 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 amount
     );
     event CreatorFeesRedirectedToInfoFi(address indexed token, uint256 amount);
-    event LiquidityIncreased(address indexed token, uint256 bnbAdded);
+    event LiquidityIncreased(address indexed token, uint256 monAdded);
     event Paused(address indexed account);
     event Unpaused(address indexed account);
     event PostGraduationSell(
         address indexed seller,
         address indexed token,
         uint256 tokensIn,
-        uint256 bnbOut,
+        uint256 monOut,
         uint256 liquidityAdded,
         uint256 lpGenerated
     );
@@ -270,7 +300,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         pancakeRouter = IPancakeRouter02(_pancakeRouter);
         pancakeFactory = IPancakeFactory(_pancakeFactory);
         lpFeeHarvester = ILPFeeHarvester(_lpFeeHarvester);
-        wbnbAddress = pancakeRouter.WETH();
+        wmonAddress = pancakeRouter.WETH();
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
 
         _grantRole(EMERGENCY_ROLE, _admin);
@@ -348,21 +378,21 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         uint256 totalTokens = tradableTokens + reservedTokens;
         IERC20(token).safeTransferFrom(msg.sender, address(this), totalTokens);
 
-        uint256 bnbReserve = msg.value;
+        uint256 monReserve = msg.value;
         uint256 initialMarketCap = 0;
 
-        if (bnbReserve > 0) {
+        if (monReserve > 0) {
             initialMarketCap =
-                (bnbReserve * TOTAL_TOKEN_SUPPLY) /
+                (monReserve * TOTAL_TOKEN_SUPPLY) /
                 tradableTokens;
         }
-        // Calculate virtual BNB reserve for price shaping
-        uint256 virtualBnbReserve = GRADUATION_BNB_THRESHOLD /
+        // Calculate virtual MON reserve for price shaping
+        uint256 virtualMonReserve = GRADUATION_MON_THRESHOLD /
             (TARGET_PRICE_MULTIPLIER - 1);
-        require(virtualBnbReserve > 0, "Virtual reserve must be > 0");
+        require(virtualMonReserve > 0, "Virtual reserve must be > 0");
         pools[token] = Pool({
             token: token,
-            bnbReserve: bnbReserve,
+            monReserve: monReserve,
             tokenReserve: tradableTokens,
             reservedTokens: reservedTokens,
             totalTokenSupply: TOTAL_TOKEN_SUPPLY,
@@ -371,13 +401,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             graduated: false,
             active: true,
             creator: creator,
-            virtualBnbReserve: virtualBnbReserve,
-            bnbForPancakeSwap: 0,
+            virtualMonReserve: virtualMonReserve,
+            monForPancakeSwap: 0,
             lpToken: address(0),
             burnLP: burnLP,
             launchBlock: block.number,
-            graduationBnbThreshold: GRADUATION_BNB_THRESHOLD,
-            graduationMarketCapBNB: 0
+            graduationMonThreshold: GRADUATION_MON_THRESHOLD,
+            graduationMarketCapMON: 0
         });
         creatorFees[token] = CreatorFees({
             accumulatedFees: 0,
@@ -394,8 +424,8 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             reservedTokens,
             creator,
             block.number,
-            virtualBnbReserve,
-            GRADUATION_BNB_THRESHOLD
+            virtualMonReserve,
+            GRADUATION_MON_THRESHOLD
         );
     }
 
@@ -416,16 +446,16 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         }
         require(pool.active, "Pool not active");
 
-        require(msg.value > 0, "Must send BNB");
+        require(msg.value > 0, "Must send MON");
         uint256 feeRate = getCurrentFeeRate(token);
         uint256 totalFee = (msg.value * feeRate) / BASIS_POINTS;
 
-        uint256 bnbAfterFee = msg.value - totalFee;
+        uint256 monAfterFee = msg.value - totalFee;
         // Calculate tokens out using bonding curve formula
-        uint256 augmentedBnbBefore = pool.bnbReserve + pool.virtualBnbReserve;
+        uint256 augmentedMonBefore = pool.monReserve + pool.virtualMonReserve;
 
-        uint256 tokensOut = (bnbAfterFee * pool.tokenReserve) /
-            (augmentedBnbBefore + bnbAfterFee);
+        uint256 tokensOut = (monAfterFee * pool.tokenReserve) /
+            (augmentedMonBefore + monAfterFee);
         if (tokensOut > pool.tokenReserve) {
             tokensOut = pool.tokenReserve;
         }
@@ -433,20 +463,20 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         require(tokensOut <= pool.tokenReserve, "Insufficient liquidity");
 
         // Update reserves (CEI pattern - state changes before external calls)
-        pool.bnbReserve += bnbAfterFee;
+        pool.monReserve += monAfterFee;
 
         pool.tokenReserve -= tokensOut;
         // Update market cap
-        uint256 augmentedBnbNow = pool.bnbReserve + pool.virtualBnbReserve;
+        uint256 augmentedMonNow = pool.monReserve + pool.virtualMonReserve;
 
         if (pool.tokenReserve > 0) {
             pool.marketCap =
-                (augmentedBnbNow * pool.totalTokenSupply) /
+                (augmentedMonNow * pool.totalTokenSupply) /
                 pool.tokenReserve;
         }
         uint256 currentPrice = 0;
         if (pool.tokenReserve > 0) {
-            currentPrice = (augmentedBnbNow * 10 ** 18) / pool.tokenReserve;
+            currentPrice = (augmentedMonNow * 10 ** 18) / pool.tokenReserve;
         }
         _distributeFees(totalFee, token, msg.sender);
         IERC20(token).safeTransfer(msg.sender, tokensOut);
@@ -467,59 +497,59 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
 
 * @param token The token address
 * @param tokenAmount Amount of tokens to sell
-* @param minBNBOut Minimum BNB to receive (slippage protection)
+* @param minMONOut Minimum MON to receive (slippage protection)
 */
     function sellTokens(
         address token,
         uint256 tokenAmount,
-        uint256 minBNBOut
+        uint256 minMONOut
     ) external nonReentrant whenNotPaused {
         Pool storage pool = pools[token];
         require(pool.token != address(0), "Pool does not exist");
         require(tokenAmount > 0, "Must sell tokens");
 
         if (pool.graduated) {
-            _handlePostGraduationSell(token, tokenAmount, minBNBOut);
+            _handlePostGraduationSell(token, tokenAmount, minMONOut);
             return;
         }
 
         require(pool.active, "Pool not active");
-        // Calculate BNB out using bonding curve formula
+        // Calculate MON out using bonding curve formula
 
-        uint256 bnbOut = (tokenAmount * pool.bnbReserve) /
+        uint256 monOut = (tokenAmount * pool.monReserve) /
             (pool.tokenReserve + tokenAmount);
         uint256 feeRate = getCurrentFeeRate(token);
-        uint256 totalFee = (bnbOut * feeRate) / BASIS_POINTS;
-        uint256 bnbAfterFee = bnbOut - totalFee;
-        require(bnbAfterFee >= minBNBOut, "Slippage too high");
-        require(bnbAfterFee <= pool.bnbReserve, "Insufficient BNB liquidity");
+        uint256 totalFee = (monOut * feeRate) / BASIS_POINTS;
+        uint256 monAfterFee = monOut - totalFee;
+        require(monAfterFee >= minMONOut, "Slippage too high");
+        require(monAfterFee <= pool.monReserve, "Insufficient MON liquidity");
 
         // Transfer tokens from seller (before state changes for CEI)
         IERC20(token).safeTransferFrom(msg.sender, address(this), tokenAmount);
 
         // Update reserves
-        pool.bnbReserve -= bnbOut;
+        pool.monReserve -= monOut;
 
         pool.tokenReserve += tokenAmount;
         // Update market cap
-        uint256 augmentedBnbNow = pool.bnbReserve + pool.virtualBnbReserve;
+        uint256 augmentedMonNow = pool.monReserve + pool.virtualMonReserve;
 
         if (pool.tokenReserve > 0) {
             pool.marketCap =
-                (augmentedBnbNow * pool.totalTokenSupply) /
+                (augmentedMonNow * pool.totalTokenSupply) /
                 pool.tokenReserve;
         }
-        uint256 currentPrice = augmentedBnbNow > 0 && pool.tokenReserve > 0
-            ? (augmentedBnbNow * 10 ** 18) / pool.tokenReserve
+        uint256 currentPrice = augmentedMonNow > 0 && pool.tokenReserve > 0
+            ? (augmentedMonNow * 10 ** 18) / pool.tokenReserve
             : 0;
         _distributeFees(totalFee, token, msg.sender);
-        payable(msg.sender).transfer(bnbAfterFee);
+        payable(msg.sender).transfer(monAfterFee);
 
         emit TokensSold(
             msg.sender,
             token,
             tokenAmount,
-            bnbAfterFee,
+            monAfterFee,
             currentPrice,
             feeRate
         );
@@ -532,7 +562,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     function _handlePostGraduationSell(
         address token,
         uint256 tokenAmount,
-        uint256 minBNBOut
+        uint256 minMONOut
     ) private {
         Pool storage pool = pools[token];
         require(pool.graduated, "Pool not graduated");
@@ -550,18 +580,18 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
 
         address[] memory path = new address[](2);
         path[0] = token;
-        path[1] = wbnbAddress;
+        path[1] = wmonAddress;
 
         uint256[] memory amounts = pancakeRouter.swapExactTokensForETH(
             tokensToSell,
-            minBNBOut,
+            minMONOut,
             path,
-            msg.sender, // ✅ Send BNB directly to seller
+            msg.sender, // ✅ Send MON directly to seller
             block.timestamp + 300
         );
 
-        uint256 bnbReceived = amounts[amounts.length - 1];
-        require(bnbReceived >= minBNBOut, "Slippage too high");
+        uint256 monReceived = amounts[amounts.length - 1];
+        require(monReceived >= minMONOut, "Slippage too high");
 
         // Send platform fee tokens to fee address
         if (platformFee > 0) {
@@ -576,7 +606,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             msg.sender,
             token,
             tokenAmount,
-            bnbReceived,
+            monReceived,
             platformFee,
             0
         );
@@ -592,20 +622,20 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     ) private nonReentrant whenNotPaused {
         Pool storage pool = pools[token];
         require(pool.graduated, "Pool not graduated");
-        require(msg.value > 0, "Must send BNB");
+        require(msg.value > 0, "Must send MON");
 
         // Take 1% platform fee
         uint256 platformFee = (msg.value * POST_GRADUATION_FEE_BPS) /
             BASIS_POINTS;
-        uint256 bnbToSpend = msg.value - platformFee;
+        uint256 monToSpend = msg.value - platformFee;
 
         // ✅ ROUTE THROUGH PANCAKESWAP ROUTER
         address[] memory path = new address[](2);
-        path[0] = wbnbAddress;
+        path[0] = wmonAddress;
         path[1] = token;
 
         uint256[] memory amounts = pancakeRouter.swapExactETHForTokens{
-            value: bnbToSpend
+            value: monToSpend
         }(
             minTokensOut,
             path,
@@ -626,7 +656,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             token,
             msg.value,
             tokensReceived,
-            (bnbToSpend * 10 ** 18) / tokensReceived, // price
+            (monToSpend * 10 ** 18) / tokensReceived, // price
             POST_GRADUATION_FEE_BPS
         );
     }
@@ -637,7 +667,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
 */
     function _checkGraduation(address token) private {
         Pool storage pool = pools[token];
-        if (pool.bnbReserve >= GRADUATION_BNB_THRESHOLD) {
+        if (pool.monReserve >= GRADUATION_MON_THRESHOLD) {
             _graduatePool(token);
         }
     }
@@ -652,11 +682,11 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         pool.active = false;
 
         creatorFees[token].graduationMarketCap = pool.marketCap;
-        pool.bnbForPancakeSwap = pool.bnbReserve;
+        pool.monForPancakeSwap = pool.monReserve;
 
-        uint256 finalPrice = (pool.bnbReserve + pool.virtualBnbReserve) > 0 &&
+        uint256 finalPrice = (pool.monReserve + pool.virtualMonReserve) > 0 &&
             pool.tokenReserve > 0
-            ? ((pool.bnbReserve + pool.virtualBnbReserve) * 10 ** 18) /
+            ? ((pool.monReserve + pool.virtualMonReserve) * 10 ** 18) /
                 pool.tokenReserve
             : 0;
         emit PoolGraduated(
@@ -664,14 +694,14 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             pool.marketCap,
             finalPrice,
             pool.reservedTokens,
-            pool.bnbReserve
+            pool.monReserve
         );
     }
 
     /**
 * @notice Withdraw graduated pool funds (for LaunchpadManager to add to PancakeSwap)
-
-* @return bnbAmount Amount of BNB withdrawn
+* @dev Distributes graduation bonding: 70% creator, 20% InfoFi, 10% platform
+* @return monAmount Amount of MON withdrawn
 * @return tokenAmount Amount of reserved tokens withdrawn
 * @return remainingTokens Amount of remaining tradable tokens
 * @return creator The pool creator address
@@ -682,7 +712,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         external
         onlyRole(MANAGER_ROLE)
         returns (
-            uint256 bnbAmount,
+            uint256 monAmount,
             uint256 tokenAmount,
             uint256 remainingTokens,
             address creator
@@ -691,29 +721,42 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         Pool storage pool = pools[token];
         require(pool.graduated, "Pool not graduated");
         require(pool.active == false, "Pool still active");
-        bnbAmount = pool.bnbForPancakeSwap;
+        monAmount = pool.monForPancakeSwap;
         tokenAmount = pool.reservedTokens;
 
         remainingTokens = pool.tokenReserve;
         creator = pool.creator;
-        if (bnbAmount > 0) {
+
+        // Distribute graduation bonding MON: 70% creator, 20% InfoFi, 10% platform
+        if (monAmount > 0) {
             require(
-                pool.bnbReserve >= bnbAmount,
-                "Insufficient bnb for withdrawal"
+                pool.monReserve >= monAmount,
+                "Insufficient MON for withdrawal"
             );
-            pool.bnbReserve -= bnbAmount;
+            pool.monReserve -= monAmount;
+
+            uint256 creatorMon = (monAmount * GRADUATION_CREATOR_PERCENT) / 100;
+            uint256 infoFiMon = (monAmount * GRADUATION_INFOFI_PERCENT) / 100;
+            uint256 platformMon = (monAmount * GRADUATION_PLATFORM_PERCENT) / 100;
+
+            // Send graduation bonding distributions
+            (bool successCreator, ) = payable(creator).call{value: creatorMon}("");
+            require(successCreator, "Creator MON transfer failed");
+
+            (bool successInfoFi, ) = payable(infoFiFeeAddress).call{value: infoFiMon}("");
+            require(successInfoFi, "InfoFi MON transfer failed");
+
+            (bool successPlatform, ) = payable(platformFeeAddress).call{value: platformMon}("");
+            require(successPlatform, "Platform MON transfer failed");
         }
+
         pool.reservedTokens = 0;
         // Send remaining tradable tokens to creator
 
-        // Send reserved tokens and BNB to LaunchpadManager
+        // Send reserved tokens to LaunchpadManager
         IERC20(pool.token).safeTransfer(msg.sender, tokenAmount);
 
-        if (bnbAmount > 0) {
-            (bool success, ) = payable(msg.sender).call{value: bnbAmount}("");
-            require(success, "BNB transfer failed");
-        }
-        return (bnbAmount, tokenAmount, remainingTokens, creator);
+        return (monAmount, tokenAmount, remainingTokens, creator);
     }
 
     /**
@@ -722,7 +765,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
 */
     function setLPToken(address token) external onlyRole(MANAGER_ROLE) {
         Pool storage pool = pools[token];
-        address lpToken = pancakeFactory.getPair(token, wbnbAddress);
+        address lpToken = pancakeFactory.getPair(token, wmonAddress);
         pool.lpToken = lpToken;
     }
 
@@ -783,20 +826,20 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
 */
     function getBuyQuote(
         address token,
-        uint256 bnbAmount
+        uint256 monAmount
     ) external view returns (uint256 tokensOut, uint256 pricePerToken) {
         Pool memory pool = pools[token];
         require(pool.active, "Pool not active");
         require(!pool.graduated, "Buying forbidden after graduation");
         uint256 feeRate = getCurrentFeeRate(token);
-        uint256 bnbAfterFee = bnbAmount -
-            ((bnbAmount * feeRate) / BASIS_POINTS);
-        uint256 augmentedBnbBefore = pool.bnbReserve + pool.virtualBnbReserve;
+        uint256 monAfterFee = monAmount -
+            ((monAmount * feeRate) / BASIS_POINTS);
+        uint256 augmentedMonBefore = pool.monReserve + pool.virtualMonReserve;
         tokensOut =
-            (bnbAfterFee * pool.tokenReserve) /
-            (augmentedBnbBefore + bnbAfterFee);
+            (monAfterFee * pool.tokenReserve) /
+            (augmentedMonBefore + monAfterFee);
         if (tokensOut > pool.tokenReserve) tokensOut = pool.tokenReserve;
-        pricePerToken = tokensOut > 0 ? (bnbAmount * 10 ** 18) / tokensOut : 0;
+        pricePerToken = tokensOut > 0 ? (monAmount * 10 ** 18) / tokensOut : 0;
     }
 
     /**
@@ -806,25 +849,25 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     function getSellQuote(
         address token,
         uint256 tokenAmount
-    ) external view returns (uint256 bnbOut, uint256 pricePerToken) {
+    ) external view returns (uint256 monOut, uint256 pricePerToken) {
         Pool memory pool = pools[token];
         if (pool.graduated) {
             uint256 fee = (tokenAmount * POST_GRADUATION_FEE_BPS) /
                 BASIS_POINTS;
             uint256 tokensAfterFee = tokenAmount - fee;
             uint256 tokensToSwap = tokensAfterFee / 2;
-            bnbOut = (tokensToSwap * 70) / 100;
-            pricePerToken = bnbOut > 0 ? (bnbOut * 10 ** 18) / tokenAmount : 0;
+            monOut = (tokensToSwap * 70) / 100;
+            pricePerToken = monOut > 0 ? (monOut * 10 ** 18) / tokenAmount : 0;
 
-            return (bnbOut, pricePerToken);
+            return (monOut, pricePerToken);
         }
         require(pool.active, "Pool not active");
-        uint256 bnbBeforeFee = (tokenAmount * pool.bnbReserve) /
+        uint256 monBeforeFee = (tokenAmount * pool.monReserve) /
             (pool.tokenReserve + tokenAmount);
 
         uint256 feeRate = getCurrentFeeRate(token);
-        bnbOut = bnbBeforeFee - ((bnbBeforeFee * feeRate) / BASIS_POINTS);
-        pricePerToken = bnbOut > 0 ? (bnbOut * 10 ** 18) / tokenAmount : 0;
+        monOut = monBeforeFee - ((monBeforeFee * feeRate) / BASIS_POINTS);
+        pricePerToken = monOut > 0 ? (monOut * 10 ** 18) / tokenAmount : 0;
     }
 
     /**
@@ -837,9 +880,9 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         external
         view
         returns (
-            uint256 marketCapBNB,
+            uint256 marketCapMON,
             uint256 marketCapUSD,
-            uint256 bnbReserve,
+            uint256 monReserve,
             uint256 tokenReserve,
             uint256 reservedTokens,
             uint256 currentPrice,
@@ -849,19 +892,19 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         )
     {
         Pool memory pool = pools[token];
-        marketCapBNB = pool.marketCap;
+        marketCapMON = pool.marketCap;
         marketCapUSD = priceOracle.bnbToUSD(pool.marketCap);
-        bnbReserve = pool.bnbReserve;
+        monReserve = pool.monReserve;
         tokenReserve = pool.tokenReserve;
         reservedTokens = pool.reservedTokens;
-        uint256 augmentedBnb = pool.bnbReserve + pool.virtualBnbReserve;
-        currentPrice = pool.tokenReserve > 0 && augmentedBnb > 0
-            ? (augmentedBnb * 10 ** 18) / pool.tokenReserve
+        uint256 augmentedMon = pool.monReserve + pool.virtualMonReserve;
+        currentPrice = pool.tokenReserve > 0 && augmentedMon > 0
+            ? (augmentedMon * 10 ** 18) / pool.tokenReserve
             : 0;
         // Calculate initial price for INSTANT_LAUNCH
         uint256 initialPrice = 0;
 
-        uint256 initialReserve = pool.virtualBnbReserve;
+        uint256 initialReserve = pool.virtualMonReserve;
         uint256 initialTokenReserve = (TOTAL_TOKEN_SUPPLY * 80) / 100;
         if (initialReserve > 0 && initialTokenReserve > 0) {
             initialPrice = (initialReserve * 10 ** 18) / initialTokenReserve;
@@ -869,8 +912,8 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         priceMultiplier = currentPrice > 0 && initialPrice > 0
             ? (currentPrice * 100) / initialPrice
             : 100;
-        graduationProgress = GRADUATION_BNB_THRESHOLD > 0
-            ? (pool.bnbReserve * 100) / GRADUATION_BNB_THRESHOLD
+        graduationProgress = GRADUATION_MON_THRESHOLD > 0
+            ? (pool.monReserve * 100) / GRADUATION_MON_THRESHOLD
             : 0;
         graduated = pool.graduated;
     }
@@ -885,17 +928,17 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         external
         view
         returns (
-            uint256 virtualBnbReserve,
-            uint256 graduationBnbThreshold,
-            uint256 graduationMarketCapBNB,
+            uint256 virtualMonReserve,
+            uint256 graduationMonThreshold,
+            uint256 graduationMarketCapMON,
             uint256 launchBlock
         )
     {
         Pool memory pool = pools[token];
         return (
-            pool.virtualBnbReserve,
-            pool.graduationBnbThreshold,
-            pool.graduationMarketCapBNB,
+            pool.virtualMonReserve,
+            pool.graduationMonThreshold,
+            pool.graduationMarketCapMON,
             pool.launchBlock
         );
     }
@@ -990,7 +1033,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             uint256 lastClaimTime,
             uint256 graduationMarketCap,
             uint256 currentMarketCap,
-            uint256 bnbInPool,
+            uint256 monInPool,
             bool canClaim
         )
     {
@@ -1001,7 +1044,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
         graduationMarketCap = fees.graduationMarketCap;
 
         currentMarketCap = pool.marketCap;
-        bnbInPool = pool.bnbReserve;
+        monInPool = pool.monReserve;
         bool cooldownPassed = block.timestamp >=
             fees.lastClaimTime + CLAIM_COOLDOWN;
         bool notGraduated = !pool.graduated;
