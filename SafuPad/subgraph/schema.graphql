@@ -53,7 +53,7 @@ type Launch @entity(immutable: false) {
   founderTokensClaimed: BigInt!
 
   # Liquidity
-  liquidityBNB: BigInt
+  liquidityMON: BigInt
   liquidityTokens: BigInt
   raisedFundsVesting: BigInt!
   raisedFundsClaimed: BigInt!
@@ -87,10 +87,10 @@ type Pool @entity(immutable: false) {
   creator: Bytes!
 
   # Reserves
-  bnbReserve: BigInt!
+  monReserve: BigInt!
   tokenReserve: BigInt!
   reservedTokens: BigInt!
-  virtualBnbReserve: BigInt!
+  virtualMonReserve: BigInt!
 
   # Market Info
   marketCap: BigInt!
@@ -104,11 +104,11 @@ type Pool @entity(immutable: false) {
 
   # LP Info
   lpToken: Bytes
-  bnbForPancakeSwap: BigInt!
+  monForPancakeSwap: BigInt!
 
   # Launch Info
   launchBlock: BigInt!
-  graduationBnbThreshold: BigInt!
+  graduationMonThreshold: BigInt!
 
   # Stats
   totalVolume: BigInt!
@@ -131,7 +131,7 @@ type Trade @entity(immutable: true) {
 
   # Trade Info
   isBuy: Boolean!
-  bnbAmount: BigInt!
+  monAmount: BigInt!
   tokenAmount: BigInt!
   price: BigInt!
   feeRate: BigInt!

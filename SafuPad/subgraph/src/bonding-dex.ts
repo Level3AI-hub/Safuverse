@@ -15,19 +15,19 @@ export function handlePoolCreated(event: PoolCreated): void {
 
   pool.token = tokenAddress;
   pool.creator = event.params.creator;
-  pool.bnbReserve = event.params.initialLiquidity;
+  pool.monReserve = event.params.initialLiquidity;
   pool.tokenReserve = event.params.tradableTokens;
   pool.reservedTokens = event.params.reservedTokens;
-  pool.virtualBnbReserve = event.params.virtualBnbReserve;
+  pool.virtualMonReserve = event.params.virtualMonReserve;
   pool.burnLP = false;
   pool.marketCap = BigInt.fromI32(0);
   pool.graduationMarketCap = BigInt.fromI32(0);
   pool.currentPrice = BigInt.fromI32(0);
   pool.active = true;
   pool.graduated = false;
-  pool.bnbForPancakeSwap = BigInt.fromI32(0);
+  pool.monForPancakeSwap = BigInt.fromI32(0);
   pool.launchBlock = event.params.launchBlock;
-  pool.graduationBnbThreshold = event.params.graduationBnbThreshold;
+  pool.graduationMonThreshold = event.params.graduationMonThreshold;
   pool.totalVolume = BigInt.fromI32(0);
   pool.totalBuys = BigInt.fromI32(0);
   pool.totalSells = BigInt.fromI32(0);
@@ -64,11 +64,11 @@ export function handleTokensBought(event: TokensBought): void {
   trade.token = tokenAddress;
   trade.trader = event.params.buyer;
   trade.isBuy = true;
-  trade.bnbAmount = event.params.bnbAmount;
+  trade.monAmount = event.params.monAmount;
   trade.tokenAmount = event.params.tokensReceived;
   trade.price = event.params.currentPrice;
   trade.feeRate = event.params.feeRate;
-  trade.totalFee = event.params.bnbAmount.times(event.params.feeRate).div(BigInt.fromI32(10000));
+  trade.totalFee = event.params.monAmount.times(event.params.feeRate).div(BigInt.fromI32(10000));
   trade.timestamp = event.block.timestamp;
   trade.blockNumber = event.block.number;
   trade.transactionHash = event.transaction.hash;
@@ -77,7 +77,7 @@ export function handleTokensBought(event: TokensBought): void {
   // Update pool
   let pool = Pool.load(tokenAddress);
   if (pool) {
-    pool.totalVolume = pool.totalVolume.plus(event.params.bnbAmount);
+    pool.totalVolume = pool.totalVolume.plus(event.params.monAmount);
     pool.totalBuys = pool.totalBuys.plus(BigInt.fromI32(1));
     pool.currentPrice = event.params.currentPrice;
     pool.save();
@@ -86,7 +86,7 @@ export function handleTokensBought(event: TokensBought): void {
   // Update token
   let token = Token.load(tokenAddress);
   if (token) {
-    token.totalVolume = token.totalVolume.plus(event.params.bnbAmount);
+    token.totalVolume = token.totalVolume.plus(event.params.monAmount);
     token.totalTrades = token.totalTrades.plus(BigInt.fromI32(1));
     token.save();
   }
@@ -104,13 +104,13 @@ export function handleTokensBought(event: TokensBought): void {
   updatePlatformStats(event.block.timestamp);
   let stats = PlatformStats.load("platform");
   if (stats) {
-    stats.totalVolume = stats.totalVolume.plus(event.params.bnbAmount);
+    stats.totalVolume = stats.totalVolume.plus(event.params.monAmount);
     stats.totalFees = stats.totalFees.plus(trade.totalFee);
     stats.save();
   }
 
   // Update daily stats
-  updateDailyStats(event.block.timestamp, event.params.bnbAmount, trade.totalFee, BigInt.fromI32(1));
+  updateDailyStats(event.block.timestamp, event.params.monAmount, trade.totalFee, BigInt.fromI32(1));
 }
 
 export function handleTokensSold(event: TokensSold): void {
@@ -123,11 +123,11 @@ export function handleTokensSold(event: TokensSold): void {
   trade.token = tokenAddress;
   trade.trader = event.params.seller;
   trade.isBuy = false;
-  trade.bnbAmount = event.params.bnbReceived;
+  trade.monAmount = event.params.monReceived;
   trade.tokenAmount = event.params.tokensAmount;
   trade.price = event.params.currentPrice;
   trade.feeRate = event.params.feeRate;
-  trade.totalFee = event.params.bnbReceived.times(event.params.feeRate).div(BigInt.fromI32(10000));
+  trade.totalFee = event.params.monReceived.times(event.params.feeRate).div(BigInt.fromI32(10000));
   trade.timestamp = event.block.timestamp;
   trade.blockNumber = event.block.number;
   trade.transactionHash = event.transaction.hash;
@@ -136,7 +136,7 @@ export function handleTokensSold(event: TokensSold): void {
   // Update pool
   let pool = Pool.load(tokenAddress);
   if (pool) {
-    pool.totalVolume = pool.totalVolume.plus(event.params.bnbReceived);
+    pool.totalVolume = pool.totalVolume.plus(event.params.monReceived);
     pool.totalSells = pool.totalSells.plus(BigInt.fromI32(1));
     pool.currentPrice = event.params.currentPrice;
     pool.save();
@@ -145,7 +145,7 @@ export function handleTokensSold(event: TokensSold): void {
   // Update token
   let token = Token.load(tokenAddress);
   if (token) {
-    token.totalVolume = token.totalVolume.plus(event.params.bnbReceived);
+    token.totalVolume = token.totalVolume.plus(event.params.monReceived);
     token.totalTrades = token.totalTrades.plus(BigInt.fromI32(1));
     token.save();
   }
@@ -163,13 +163,13 @@ export function handleTokensSold(event: TokensSold): void {
   updatePlatformStats(event.block.timestamp);
   let stats = PlatformStats.load("platform");
   if (stats) {
-    stats.totalVolume = stats.totalVolume.plus(event.params.bnbReceived);
+    stats.totalVolume = stats.totalVolume.plus(event.params.monReceived);
     stats.totalFees = stats.totalFees.plus(trade.totalFee);
     stats.save();
   }
 
   // Update daily stats
-  updateDailyStats(event.block.timestamp, event.params.bnbReceived, trade.totalFee, BigInt.fromI32(1));
+  updateDailyStats(event.block.timestamp, event.params.monReceived, trade.totalFee, BigInt.fromI32(1));
 }
 
 export function handlePoolGraduated(event: PoolGraduated): void {
@@ -180,7 +180,7 @@ export function handlePoolGraduated(event: PoolGraduated): void {
     pool.graduated = true;
     pool.active = false;
     pool.graduationMarketCap = event.params.finalMarketCap;
-    pool.bnbForPancakeSwap = event.params.bnbForPancakeSwap;
+    pool.monForPancakeSwap = event.params.monForPancakeSwap;
     pool.graduatedAt = event.block.timestamp;
     pool.save();
   }
