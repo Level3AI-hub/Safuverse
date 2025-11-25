@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 /**
  * Network names supported by the SDK
  */
-export type NetworkName = 'bsc' | 'bscTestnet' | 'localhost';
+export type NetworkName = 'bsc' | 'bscTestnet' | 'monad' | 'monadTestnet' | 'localhost';
 
 /**
  * Launch type enum
@@ -67,14 +67,14 @@ export interface TokenMetadata {
 
 /**
  * Launch creation parameters
- * ✅ UPDATED: Removed projectInfoFiWallet, changed to BNB amounts
+ * ✅ UPDATED: Removed projectInfoFiWallet, changed to MON amounts (Monad migration)
  */
 export interface CreateLaunchParams {
   name: string;
   symbol: string;
   totalSupply: number;
-  raiseTargetBNB: string; // ✅ Changed from raiseTargetUSD to raiseTargetBNB
-  raiseMaxBNB: string; // ✅ Changed from raiseMaxUSD to raiseMaxBNB
+  raiseTargetMON: string; // ✅ Changed from BNB to MON (Monad migration)
+  raiseMaxMON: string; // ✅ Changed from BNB to MON (Monad migration)
   vestingDuration: number; // in days
   metadata: TokenMetadata;
   burnLP: boolean;
@@ -89,7 +89,7 @@ export interface CreateInstantLaunchParams {
   symbol: string;
   totalSupply: number;
   metadata: TokenMetadata;
-  initialBuyBNB: string;
+  initialBuyMON: string; // ✅ Changed from BNB to MON (Monad migration)
   burnLP: boolean;
   vanitySalt?: string;
 }
@@ -114,15 +114,15 @@ export interface LaunchInfo {
 
 /**
  * Launch information with USD values
- * ✅ UPDATED: Removed projectInfoFiWallet
+ * ✅ UPDATED: Removed projectInfoFiWallet, changed to MON (Monad migration)
  */
 export interface LaunchInfoWithUSD {
   founder: string;
-  raiseTargetBNB: bigint;
+  raiseTargetMON: bigint;
   raiseTargetUSD: bigint;
-  raiseMaxBNB: bigint;
+  raiseMaxMON: bigint;
   raiseMaxUSD: bigint;
-  totalRaisedBNB: bigint;
+  totalRaisedMON: bigint;
   totalRaisedUSD: bigint;
   raiseDeadline: bigint;
   raiseCompleted: boolean;
@@ -132,11 +132,12 @@ export interface LaunchInfoWithUSD {
 
 /**
  * Pool information from bonding curve
+ * ✅ UPDATED: Changed to MON (Monad migration)
  */
 export interface PoolInfo {
-  marketCapBNB: bigint;
+  marketCapMON: bigint;
   marketCapUSD: bigint;
-  bnbReserve: bigint;
+  monReserve: bigint;
   tokenReserve: bigint;
   reservedTokens: bigint;
   currentPrice: bigint;
@@ -175,13 +176,14 @@ export interface PostGraduationStats {
 
 /**
  * Creator fee information
+ * ✅ UPDATED: Changed to MON (Monad migration)
  */
 export interface CreatorFeeInfo {
   accumulatedFees: bigint;
   lastClaimTime: bigint;
   graduationMarketCap: bigint;
   currentMarketCap: bigint;
-  bnbInPool: bigint;
+  monInPool: bigint;
   canClaim: boolean;
 }
 
@@ -207,9 +209,10 @@ export interface LPLockInfo {
 
 /**
  * Harvest statistics
+ * ✅ UPDATED: Changed to MON (Monad migration)
  */
 export interface HarvestStats {
-  bnbAmount: bigint;
+  monAmount: bigint;
   token0Amount: bigint;
   token1Amount: bigint;
   timestamp: bigint;
@@ -262,11 +265,12 @@ export interface FormattedLaunchInfo {
 
 /**
  * Formatted pool information (for display)
+ * ✅ UPDATED: Changed to MON (Monad migration)
  */
 export interface FormattedPoolInfo {
   marketCapUSD: string;
-  marketCapBNB: string;
-  bnbReserve: string;
+  marketCapMON: string;
+  monReserve: string;
   tokenReserve: string;
   currentPrice: string;
   priceMultiplier: string;
