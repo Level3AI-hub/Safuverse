@@ -43,7 +43,7 @@ export interface GraphLaunch {
   vestingStartTime?: string;
   founderTokens?: string;
   founderTokensClaimed?: string;
-  liquidityBNB?: string;
+  liquidityMON?: string;
   liquidityTokens?: string;
   raisedFundsVesting?: string;
   raisedFundsClaimed?: string;
@@ -56,10 +56,10 @@ export interface GraphPool {
   id: string;
   token: GraphToken;
   creator: string;
-  bnbReserve: string;
+  monReserve: string;
   tokenReserve: string;
   reservedTokens: string;
-  virtualBnbReserve: string;
+  virtualMonReserve: string;
   marketCap: string;
   graduationMarketCap: string;
   currentPrice: string;
@@ -67,9 +67,9 @@ export interface GraphPool {
   graduated: boolean;
   burnLP: boolean;
   lpToken?: string;
-  bnbForPancakeSwap: string;
+  monForPancakeSwap: string;
   launchBlock: string;
-  graduationBnbThreshold: string;
+  graduationMonThreshold: string;
   totalVolume: string;
   totalBuys: string;
   totalSells: string;
@@ -84,7 +84,7 @@ export interface GraphTrade {
   token: GraphToken;
   trader: string;
   isBuy: boolean;
-  bnbAmount: string;
+  monAmount: string;
   tokenAmount: string;
   price: string;
   feeRate: string;

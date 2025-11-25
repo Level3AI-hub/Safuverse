@@ -43,7 +43,7 @@ export const GET_TOKEN = `
         vestingStartTime
         founderTokens
         founderTokensClaimed
-        liquidityBNB
+        liquidityMON
         liquidityTokens
         raisedFundsVesting
         raisedFundsClaimed
@@ -53,10 +53,10 @@ export const GET_TOKEN = `
       pool {
         id
         creator
-        bnbReserve
+        monReserve
         tokenReserve
         reservedTokens
-        virtualBnbReserve
+        virtualMonReserve
         marketCap
         graduationMarketCap
         currentPrice
@@ -64,9 +64,9 @@ export const GET_TOKEN = `
         graduated
         burnLP
         lpToken
-        bnbForPancakeSwap
+        monForPancakeSwap
         launchBlock
-        graduationBnbThreshold
+        graduationMonThreshold
         totalVolume
         totalBuys
         totalSells
@@ -143,7 +143,7 @@ export const GET_LAUNCH = `
       vestingStartTime
       founderTokens
       founderTokensClaimed
-      liquidityBNB
+      liquidityMON
       liquidityTokens
       raisedFundsVesting
       raisedFundsClaimed
@@ -182,10 +182,10 @@ export const GET_POOL = `
     pool(id: $id) {
       id
       creator
-      bnbReserve
+      monReserve
       tokenReserve
       reservedTokens
-      virtualBnbReserve
+      virtualMonReserve
       marketCap
       graduationMarketCap
       currentPrice
@@ -193,9 +193,9 @@ export const GET_POOL = `
       graduated
       burnLP
       lpToken
-      bnbForPancakeSwap
+      monForPancakeSwap
       launchBlock
-      graduationBnbThreshold
+      graduationMonThreshold
       totalVolume
       totalBuys
       totalSells
@@ -232,7 +232,7 @@ export const GET_POOLS = `
     ) {
       id
       creator
-      bnbReserve
+      monReserve
       tokenReserve
       currentPrice
       marketCap
@@ -273,7 +273,7 @@ export const GET_TRADES = `
       id
       trader
       isBuy
-      bnbAmount
+      monAmount
       tokenAmount
       price
       feeRate
@@ -473,7 +473,7 @@ export const GET_USER_TRADES = `
     ) {
       id
       isBuy
-      bnbAmount
+      monAmount
       tokenAmount
       price
       timestamp
