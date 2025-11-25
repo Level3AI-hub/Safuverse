@@ -26,8 +26,10 @@ pragma solidity ^0.8.20;
  *    - Monthly market cap tracking
  *    - If 3 consecutive months below starting market cap:
  *      → Community control triggered
- *      → Vested tokens frozen
- *      → Community decides on remaining funds
+ *      → Vested tokens BURNED (not claimable)
+ *      → Raised funds sent to 48-hour Timelock
+ *      → Platform team reviews community input
+ *      → After 48 hours: funds released to platform or custom address
  *
  * ✅ EMERGENCY WITHDRAWAL:
  *    - 48-hour timelock for emergency withdrawals
@@ -69,7 +71,17 @@ pragma solidity ^0.8.20;
  *    - Vesting ONLY if token maintains starting market cap
  *    - If 3 consecutive months below start market cap:
  *      → Community control triggered
- *      → No more vested token releases
+ *      → Remaining vested tokens BURNED
+ *      → Raised funds transferred to Timelock (48 hours)
+ *      → Platform team reviews community input and decides
+ *
+ * 5. TIMELOCK MECHANISM (When Community Control Triggered):
+ *    - Raised funds transferred to RaisedFundsTimelock contract
+ *    - 48-hour timelock starts automatically
+ *    - Platform team reviews community input during this period
+ *    - Platform team can update beneficiary address if needed
+ *    - After 48 hours: funds automatically released to beneficiary
+ *    - Default beneficiary: platform address
  *
  * ═══════════════════════════════════════════════════════════════════
  * INSTANT LAUNCH FLOW:
@@ -225,9 +237,15 @@ interface ILPFeeHarvester {
     ) external;
 }
 
+interface IRaisedFundsTimelock {
+    function lockFunds(address token, address beneficiary) external payable;
+    function updateBeneficiary(address token, address newBeneficiary) external;
+    function releaseFunds(address token) external;
+}
+
 /**
  * @title LaunchpadManagerV3
- * @dev ✅ UPDATED: Uses only global InfoFi address - no per-project InfoFi wallets
+ * @dev Uses global InfoFi address and Timelock for community-controlled funds
  */
 contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
@@ -310,9 +328,10 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     IBondingCurveDEXV3 public bondingCurveDEX;
     IPancakeRouter02 public pancakeRouter;
     PriceOracle public priceOracle;
-    address public infoFiAddress; // ✅ Global InfoFi fee address
-    address public platformFeeAddress; // ✅ NEW: Platform fee recipient
+    address public infoFiAddress; // Global InfoFi fee address
+    address public platformFeeAddress; // Platform fee recipient
     ILPFeeHarvester public lpFeeHarvester;
+    IRaisedFundsTimelock public raisedFundsTimelock; // Timelock for community-controlled funds
     address public pancakeFactory;
     address public wbnbAddress;
 
@@ -420,8 +439,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         address _pancakeRouter,
         address _priceOracle,
         address _infoFiAddress,
-        address _platformFeeAddress, // ✅ NEW
+        address _platformFeeAddress,
         address _lpFeeHarvester,
+        address _raisedFundsTimelock,
         address _pancakeFactory
     ) Ownable(msg.sender) {
         require(_tokenFactory != address(0), "Invalid token factory");
@@ -432,8 +452,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         require(
             _platformFeeAddress != address(0),
             "Invalid platform fee address"
-        ); // ✅ NEW
+        );
         require(_lpFeeHarvester != address(0), "Invalid LP harvester");
+        require(_raisedFundsTimelock != address(0), "Invalid timelock");
         pancakeFactory = _pancakeFactory;
         // Monad Wrapped Native Token address - update with actual Monad WMON address when available
         wbnbAddress = address(0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd);
@@ -442,9 +463,10 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         bondingCurveDEX = IBondingCurveDEXV3(_bondingCurveDEX);
         pancakeRouter = IPancakeRouter02(_pancakeRouter);
         infoFiAddress = _infoFiAddress;
-        platformFeeAddress = _platformFeeAddress; // ✅ NEW
+        platformFeeAddress = _platformFeeAddress;
         priceOracle = PriceOracle(_priceOracle);
         lpFeeHarvester = ILPFeeHarvester(_lpFeeHarvester);
+        raisedFundsTimelock = IRaisedFundsTimelock(_raisedFundsTimelock);
 
         fallbackMONPrice = 1200 * 10 ** 8;
         useOraclePrice = true;
@@ -1176,6 +1198,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @notice Claim vested tokens (10% allocation vested over 6 months)
      * @dev Vesting is conditional on token maintaining starting market cap
      * @dev Tokens ONLY release if current market cap is above starting market cap
+     * @dev If community control triggered, vested tokens are BURNED
      */
     function claimVestedTokens(address token) external nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
@@ -1189,7 +1212,17 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         require(msg.sender == basics.founder, "Not founder");
         require(status.raiseCompleted, "Raise not completed");
         require(status.graduatedToPancakeSwap, "Not graduated yet");
-        require(!vesting.communityControlTriggered, "Community control active");
+
+        // CRITICAL: If community control triggered, burn remaining vested tokens
+        if (vesting.communityControlTriggered) {
+            uint256 remainingVestedTokens = vesting.vestedTokens - vesting.vestedTokensClaimed;
+            if (remainingVestedTokens > 0) {
+                vesting.vestedTokensClaimed = vesting.vestedTokens;
+                IERC20(token).safeTransfer(address(0xdead), remainingVestedTokens);
+                emit TokensBurned(token, remainingVestedTokens);
+            }
+            revert("Community control active - vested tokens burned");
+        }
 
         // CRITICAL: Check current market cap is above starting market cap
         uint256 currentMarketCap = _getCurrentMarketCap(token);
@@ -1332,12 +1365,11 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Community governance function to withdraw funds when control is active
+     * @notice Transfer raised funds to timelock when community control is triggered
      * @dev Only callable when 3 consecutive months below starting market cap
-     * @dev This function should be called by a governance contract/multisig
-     * @param recipient Address to send the funds to (decided by community)
+     * @dev Funds locked for 48 hours for platform team to review community input
      */
-    function communityWithdrawFunds(address token, address recipient) external onlyOwner nonReentrant {
+    function transferFundsToTimelock(address token) external nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
         LaunchVesting storage vesting = launchVesting[token];
         LaunchLiquidity storage liquidity = launchLiquidity[token];
@@ -1350,15 +1382,27 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             vesting.communityControlTriggered,
             "Community control not active"
         );
-        require(recipient != address(0), "Invalid recipient");
 
         uint256 remainingFunds = liquidity.raisedFundsVesting - liquidity.raisedFundsClaimed;
-        require(remainingFunds > 0, "No funds to withdraw");
+        require(remainingFunds > 0, "No funds to transfer");
 
         liquidity.raisedFundsClaimed = liquidity.raisedFundsVesting;
 
-        payable(recipient).transfer(remainingFunds);
-        emit RaisedFundsClaimed(recipient, token, remainingFunds);
+        // Transfer to timelock with platform address as default beneficiary
+        raisedFundsTimelock.lockFunds{value: remainingFunds}(token, platformFeeAddress);
+    }
+
+    /**
+     * @notice Update timelock beneficiary based on community decision
+     * @dev Only owner can call (platform team)
+     * @param token Token address
+     * @param newBeneficiary New beneficiary address based on community input
+     */
+    function updateTimelockBeneficiary(
+        address token,
+        address newBeneficiary
+    ) external onlyOwner {
+        raisedFundsTimelock.updateBeneficiary(token, newBeneficiary);
     }
 
     /**
