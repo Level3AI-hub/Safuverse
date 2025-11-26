@@ -1,42 +1,55 @@
-import { StrictMode } from "react";
+import { StrictMode, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import "@rainbow-me/rainbowkit/styles.css";
 import {
-  darkTheme,
-  getDefaultConfig,
-  RainbowKitProvider,
-  type Theme,
-} from "@rainbow-me/rainbowkit";
-import { WagmiProvider } from "wagmi";
-import { bsc } from "wagmi/chains";
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  TorusWalletAdapter,
+  LedgerWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import merge from "lodash.merge";
-const config = getDefaultConfig({
-  appName: "Level3GPTs",
-  projectId: "YOUR_PROJECT_ID",
-  chains: [bsc],
-});
 
-const myTheme = merge(darkTheme(), {
-  colors: {
-    connectButtonBackground: "#FFB000",
-    connectButtonText: "#000000",
-  },
-  radii: {
-    connectButton: "9999px",
-  },
-} as Theme);
+// Import Solana wallet adapter styles
+import "@solana/wallet-adapter-react-ui/styles.css";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={new QueryClient()}>
-        <RainbowKitProvider modalSize="compact" theme={myTheme}>
-          <App />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  </StrictMode>
-);
+function Root() {
+  // Use mainnet-beta for production, devnet for testing
+  const network = WalletAdapterNetwork.Mainnet;
+
+  // You can also provide a custom RPC endpoint
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter(),
+    ],
+    []
+  );
+
+  return (
+    <StrictMode>
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider>
+            <QueryClientProvider client={new QueryClient()}>
+              <App />
+            </QueryClientProvider>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </StrictMode>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(<Root />);

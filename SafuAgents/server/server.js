@@ -117,6 +117,7 @@ await dbRun(`
 
 // ----- Helpers -----
 function isValidPublicKey(pk) {
+  // Support both EVM (40-42 chars with 0x) and Solana (32-44 chars base58) addresses
   return typeof pk === "string" && pk.length >= 10 && pk.length <= 200;
 }
 
@@ -455,82 +456,60 @@ app.post("/api/verify", async (req, res) => {
           );
         }
 
-        // Check for .safu domain
+        // TODO: Implement Solana .safu domain verification
+        // For now, provide basic access to all connected wallets
+        // This section will need to be updated to use Solana Name Service (SNS)
+
+        /* BNB Chain domain verification - DISABLED for Solana migration
         const node = await reverse.node(publicKey);
         const resolverAddress = await registry.resolver(node);
+        ...
+        [Domain verification logic commented out for Solana migration]
+        */
 
-        if (resolverAddress && resolverAddress !== ethers.ZeroAddress) {
-          const resolver = new ethers.Contract(
-            resolverAddress,
-            RESOLVER_ABI,
-            provider
-          );
-          const name = await resolver.name(node);
+        // Temporary: Provide basic tier access for all Solana wallet users
+        // Set default tier with reasonable limits until Solana domain verification is implemented
+        const defaultTier = 3; // 3-character tier
+        const defaultDailyLimit = 20; // 20 calls per day
 
-          if (name && name.endsWith(".safu")) {
-            // Domain found - proceed with verification
+        await dbRun(
+          `UPDATE users SET
+            domain_name = ?,
+            domain_tier = ?,
+            is_lifetime = ?,
+            daily_limit = ?,
+            all_access = ?,
+            last_reset_date = ?,
+            updated_at = ?
+           WHERE public_key = ?`,
+          [
+            "solana-wallet", // Placeholder domain name
+            defaultTier,
+            false,
+            defaultDailyLimit,
+            true, // Grant access to all agents
+            new Date().toISOString(),
+            new Date().toISOString(),
+            publicKey,
+          ]
+        );
 
-            // Check expiry
-            const expiry = await base.nameExpires(
-              BigInt(
-                ethers.keccak256(ethers.toUtf8Bytes(name.split(".safu")[0]))
-              )
-            );
+        await dbRun("COMMIT");
+        const fresh = await getUser(publicKey);
+        domainVerified = true;
 
-            const isLifetime = expiry == 31536000000n;
-
-            // Calculate tier and daily limit
-            const { tier, dailyLimit } = calculateTier(name, isLifetime);
-
-            // Update user with tier information
-            await dbRun(
-              `UPDATE users SET 
-                domain_name = ?,
-                domain_tier = ?,
-                is_lifetime = ?,
-                daily_limit = ?,
-                all_access = ?,
-                last_reset_date = ?,
-                updated_at = ?
-               WHERE public_key = ?`,
-              [
-                name,
-                tier,
-                isLifetime,
-                dailyLimit,
-                true, // All domain users get all_access
-                new Date().toISOString(),
-                new Date().toISOString(),
-                publicKey,
-              ]
-            );
-
-            await dbRun("COMMIT");
-            const fresh = await getUser(publicKey);
-            domainVerified = true;
-
-            return res.json({
-              success: true,
-              verificationType: "domain",
-              message: `Access granted! ${tier}-character domain with ${
-                isLifetime ? "lifetime" : "1-year"
-              } registration.`,
-              user: fresh,
-              access: true,
-              tier: {
-                type: "domain",
-                characters: tier,
-                isLifetime: isLifetime,
-                dailyLimit: dailyLimit,
-                description: `${dailyLimit} calls per day, access to all agents`,
-              },
-            });
-          }
-        }
-
-        // If we reach here, no valid domain found
-        await dbRun("ROLLBACK");
-        // Fall back to IP verification
+        return res.json({
+          success: true,
+          verificationType: "solana-wallet",
+          message: `Access granted! Connected with Solana wallet.`,
+          user: fresh,
+          access: true,
+          tier: {
+            type: "wallet",
+            dailyLimit: defaultDailyLimit,
+            description: `${defaultDailyLimit} calls per day, access to all agents`,
+          },
+        });
       } catch (txErr) {
         await dbRun("ROLLBACK");
         if (process.env.NODE_ENV === 'development') {

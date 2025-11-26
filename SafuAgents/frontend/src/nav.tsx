@@ -1,12 +1,12 @@
-import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useState } from "react";
 import { HiOutlineX } from "react-icons/hi";
 import wide from "./assets/wide.png";
 import small from "./assets/small.png";
+
 export const Nav = () => {
-  const { openConnectModal } = useConnectModal();
-  const { isConnected } = useAccount();
+  const { connected, publicKey } = useWallet();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -27,18 +27,30 @@ export const Nav = () => {
         </a>
         <button className="cursor-pointer "> Manifesto </button>
         <button className="cursor-pointer "> FAQ </button>
-        {openConnectModal && (
-          <button
-            onClick={openConnectModal}
-            className="lg:flex items-center font-semibold text-black py-2 px-8 hidden bg-[#FFB000] rounded-full cursor-pointer transition-all hover:scale-105 hover:bg-[#FFB000]/90 duration-300"
-          >
-            <div className="flex font-bold text-lg">Login</div>{" "}
-          </button>
+        {!connected && (
+          <WalletMultiButton
+            style={{
+              backgroundColor: "#FFB000",
+              color: "#000000",
+              borderRadius: "9999px",
+              fontWeight: "bold",
+              fontSize: "1.125rem",
+              padding: "0.5rem 2rem",
+              transition: "all 0.3s",
+            }}
+          />
         )}
       </div>
-      {isConnected && (
+      {connected && (
         <div className="hidden lg:flex ml-6">
-          <ConnectButton showBalance={true} />
+          <WalletMultiButton
+            style={{
+              backgroundColor: "#FFB000",
+              color: "#000000",
+              borderRadius: "9999px",
+              fontWeight: "600",
+            }}
+          />
         </div>
       )}
 
@@ -67,23 +79,20 @@ export const Nav = () => {
             <div className="flex flex-col items-center text-white space-y-4 px-10 font-semibold">
               <button className="cursor-pointer "> Manifesto </button>
               <button className="cursor-pointer "> FAQ </button>
-              {openConnectModal && (
-                <button
-                  onClick={openConnectModal}
-                  className="flex items-center font-semibold text-black py-2 px-8 lg:hidden bg-[#FFB000] rounded-full cursor-pointer transition-all hover:scale-105 hover:bg-[#FFB000]/90 duration-300"
-                >
-                  <div className="flex font-bold text-lg">Login</div>{" "}
-                </button>
-              )}
-
-              {isConnected ? (
-                <div className="w-full px-4">
-                  {/* ConnectButton renders its own UI — wrap it so it fills the width nicely */}
-                  <div className="w-full rounded-full overflow-hidden">
-                    <ConnectButton showBalance={true} />
-                  </div>
+              <div className="w-full px-4">
+                <div className="w-full rounded-full overflow-hidden">
+                  <WalletMultiButton
+                    style={{
+                      backgroundColor: "#FFB000",
+                      color: "#000000",
+                      borderRadius: "9999px",
+                      fontWeight: "bold",
+                      fontSize: "1.125rem",
+                      width: "100%",
+                    }}
+                  />
                 </div>
-              ) : null}
+              </div>
 
               {/* optional: add a close button for clarity */}
               <button
