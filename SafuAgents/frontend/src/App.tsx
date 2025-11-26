@@ -87,14 +87,6 @@ const cards: Card[] = [
     icon: <img src="/token.png" className="h-20 rounded-full" />,
   },
   {
-    title: "Grant & Funding Findoor",
-    description:
-      "Web3 funding expert that finds active crypto grants, analyzes fit, and helps builders actually secure funding fast",
-    gradient: "from-green-400 via-green-800 to-black",
-    class: "meme",
-    icon: <img src="/grant.png" className="h-20 rounded-full" />,
-  },
-  {
     title: "Crypto Job Findooor",
     description:
       "Helps you find the perfect Web3 job in your blockchain or niche of choice, with smart coaching and insights.",
@@ -179,7 +171,7 @@ export default function App() {
           <p className="text-gray-600 text-xl max-w-md md:max-w-2xl mx-auto mb-10">
             A new generation of crypto native agents built for builders,
             creators and degens. <br className="md:hidden" />
-            Powered by .safu
+            Powered by $LVL
           </p>
           <button
             onClick={handleScroll}

@@ -11,6 +11,7 @@ import type {
   MockPancakeRouter,
   LPFeeHarvester,
   MockPancakeFactory,
+  RaisedFundsTimelock,
 } from "../types/ethers-contracts/index.js";
 
 describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () {
@@ -21,6 +22,7 @@ describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () 
   let lpFeeHarvester: LPFeeHarvester;
   let mockPancakeRouter: MockPancakeRouter;
   let mockPancakeFactory: MockPancakeFactory;
+  let timelock: RaisedFundsTimelock;
   let owner: any;
   let founder: any;
   let user1: any;
@@ -110,6 +112,16 @@ describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () 
 
     // Deploy LPFeeHarvester
 
+
+    const RaisedFundsTimelock = await ethers.getContractFactory(
+      "RaisedFundsTimelock"
+    );
+
+    timelock = await RaisedFundsTimelock.deploy(platformFee.address); // 7 days lock
+
+    await timelock.waitForDeployment();
+
+
     // ✅ FIXED: Added platformFeeAddress parameter
     const LaunchpadManagerV3 = await ethers.getContractFactory(
       "LaunchpadManagerV3"
@@ -122,6 +134,7 @@ describe("LaunchpadManagerV3 - Updated for New PROJECT_RAISE Flow", function () 
       infoFiFee.address,
       platformFee.address, // ✅ NEW: Platform fee address
       await lpFeeHarvester.getAddress(),
+      await timelock.getAddress(),
       PANCAKE_FACTORY
     );
     await launchpadManager.waitForDeployment();

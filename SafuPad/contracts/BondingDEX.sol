@@ -676,13 +676,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     }
 
     /**
-* @notice Withdraw graduated pool funds (for LaunchpadManager to add to PancakeSwap)
-* @dev Sends all MON and reserved tokens to LaunchpadManager for liquidity
-* @return monAmount Amount of MON withdrawn
-* @return tokenAmount Amount of reserved tokens withdrawn
-* @return remainingTokens Amount of remaining tradable tokens
-* @return creator The pool creator address
-*/
+     * @notice Withdraw graduated pool funds (for LaunchpadManager to add to PancakeSwap)
+     * @dev Sends all MON and reserved tokens to LaunchpadManager for liquidity
+     * @return monAmount Amount of MON withdrawn
+     * @return tokenAmount Amount of reserved tokens withdrawn
+     * @return remainingTokens Amount of remaining tradable tokens
+     * @return creator The pool creator address
+     */
     function withdrawGraduatedPool(
         address token
     )
@@ -822,9 +822,13 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
             path[0] = token;
             path[1] = wmonAddress;
 
-            try pancakeRouter.getAmountsOut(tokenAmount, path) returns (uint[] memory amounts) {
+            try pancakeRouter.getAmountsOut(tokenAmount, path) returns (
+                uint[] memory amounts
+            ) {
                 monOut = amounts[1];
-                pricePerToken = monOut > 0 ? (monOut * 10 ** 18) / tokenAmount : 0;
+                pricePerToken = monOut > 0
+                    ? (monOut * 10 ** 18) / tokenAmount
+                    : 0;
             } catch {
                 // If router call fails, return 0
                 monOut = 0;
@@ -865,7 +869,7 @@ contract BondingCurveDEX is ReentrancyGuard, AccessControl {
     {
         Pool memory pool = pools[token];
         marketCapMON = pool.marketCap;
-        marketCapUSD = priceOracle.bnbToUSD(pool.marketCap);
+        marketCapUSD = priceOracle.monToUSD(pool.marketCap);
         monReserve = pool.monReserve;
         tokenReserve = pool.tokenReserve;
         reservedTokens = pool.reservedTokens;

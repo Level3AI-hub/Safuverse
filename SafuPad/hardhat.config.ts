@@ -22,7 +22,7 @@ const config: HardhatUserConfig = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 100000,
           },
         },
       },
@@ -31,7 +31,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 100000,
           },
           viaIR: true,
         },
@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
       forking: {
         enabled: true,
-        url: "https://bsc-testnet-rpc.publicnode.com",
+        url: "https://rpc1.monad.xyz",
       },
     },
     hardhatOp: {

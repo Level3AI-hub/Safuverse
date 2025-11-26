@@ -43,7 +43,7 @@ describe("BondingCurveDEX - INSTANT_LAUNCH Tests", function () {
 
   const INITIAL_LIQUIDITY_MON = ethers.parseEther("0.01");
   const INITIAL_LIQUIDITY_TOKENS = ethers.parseEther("1000000000"); // ✅ FIXED: Must be 1B (100% of total) for createInstantLaunchPool
-  const MON_PRICE_USD = ethers.parseEther("580"); // $580 per MON
+  const MON_PRICE_USD = ethers.parseEther("0.04"); // $580 per MON
 
   const defaultMetadata = {
     logoURI: "https://example.com/logo.png",
@@ -234,7 +234,7 @@ describe("BondingCurveDEX - INSTANT_LAUNCH Tests", function () {
           INITIAL_LIQUIDITY_TOKENS,
           owner.address, // creator
           false, // burnLP
-          { value: INITIAL_LIQUIDITY_BNB }
+          { value: INITIAL_LIQUIDITY_MON }
         )
       ).to.be.revertedWith("Pool already exists");
     });
@@ -404,7 +404,7 @@ describe("BondingCurveDEX - INSTANT_LAUNCH Tests", function () {
           value: buyAmount,
         });
       const pool = await bondingCurveDEX.pools(await token.getAddress());
-      console.log(pool.bnbReserve);
+      console.log(pool.monReserve);
       const balance = await token.balanceOf(trader1.address);
       expect(balance).to.be.gt(0);
     });

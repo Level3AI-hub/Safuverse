@@ -73,14 +73,6 @@ const cards: Card[] = [
     icon: <img src="/tokenb.png" className="h-20 rounded-full" />,
   },
   {
-    title: "Grant & Funding Findoor",
-    description:
-      "Web3 funding expert that finds active crypto grants, analyzes fit, and helps builders actually secure funding fast",
-    gradient: "from-green-400 via-green-800 to-black",
-    class: "meme",
-    icon: <img src="/grantb.png" className="h-20 rounded-full" />,
-  },
-  {
     title: "Crypto Job Findooor",
     description:
       "Helps you find the perfect Web3 job in your blockchain or niche of choice, with smart coaching and insights.",

@@ -7,87 +7,7 @@ pragma solidity ^0.8.20;
  * @notice Manages two types of token launches: Project Raise and Instant Launch
  *
  * VERSION: 3.0.1 (Fixed - Liquidity Cap Removed + Platform-Initiated Burns)
- *
- * ═══════════════════════════════════════════════════════════════════
- * MONAD MIGRATION & NEW TOKENOMICS:
- * ═══════════════════════════════════════════════════════════════════
- *
- * ✅ MONAD MIGRATION: Migrated from BNB to Monad native token (MON)
- *    - Raise range: 5M MON - 20M MON
- *    - All references updated from BNB to MON
- *
- * ✅ NEW TOKEN DISTRIBUTION:
- *    - 60% to founder (released immediately at raise end)
- *    - 20% to contributors (claim via claimContributorTokens)
- *    - 10% for liquidity (paired with 20% of raised MON)
- *    - 10% vested over 6 months (conditional on market cap)
- *
- * ✅ MARKET CAP PROTECTION:
- *    - Monthly market cap tracking
- *    - If 3 consecutive months below starting market cap:
- *      → Community control triggered
- *      → Platform initiates vested token BURN
- *      → Raised funds sent to 48-hour Timelock
- *      → Platform team reviews community input
- *      → After 48 hours: funds released based on community decision
- *
- * ✅ LP FEE DISTRIBUTION (in LPFeeHarvester):
- *    - Founder: 70%
- *    - InfoFi: 20%
- *    - Platform: 10%
- *
- * ═══════════════════════════════════════════════════════════════════
- * PROJECT RAISE FLOW:
- * ═══════════════════════════════════════════════════════════════════
- *
- * 1. LAUNCH (Founder)
- *    - Creates token (1B supply)
- *    - Sets raise target (5M-20M MON)
- *    - 72-hour timer starts
- *
- * 2. CONTRIBUTION PERIOD (72 hours)
- *    - Users contribute MON (max 50K per wallet)
- *    - Fixed price based on raise target
- *    - Get proportional allocation from 20% pool
- *
- * 3A. IF SUCCESS (target met):
- *     - Contributors claim tokens (20%)
- *     - Founder gets 60% immediately
- *     - 10% tokens + 20% MON → PancakeSwap liquidity
- *     - 10% vested over 6 months (if market cap maintained)
- *     - Remaining 80% MON → Founder (vested over 6 months)
- *
- * 3B. IF FAILED (target not met):
- *     - All contributors get refunded
- *     - Tokens burned
- *
- * 4. VESTING CONDITIONS:
- *    - 10% tokens vest monthly over 6 months
- *    - Vesting ONLY if token maintains starting market cap
- *    - If 3 consecutive months below start market cap:
- *      → Community control triggered
- *      → Platform burns remaining vested tokens
- *      → Raised funds transferred to Timelock (48 hours)
- *      → Platform team reviews community input and decides
- *
- * 5. TIMELOCK MECHANISM (When Community Control Triggered):
- *    - Raised funds transferred to RaisedFundsTimelock contract
- *    - 48-hour timelock starts automatically
- *    - Platform team reviews community input during this period
- *    - Platform team can update beneficiary address if needed
- *    - After 48 hours: funds automatically released to beneficiary
- *    - Default beneficiary: platform address
- *
- * ═══════════════════════════════════════════════════════════════════
- * INSTANT LAUNCH FLOW:
- * ═══════════════════════════════════════════════════════════════════
- *
- * 1. Launch with bonding curve via BondingCurveDEX
- * 2. Trade on curve until graduation
- * 3. Graduate to PancakeSwap (-1% fee)
- *
- * ═══════════════════════════════════════════════════════════════════
- */
+ */ 
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -180,8 +100,14 @@ interface IBondingCurveDEXV3 {
 
 interface IPancakePair {
     function token0() external view returns (address);
+
     function token1() external view returns (address);
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+
+    function getReserves()
+        external
+        view
+        returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+
     function totalSupply() external view returns (uint256);
 }
 
@@ -234,7 +160,9 @@ interface ILPFeeHarvester {
 
 interface IRaisedFundsTimelock {
     function lockFunds(address token, address beneficiary) external payable;
+
     function updateBeneficiary(address token, address newBeneficiary) external;
+
     function releaseFunds(address token) external;
 }
 
@@ -506,32 +434,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             );
     }
 
-    function createLaunchWithVanity(
-        string memory name,
-        string memory symbol,
-        uint256 totalSupply,
-        uint256 raiseTargetMON,
-        uint256 raiseMaxMON,
-        uint256 vestingDuration,
-        ITokenFactoryV2.TokenMetadata memory metadata,
-        bytes32 vanitySalt,
-        bool burnLP
-    ) external nonReentrant returns (address) {
-        vestingDuration = 180 days;
-        return
-            _createLaunch(
-                name,
-                symbol,
-                totalSupply,
-                raiseTargetMON,
-                raiseMaxMON,
-                vestingDuration,
-                metadata,
-                true,
-                vanitySalt,
-                burnLP
-            );
-    }
+ 
 
     function _createLaunch(
         string memory name,
@@ -606,27 +509,6 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             );
     }
 
-    function createInstantLaunchWithVanity(
-        string memory name,
-        string memory symbol,
-        uint256 totalSupply,
-        ITokenFactoryV2.TokenMetadata memory metadata,
-        uint256 initialBuyBNB,
-        bytes32 vanitySalt,
-        bool burnLP
-    ) external payable nonReentrant returns (address) {
-        return
-            _createInstantLaunch(
-                name,
-                symbol,
-                totalSupply,
-                metadata,
-                initialBuyBNB,
-                true,
-                vanitySalt,
-                burnLP
-            );
-    }
 
     function _createInstantLaunch(
         string memory name,
@@ -739,7 +621,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             LaunchLiquidity storage liquidity = launchLiquidity[token];
 
             // 10% of total supply for PancakeSwap
-            tokensForLiquidity = (basics.totalSupply * LIQUIDITY_TOKEN_PERCENT) / 100;
+            tokensForLiquidity =
+                (basics.totalSupply * LIQUIDITY_TOKEN_PERCENT) /
+                100;
             monForLiquidity = liquidity.liquidityMON;
 
             IERC20(token).approve(address(this), basics.totalSupply);
@@ -748,7 +632,8 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             require(tokensForLiquidity > 0, "No tokens for liquidity");
 
             // DEDUCT 1% PLATFORM FEE from MON
-            uint256 platformFee = (monForLiquidity * PLATFORM_FEE_BPS) / BASIS_POINTS;
+            uint256 platformFee = (monForLiquidity * PLATFORM_FEE_BPS) /
+                BASIS_POINTS;
             monForLiquidity = monForLiquidity - platformFee;
 
             // Send platform fee
@@ -775,7 +660,8 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             require(creator == basics.founder, "Creator mismatch");
 
             // DEDUCT 1% PLATFORM FEE from MON for Instant Launch too
-            uint256 platformFee = (monForLiquidity * PLATFORM_FEE_BPS) / BASIS_POINTS;
+            uint256 platformFee = (monForLiquidity * PLATFORM_FEE_BPS) /
+                BASIS_POINTS;
             monForLiquidity = monForLiquidity - platformFee;
 
             // Send platform fee
@@ -1027,7 +913,8 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         vesting.vestingStartTime = block.timestamp;
 
         // FIXED: Calculate liquidity MON (20% of raised) - NO CAP
-        uint256 liquidityMON = (basics.totalRaised * LIQUIDITY_MON_PERCENT) / 100;
+        uint256 liquidityMON = (basics.totalRaised * LIQUIDITY_MON_PERCENT) /
+            100;
 
         liquidity.liquidityMON = liquidityMON;
         liquidity.raisedFundsVesting = basics.totalRaised - liquidityMON;
@@ -1040,11 +927,15 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
 
         // Calculate starting market cap based on liquidity
         // Market cap = (liquidityMON * totalSupply) / liquidityTokens
-        uint256 liquidityTokens = (basics.totalSupply * LIQUIDITY_TOKEN_PERCENT) / 100;
-        vesting.startMarketCap = (liquidityMON * basics.totalSupply) / liquidityTokens;
+        uint256 liquidityTokens = (basics.totalSupply *
+            LIQUIDITY_TOKEN_PERCENT) / 100;
+        vesting.startMarketCap =
+            (liquidityMON * basics.totalSupply) /
+            liquidityTokens;
 
         // Give founder immediate 100% of their 60% allocation
-        uint256 immediateRelease = (vesting.founderTokens * IMMEDIATE_FOUNDER_RELEASE) / 100;
+        uint256 immediateRelease = (vesting.founderTokens *
+            IMMEDIATE_FOUNDER_RELEASE) / 100;
         IERC20(token).safeTransfer(basics.founder, immediateRelease);
         vesting.founderTokensClaimed = immediateRelease;
 
@@ -1254,7 +1145,8 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         require(status.graduatedToPancakeSwap, "Not graduated yet");
 
         // Check if at least 1 month has passed since last update
-        uint256 monthsPassed = (block.timestamp - vesting.vestingStartTime) / 30 days;
+        uint256 monthsPassed = (block.timestamp - vesting.vestingStartTime) /
+            30 days;
         require(
             monthsPassed > vesting.monthlyMarketCaps.length,
             "Too early to update"
@@ -1269,7 +1161,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             vesting.consecutiveMonthsBelowStart++;
 
             // Trigger community control after 3 consecutive months
-            if (vesting.consecutiveMonthsBelowStart >= MARKET_CAP_CHECK_MONTHS) {
+            if (
+                vesting.consecutiveMonthsBelowStart >= MARKET_CAP_CHECK_MONTHS
+            ) {
                 vesting.communityControlTriggered = true;
                 emit CommunityControlTriggered(
                     token,
@@ -1289,7 +1183,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @dev Only callable when 3 consecutive months below starting market cap
      * @dev Funds locked for 48 hours for platform team to review community input
      */
-    function transferFundsToTimelock(address token) external nonReentrant {
+    function transferFundsToTimelock(address token) external nonReentrant onlyOwner{
         LaunchBasics storage basics = launchBasics[token];
         LaunchVesting storage vesting = launchVesting[token];
         LaunchLiquidity storage liquidity = launchLiquidity[token];
@@ -1303,13 +1197,17 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             "Community control not active"
         );
 
-        uint256 remainingFunds = liquidity.raisedFundsVesting - liquidity.raisedFundsClaimed;
+        uint256 remainingFunds = liquidity.raisedFundsVesting -
+            liquidity.raisedFundsClaimed;
         require(remainingFunds > 0, "No funds to transfer");
 
         liquidity.raisedFundsClaimed = liquidity.raisedFundsVesting;
 
         // Transfer to timelock with platform address as default beneficiary
-        raisedFundsTimelock.lockFunds{value: remainingFunds}(token, platformFeeAddress);
+        raisedFundsTimelock.lockFunds{value: remainingFunds}(
+            token,
+            platformFeeAddress
+        );
     }
 
     /**
@@ -1317,7 +1215,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @dev Only owner (platform) can call - per governance model
      * @dev Called after community consultation and decision
      */
-    function burnVestedTokensOnCommunityControl(address token) external onlyOwner nonReentrant {
+    function burnVestedTokensOnCommunityControl(
+        address token
+    ) external onlyOwner nonReentrant {
         LaunchBasics storage basics = launchBasics[token];
         LaunchVesting storage vesting = launchVesting[token];
 
@@ -1330,7 +1230,8 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
             "Community control not active"
         );
 
-        uint256 remainingVestedTokens = vesting.vestedTokens - vesting.vestedTokensClaimed;
+        uint256 remainingVestedTokens = vesting.vestedTokens -
+            vesting.vestedTokensClaimed;
         require(remainingVestedTokens > 0, "No vested tokens to burn");
 
         // Mark all vested tokens as claimed (burned)
@@ -1360,14 +1261,20 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @notice Get information about community control status
      * @dev Useful for frontend to display community governance state
      */
-    function getCommunityControlInfo(address token) external view returns (
-        bool communityControlActive,
-        uint256 consecutiveMonthsBelowStart,
-        uint256 currentMarketCap,
-        uint256 startMarketCap,
-        uint256 remainingFunds,
-        uint256 remainingVestedTokens
-    ) {
+    function getCommunityControlInfo(
+        address token
+    )
+        external
+        view
+        returns (
+            bool communityControlActive,
+            uint256 consecutiveMonthsBelowStart,
+            uint256 currentMarketCap,
+            uint256 startMarketCap,
+            uint256 remainingFunds,
+            uint256 remainingVestedTokens
+        )
+    {
         LaunchBasics storage basics = launchBasics[token];
         LaunchVesting storage vesting = launchVesting[token];
         LaunchLiquidity storage liquidity = launchLiquidity[token];
@@ -1460,7 +1367,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         path[0] = wbnbAddress;
         path[1] = token;
 
-        uint256[] memory amounts = pancakeRouter.swapExactETHForTokens{value: msg.value}(
+        uint256[] memory amounts = pancakeRouter.swapExactETHForTokens{
+            value: msg.value
+        }(
             minTokensOut,
             path,
             msg.sender, // Send tokens directly to buyer
@@ -1470,13 +1379,7 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         uint256 tokensReceived = amounts[amounts.length - 1];
         require(tokensReceived >= minTokensOut, "Slippage too high");
 
-        emit PostGraduationBuy(
-            msg.sender,
-            token,
-            msg.value,
-            tokensReceived,
-            0
-        );
+        emit PostGraduationBuy(msg.sender, token, msg.value, tokensReceived, 0);
     }
 
     function _shouldBurnTokens(address token) private view returns (bool) {
@@ -1577,9 +1480,11 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
 
         // MONTHLY VESTING over 6 months
         uint256 monthsPassed = timePassed / VESTING_RELEASE_INTERVAL;
-        uint256 totalMonths = vesting.vestingDuration / VESTING_RELEASE_INTERVAL;
+        uint256 totalMonths = vesting.vestingDuration /
+            VESTING_RELEASE_INTERVAL;
 
-        uint256 totalVested = (vesting.vestedTokens * monthsPassed) / totalMonths;
+        uint256 totalVested = (vesting.vestedTokens * monthsPassed) /
+            totalMonths;
 
         if (totalVested <= vesting.vestedTokensClaimed) {
             return 0;
@@ -1591,7 +1496,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @notice Get current market cap from PancakeSwap LP
      * @dev Market cap = (total supply * token price in MON)
      */
-    function _getCurrentMarketCap(address token) private view returns (uint256) {
+    function _getCurrentMarketCap(
+        address token
+    ) private view returns (uint256) {
         address lpToken = _getPancakePairAddress(token);
         require(lpToken != address(0), "LP token not found");
 
@@ -1619,12 +1526,6 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         uint256 marketCap = (basics.totalSupply * monReserve) / tokenReserve;
 
         return marketCap;
-    }
-
-    function updateFallbackPrice(uint256 _price) external onlyOwner {
-        require(_price > 0, "Invalid price");
-        fallbackMONPrice = _price;
-        emit FallbackPriceUpdated(_price);
     }
 
     function updateLPFeeHarvester(address _lpFeeHarvester) external onlyOwner {
@@ -1701,11 +1602,11 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
         return (
             basics.founder,
             basics.raiseTarget,
-            priceOracle.bnbToUSD(basics.raiseTarget),
+            priceOracle.monToUSD(basics.raiseTarget),
             basics.raiseMax,
-            priceOracle.bnbToUSD(basics.raiseMax),
+            priceOracle.monToUSD(basics.raiseMax),
             basics.totalRaised,
-            priceOracle.bnbToUSD(basics.totalRaised),
+            priceOracle.monToUSD(basics.totalRaised),
             basics.raiseDeadline,
             status.raiseCompleted,
             basics.launchType,
@@ -1732,7 +1633,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @notice Get claimable vested tokens amount
      * @dev Returns 0 if community control is active
      */
-    function getClaimableVestedTokens(address token) external view returns (uint256) {
+    function getClaimableVestedTokens(
+        address token
+    ) external view returns (uint256) {
         return _calculateClaimableVestedTokens(token);
     }
 
@@ -1752,7 +1655,9 @@ contract LaunchpadManagerV3 is ReentrancyGuard, Ownable {
      * @notice Get monthly market cap history
      * @dev Useful for frontend to display market cap trends
      */
-    function getMarketCapHistory(address token) external view returns (uint256[] memory) {
+    function getMarketCapHistory(
+        address token
+    ) external view returns (uint256[] memory) {
         return launchVesting[token].monthlyMarketCaps;
     }
 

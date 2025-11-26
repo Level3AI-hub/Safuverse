@@ -11,6 +11,7 @@ import type {
   MockPancakeRouter,
   MockPancakeFactory,
   LPFeeHarvester,
+  RaisedFundsTimelock,
 } from "../types/ethers-contracts/index.js";
 
 /**
@@ -28,6 +29,7 @@ describe("Full Lifecycle Tests - PROJECT_RAISE vs INSTANT_LAUNCH", function () {
   let lpFeeHarvester: LPFeeHarvester;
   let mockPancakeRouter: MockPancakeRouter;
   let mockPancakeFactory: MockPancakeFactory;
+  let timelock: RaisedFundsTimelock;
 
   let owner: any;
   let founder: any;
@@ -110,10 +112,17 @@ describe("Full Lifecycle Tests - PROJECT_RAISE vs INSTANT_LAUNCH", function () {
     );
     await bondingCurveDEX.waitForDeployment();
 
+    const RaisedFundsTimelock = await ethers.getContractFactory("RaisedFundsTimelock")
+
+    timelock = await RaisedFundsTimelock.deploy(platformFee.address); // 7 days lock
+
+    await timelock.waitForDeployment();
+
     // Deploy LaunchpadManagerV3
     const LaunchpadManagerV3 = await ethers.getContractFactory(
       "LaunchpadManagerV3"
     );
+
     launchpadManager = await LaunchpadManagerV3.deploy(
       await tokenFactory.getAddress(),
       await bondingCurveDEX.getAddress(),
@@ -122,6 +131,7 @@ describe("Full Lifecycle Tests - PROJECT_RAISE vs INSTANT_LAUNCH", function () {
       infoFiFee.address,
       platformFee.address,
       await lpFeeHarvester.getAddress(),
+      await timelock.getAddress(),
       PANCAKE_FACTORY
     );
     await launchpadManager.waitForDeployment();
