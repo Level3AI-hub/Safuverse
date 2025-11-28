@@ -26,7 +26,7 @@ export const Nav = () => {
         <button className="cursor-pointer "> Manifesto </button>
         <button className="cursor-pointer "> FAQ </button>
         <div className="ml-6">
-          <WalletMultiButton className="!bg-[#FFB000] !text-black !rounded-full !font-semibold !py-2 !px-8" />
+          <WalletMultiButton />
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export const Nav = () => {
               <button className="cursor-pointer "> FAQ </button>
 
               <div className="w-full px-4">
-                <WalletMultiButton className="!bg-[#FFB000] !text-black !rounded-full !font-semibold !py-2 !px-8 !w-full" />
+                <WalletMultiButton style={{ width: '100%' }} />
               </div>
 
               {/* optional: add a close button for clarity */}
