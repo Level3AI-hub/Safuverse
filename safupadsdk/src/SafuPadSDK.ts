@@ -17,22 +17,21 @@ import { NETWORKS, DEFAULT_CONFIG } from './constants';
  * import { SafuPadSDK } from '@safupad/sdk';
  *
  * const sdk = new SafuPadSDK({
- *   network: 'bsc',
+ *   network: 'monad',
  *   provider: window.ethereum,
  * });
  *
  * await sdk.initialize();
  *
- * // Create a launch
+ * // Create a PROJECT_RAISE launch
  * const tx = await sdk.launchpad.createLaunch({
  *   name: 'MyToken',
  *   symbol: 'MTK',
  *   totalSupply: 1000000000,
- *   raiseTargetUSD: '50000',
- *   raiseMaxUSD: '100000',
- *   vestingDuration: 90,
+ *   raiseTargetMON: '5000000',  // 5M MON
+ *   raiseMaxMON: '10000000',    // 10M MON
+ *   vestingDuration: 180,        // Fixed at 180 days by contract
  *   metadata: {...},
- *   projectInfoFiWallet: '0x...',
  *   burnLP: false
  * });
  * ```

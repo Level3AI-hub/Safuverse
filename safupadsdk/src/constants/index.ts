@@ -4,51 +4,49 @@ import { NetworkConfig, SDKConfig } from '../types';
  * Network configurations
  */
 export const NETWORKS: Record<string, NetworkConfig> = {
-  bsc: {
-    name: 'Monad',
-    chainId: 56,
-    rpcUrl: 'https://bsc-dataseed.binance.org/',
-    alchemyRpcUrlTemplate: 'https://bnb-mainnet.g.alchemy.com/v2/{apiKey}',
-    explorerUrl: 'https://bscscan.com',
+  monad: {
+    name: 'Monad Mainnet',
+    chainId: 41454, // TODO: UPDATE with actual Monad mainnet chain ID
+    rpcUrl: 'https://rpc.monad.network', // TODO: UPDATE with actual Monad RPC
+    explorerUrl: 'https://explorer.monad.network', // TODO: UPDATE with actual Monad explorer
     subgraphUrl:
-      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-subgraph/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
+      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-monad/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
     nativeCurrency: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: 'Monad',
+      symbol: 'MON',
       decimals: 18,
     },
     contracts: {
-      launchpadManager: '0xcCfcfeB17609f0C5aE604bC71c4907B90B94a3e9', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      bondingCurveDEX: '0xE96baB0D0661Fbfc710d79d58Cdb32bcD7bB8815', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      tokenFactory: '0x15E2ccAeb4D1eeA1A7b8d839FFA30D63519D1c50', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      priceOracle: '0x3De1d0D44c9609b99D05BA14Ff48c691fF6059Ff', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      lpFeeHarvester: '0x8b4499143ac1CDb7bDB25a2FEc1786F8BD9772F9', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
-      pancakeRouter: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
-      pancakeFactory: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
+      launchpadManager: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      bondingCurveDEX: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      tokenFactory: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      priceOracle: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      lpFeeHarvester: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER MAINNET DEPLOYMENT
+      pancakeRouter: '0x0000000000000000000000000000000000000000', // TODO: UPDATE with Monad DEX router
+      pancakeFactory: '0x0000000000000000000000000000000000000000', // TODO: UPDATE with Monad DEX factory
     },
   },
 
-  bscTestnet: {
-    name: 'BSC Testnet',
-    chainId: 97,
-    rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-    alchemyRpcUrlTemplate: 'https://bnb-testnet.g.alchemy.com/v2/{apiKey}',
-    explorerUrl: 'https://testnet.bscscan.com',
+  monadTestnet: {
+    name: 'Monad Testnet',
+    chainId: 41455, // TODO: UPDATE with actual Monad testnet chain ID
+    rpcUrl: 'https://testnet-rpc.monad.network', // TODO: UPDATE with actual Monad testnet RPC
+    explorerUrl: 'https://testnet-explorer.monad.network', // TODO: UPDATE with actual Monad testnet explorer
     subgraphUrl:
-      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-testnet/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
+      'https://api.studio.thegraph.com/query/<SUBGRAPH_ID>/safupad-monad-testnet/version/latest', // TODO: UPDATE AFTER DEPLOYMENT
     nativeCurrency: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: 'Monad',
+      symbol: 'MON',
       decimals: 18,
     },
     contracts: {
-      launchpadManager: '0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c',
-      bondingCurveDEX: '0x14eB3B6C297ff6fefc25c0E0d289Bf8348e864f6',
-      tokenFactory: '0xcb7526b9598240A737237C52f852705e6A449cD0',
-      priceOracle: '0x56f0b1f80F8cc37f875Be42e2f4D09810514F346',
-      lpFeeHarvester: '0xa886B8897814193f99A88701d70b31b4a8E27a1E',
-      pancakeRouter: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
-      pancakeFactory: '0x6725F303b657a9451d8BA641348b6761A6CC7a17',
+      launchpadManager: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER TESTNET DEPLOYMENT
+      bondingCurveDEX: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER TESTNET DEPLOYMENT
+      tokenFactory: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER TESTNET DEPLOYMENT
+      priceOracle: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER TESTNET DEPLOYMENT
+      lpFeeHarvester: '0x0000000000000000000000000000000000000000', // TODO: UPDATE AFTER TESTNET DEPLOYMENT
+      pancakeRouter: '0x0000000000000000000000000000000000000000', // TODO: UPDATE with Monad testnet DEX router
+      pancakeFactory: '0x0000000000000000000000000000000000000000', // TODO: UPDATE with Monad testnet DEX factory
     },
   },
 
@@ -57,10 +55,10 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     chainId: 31337,
     rpcUrl: 'http://localhost:8545',
     explorerUrl: 'http://localhost:8545',
-    subgraphUrl: 'http://localhost:8000/subgraphs/name/safupad-subgraph', // Local Graph Node
+    subgraphUrl: 'http://localhost:8000/subgraphs/name/safupad-subgraph',
     nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
+      name: 'MON',
+      symbol: 'MON',
       decimals: 18,
     },
     contracts: {
@@ -226,9 +224,9 @@ export const TIME = {
  * Block time estimates (in seconds)
  */
 export const BLOCK_TIME = {
-  bsc: 3,
-  bscTestnet: 3,
-  ethereum: 12,
+  monad: 1, // Monad has 1-second block time
+  monadTestnet: 1,
+  localhost: 1,
 };
 
 /**
