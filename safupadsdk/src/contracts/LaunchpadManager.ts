@@ -684,7 +684,7 @@ export class LaunchpadManager extends BaseContract {
   }
 
   /**
-   * ✅ NEW: Update fallback BNB price (admin only)
+   * ✅ NEW: Update fallback MON price (admin only, Monad native token)
    *
    * Updates the fallback price used when the oracle fails.
    * Only callable by contract owner.
