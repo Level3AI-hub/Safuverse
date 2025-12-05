@@ -59,7 +59,7 @@ async function createApolloClient() {
 
   return new ApolloClient({
     link: new HttpLink({
-      uri: 'https://api.studio.thegraph.com/query/112443/safunames/version/latest',
+      uri: 'https://api.studio.thegraph.com/query/112443/baldnames/version/latest',
     }),
     cache: new InMemoryCache(),
   })

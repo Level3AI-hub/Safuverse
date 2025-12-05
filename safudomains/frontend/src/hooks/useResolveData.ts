@@ -19,7 +19,7 @@ import { useENSName } from './getPrimaryName'
 import { zeroAddress } from 'viem'
 
 export const useResolveData = (label: string, walletAddress: `0x${string}`) => {
-  const node = namehash(`${label}.safu`)
+  const node = namehash(`${label}.bald`)
   const id = keccak256(label as any)
 
   // Account and text record keys
@@ -133,19 +133,19 @@ export const useResolveData = (label: string, walletAddress: `0x${string}`) => {
 
   const { records: others, isLoading: othersLoading } = useTextRecords({
     resolverAddress: resolver,
-    name: `${label}.safu`,
+    name: `${label}.bald`,
     keys: otherKeys,
   })
 
   const { records: accounts, isLoading: accountsLoading } = useTextRecords({
     resolverAddress: resolver,
-    name: `${label}.safu`,
+    name: `${label}.bald`,
     keys: accountKeys,
   })
 
   const { records: texts, isLoading: textsLoading } = useTextRecords({
     resolverAddress: resolver,
-    name: `${label}.safu`,
+    name: `${label}.bald`,
     keys: textKeys,
   })
 

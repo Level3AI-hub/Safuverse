@@ -65,12 +65,12 @@ const ProfileTab = ({
     <div>
       <div className="rounded-xl bg-neutral-800 p-3 md:px-10 md:py-5 mt-5 border-[0.5px] border-gray-500 relative flex items-center">
         <Avatar
-          name={`${label}.safu`}
+          name={`${label}.bald`}
           className="w-15 h-15 md:w-24 md:h-24 mr-2 "
         />
         <div className="ml-1 md:ml-5 flex items-center w-[80%]">
           <div className="text-xl md:text-2xl font-bold grow-1">
-            {label}.safu
+            {label}.bald
             {texts
               .filter((k) => k.key == 'description')
               .map((item) => (
@@ -90,7 +90,7 @@ const ProfileTab = ({
           </button>
         </div>
       </div>
-      {primaryName == `${label}.safu` ? (
+      {primaryName == `${label}.bald` ? (
         <div>
           <ReferralProgress referrals={referrals ?? 0} />
         </div>
@@ -219,7 +219,7 @@ const ProfileTab = ({
               {expiry}
             </div>
             <div className="bg-gray-900 px-3 py-1 rounded-full hover:bg-gray-950 delay-200 duration-200 transition-all hover:scale-105">
-              <span className="text-gray-400 mr-1 font-bold">parent</span> safu
+              <span className="text-gray-400 mr-1 font-bold">parent</span> bald
             </div>
           </div>
         ) : (
@@ -237,7 +237,7 @@ const ProfileTab = ({
               {expiry}
             </div>
             <div className="bg-gray-900 px-3 py-1 rounded-full hover:bg-gray-950 delay-200 duration-200 transition-all hover:scale-105">
-              <span className="text-gray-400 mr-1 font-bold">parent</span> safu
+              <span className="text-gray-400 mr-1 font-bold">parent</span> bald
             </div>
           </div>
         )}

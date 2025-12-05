@@ -5,7 +5,7 @@ import { constants } from '../constant'
 import { FaSearch } from 'react-icons/fa'
 import { FaXmark } from 'react-icons/fa6'
 
-const THEME_KEY = 'safudomains-theme'
+const THEME_KEY = 'balddomains-theme'
 
 function getPreferredTheme() {
   if (typeof window === 'undefined') return 'light'
@@ -41,8 +41,8 @@ const abi = [
 
 const faqItems = [
   {
-    q: 'What is a .safu domain?',
-    a: 'A .safu domain is your decentralized Web3 identity on the BNB Chain. It replaces long wallet addresses with human-readable names.',
+    q: 'What is a .bald domain?',
+    a: 'A .bald domain is your decentralized Web3 identity on the BNB Chain. It replaces long wallet addresses with human-readable names.',
   },
   {
     q: 'How do I register a domain?',
@@ -58,7 +58,7 @@ const faqItems = [
   },
   {
     q: 'Is my domain an NFT?',
-    a: 'Yes! Your .safu domain is a fully tradeable NFT that you own and control.',
+    a: 'Yes! Your .bald domain is a fully tradeable NFT that you own and control.',
   },
   {
     q: 'What about referrals?',
@@ -129,7 +129,7 @@ export default function Home() {
   const modalRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    document.title = `Safu Domains - Get a Domain name with a safu identity`
+    document.title = `Safu Domains - Get a Domain name with a bald identity`
   }, [])
 
   const setRecent = (search: string) => {
@@ -235,15 +235,15 @@ export default function Home() {
     <>
       {/* TOP NAVBAR */}
       <nav className="top-nav">
-        <a href="https://safuverse.com" className="nav-logo">
+        <a href="https://baldverse.com" className="nav-logo">
           <img src="/Safuverse.png" alt="Safuverse" style={{ height: '40px' }} className="hidden md:block" />
           <img src="/small.png" alt="Safuverse" style={{ height: '50px' }} className="md:hidden" />
         </a>
         <div className="nav-right">
-          <a href="https://safuverse.gitbook.io/safuverse-docs/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', fontWeight: 600 }}>
+          <a href="https://baldverse.gitbook.io/baldverse-docs/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', fontWeight: 600 }}>
             Docs
           </a>
-          <a href="https://academy.safuverse.com/courses/all" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', fontWeight: 600 }}>
+          <a href="https://academy.baldverse.com/courses/all" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', fontWeight: 600 }}>
             Academy
           </a>
           <button className="dark-toggle-btn" type="button" onClick={toggleTheme}>
@@ -273,7 +273,7 @@ export default function Home() {
           <h1>
             Claim Your
             <br />
-            <span>.safu Domain Name</span>
+            <span>.bald Domain Name</span>
           </h1>
 
           <p className="hero-subtext">
@@ -370,7 +370,7 @@ export default function Home() {
                   onClick={route}
                   style={{ borderRadius: '14px' }}
                 >
-                  <span style={{ fontWeight: 600 }}>{search}.safu</span>
+                  <span style={{ fontWeight: 600 }}>{search}.bald</span>
                   {available && (
                     <span
                       style={{
@@ -399,7 +399,7 @@ export default function Home() {
             Web3 Identity
           </h3>
           <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.55, marginTop: '10px' }}>
-            Your .safu name becomes your universal on-chain username across the Safuverse ecosystem.
+            Your .bald name becomes your universal on-chain username across the Safuverse ecosystem.
           </p>
         </div>
 
@@ -433,7 +433,7 @@ export default function Home() {
             <h2 className="content-title">Your Gateway to Web3 Identity</h2>
             <p className="content-text" style={{ marginBottom: '14px' }}>
               Safu Domains is the official naming service for the Safuverse ecosystem on BNB Chain.
-              Replace your long wallet address with a memorable .safu name.
+              Replace your long wallet address with a memorable .bald name.
             </p>
             <p className="content-text">
               Own your identity, receive payments easily, and unlock exclusive features across the Safuverse platforms.
@@ -441,7 +441,7 @@ export default function Home() {
 
             <div style={{ marginTop: '22px', fontSize: '14px', color: '#222' }}>
               <p><strong>Network:</strong> BNB Chain</p>
-              <p><strong>Extension:</strong> .safu</p>
+              <p><strong>Extension:</strong> .bald</p>
               <p><strong>Features:</strong> Lifetime registration available</p>
             </div>
           </div>
@@ -488,7 +488,7 @@ export default function Home() {
               <br />
               Ecosystem
             </h2>
-            <a href="https://academy.safuverse.com/courses/all" target="_blank" rel="noopener noreferrer">
+            <a href="https://academy.baldverse.com/courses/all" target="_blank" rel="noopener noreferrer">
               <button className="footer-btn" type="button">
                 Visit Academy
               </button>
@@ -496,12 +496,12 @@ export default function Home() {
           </section>
 
           <div className="footer-actions">
-            <a href="https://safuverse.gitbook.io/safuverse-docs/" target="_blank" rel="noopener noreferrer">
+            <a href="https://baldverse.gitbook.io/baldverse-docs/" target="_blank" rel="noopener noreferrer">
               <button className="footer-chip" type="button">
                 📄 Documentation
               </button>
             </a>
-            <a href="https://safuverse.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://baldverse.com" target="_blank" rel="noopener noreferrer">
               <button className="footer-chip" type="button">
                 🌐 Main Website
               </button>

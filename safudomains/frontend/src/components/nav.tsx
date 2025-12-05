@@ -7,7 +7,7 @@ import { constants } from '../constant'
 import { motion } from 'framer-motion'
 import { BookOpen, X, Menu } from 'lucide-react'
 
-const THEME_KEY = 'safudomains-theme'
+const THEME_KEY = 'balddomains-theme'
 
 const abi = [
   {
@@ -70,7 +70,7 @@ export default function Nav() {
 
   const navLinks = [
     {
-      href: 'https://safuverse.gitbook.io/safuverse-docs/',
+      href: 'https://baldverse.gitbook.io/baldverse-docs/',
       label: 'Docs',
       isExternal: true,
     },
@@ -161,7 +161,7 @@ export default function Nav() {
       }}
     >
       <div className="flex justify-between items-center h-[70px] w-full max-w-[1400px] mx-auto px-4 md:px-8">
-        <a href="https://safuverse.com" className="flex items-center gap-1.5">
+        <a href="https://baldverse.com" className="flex items-center gap-1.5">
           <img
             src="/Safuverse.png"
             className="h-10 hidden lg:block"
@@ -211,7 +211,7 @@ export default function Nav() {
                 onClick={route}
               >
                 <div className="text-[15px] font-semibold" style={{ color: isDark ? '#fff' : '#111' }}>
-                  {search != '' ? search + '.safu' : ''}
+                  {search != '' ? search + '.bald' : ''}
                 </div>
                 {available != '' && (
                   <div
@@ -254,7 +254,7 @@ export default function Nav() {
           ))}
 
           <a
-            href="https://academy.safuverse.com/courses/all"
+            href="https://academy.baldverse.com/courses/all"
             className="flex items-center font-semibold transition-all hover:opacity-70"
             style={{ color: isDark ? '#f5f5f5' : '#111' }}
             target="_blank"
@@ -371,7 +371,7 @@ export default function Nav() {
             ))}
 
             <a
-              href="https://academy.safuverse.com/courses/all"
+              href="https://academy.baldverse.com/courses/all"
               className="flex items-center font-semibold"
               style={{ color: isDark ? '#f5f5f5' : '#111' }}
               target="_blank"

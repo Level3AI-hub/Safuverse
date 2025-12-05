@@ -44,12 +44,12 @@ export const useRegistration = () => {
 
     const builtData = buildTextRecords(
       validTextRecords,
-      namehash(`${label}.safu`),
+      namehash(`${label}.bald`),
     )
     const addrEncoded = encodeFunctionData({
       abi: addrResolver,
       functionName: 'setAddr',
-      args: [namehash(`${label}.safu`), owner],
+      args: [namehash(`${label}.bald`), owner],
     })
     const fullData = [...builtData, addrEncoded]
     setCommitData(fullData)

@@ -14,7 +14,7 @@ import { useResolveData } from '../hooks/useResolveData'
 import ProfileTab from './resolve/ProfileTab'
 import { Switch } from '@headlessui/react'
 
-const THEME_KEY = 'safudomains-theme'
+const THEME_KEY = 'balddomains-theme'
 
 const Resolve = () => {
   const { label } = useParams<string>()
@@ -70,7 +70,7 @@ const Resolve = () => {
   } = useResolveData(label as string, walletAddress as `0x${string}`)
 
   useEffect(() => {
-    document.title = `${label}.safu`
+    document.title = `${label}.bald`
   }, [label])
 
   useEffect(() => {
@@ -207,7 +207,7 @@ const Resolve = () => {
       <div className="flex flex-col mx-auto p-4 mb-20 md:mb-5 md:px-30 mt-10 lg:px-60">
         <div>
           <h2 style={{ fontSize: '28px', fontWeight: 700, color: isDark ? '#f8f8f8' : '#111', marginBottom: '20px' }}>
-            {label as string}.safu
+            {label as string}.bald
           </h2>
 
           {/* Tabs */}
@@ -520,7 +520,7 @@ const Resolve = () => {
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
                     <DomainImage
                       className="h-48 md:h-40 md:w-60"
-                      domain={`${label}.safu`}
+                      domain={`${label}.bald`}
                     />
                   </div>
                 </div>

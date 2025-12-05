@@ -94,16 +94,16 @@ const Update = ({
 
     const builtData = buildTextRecords(
       validTextRecords,
-      namehash(`${label as string}.safu`),
+      namehash(`${label as string}.bald`),
     )
     const addrEncoded = encodeFunctionData({
       abi: addrResolver,
       functionName: 'setAddr',
-      args: [namehash(`${label}.safu`), !address ? owner : address],
+      args: [namehash(`${label}.bald`), !address ? owner : address],
     })
 
     const fullData = [...builtData, addrEncoded]
-    const nodehash = namehash(`${label}.safu`)
+    const nodehash = namehash(`${label}.bald`)
 
     try {
       await updateContract({
@@ -244,7 +244,7 @@ const Update = ({
             <div className="flex justify-between items-center border border-gray-200 dark:border-gray-700 rounded-lg p-3">
               <div className="text-gray-500 text-sm">Name</div>
               <div className="flex items-center gap-2 font-bold text-black dark:text-white">
-                {`${label}.safu`}
+                {`${label}.bald`}
                 <div className="w-4 h-4 rounded-full bg-gradient-to-r from-pink-400 to-pink-600" />
               </div>
             </div>
