@@ -34,7 +34,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'SafuDomains',
+    appName: 'BaldDomains',
     projectId: 'YOUR_PROJECT_ID',
   },
 )

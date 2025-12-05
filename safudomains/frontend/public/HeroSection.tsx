@@ -83,7 +83,7 @@ const HeroSection = () => {
           >
             Welcome to the
             <span className="primary-gradient-text font-bold p-1.5 rounded-md  shadow-sm">
-              Safuverse!
+              Baldverse!
             </span>{' '}
             Powered By{' '}
             <span className="primary-gradient-text font-bold p-1.5 rounded-md  shadow-sm">

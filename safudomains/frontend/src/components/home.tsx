@@ -42,7 +42,7 @@ const abi = [
 const faqItems = [
   {
     q: 'What is a .bald domain?',
-    a: 'A .bald domain is your decentralized Web3 identity on the BNB Chain. It replaces long wallet addresses with human-readable names.',
+    a: 'A .bald domain is your decentralized Web3 identity on the Monad. It replaces long wallet addresses with human-readable names.',
   },
   {
     q: 'How do I register a domain?',
@@ -50,7 +50,7 @@ const faqItems = [
   },
   {
     q: 'What can I do with my domain?',
-    a: 'Use it as your universal Web3 identity, receive payments, access exclusive features in the Safuverse ecosystem, and more.',
+    a: 'Use it as your universal Web3 identity, receive payments, access exclusive features in the Baldverse ecosystem, and more.',
   },
   {
     q: 'How long does registration last?',
@@ -129,7 +129,7 @@ export default function Home() {
   const modalRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    document.title = `Safu Domains - Get a Domain name with a bald identity`
+    document.title = `Bald Domains - Get a Domain name with a bald identity`
   }, [])
 
   const setRecent = (search: string) => {
@@ -236,8 +236,8 @@ export default function Home() {
       {/* TOP NAVBAR */}
       <nav className="top-nav">
         <a href="https://baldverse.com" className="nav-logo">
-          <img src="/Safuverse.png" alt="Safuverse" style={{ height: '40px' }} className="hidden md:block" />
-          <img src="/small.png" alt="Safuverse" style={{ height: '50px' }} className="md:hidden" />
+          <img src="/Baldverse.png" alt="Baldverse" style={{ height: '40px' }} className="hidden md:block" />
+          <img src="/small.png" alt="Baldverse" style={{ height: '50px' }} className="md:hidden" />
         </a>
         <div className="nav-right">
           <a href="https://baldverse.gitbook.io/baldverse-docs/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', fontWeight: 600 }}>
@@ -262,12 +262,12 @@ export default function Home() {
         <div className="soft-mist-bg" />
         <div className="hero-inner">
           <div className="hero-icon">
-            <img src="/small.png" alt="Safu" style={{ height: '40px' }} />
+            <img src="/small.png" alt="Bald" style={{ height: '40px' }} />
           </div>
 
           <div className="hero-pill">
             <span className="hero-pill-dot" />
-            <span style={{ color: '#000', fontWeight: 500 }}>Live on BNB Chain</span>
+            <span style={{ color: '#000', fontWeight: 500 }}>Live on Monad</span>
           </div>
 
           <h1>
@@ -399,7 +399,7 @@ export default function Home() {
             Web3 Identity
           </h3>
           <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.55, marginTop: '10px' }}>
-            Your .bald name becomes your universal on-chain username across the Safuverse ecosystem.
+            Your .bald name becomes your universal on-chain username across the Baldverse ecosystem.
           </p>
         </div>
 
@@ -409,7 +409,7 @@ export default function Home() {
             Academy Access
           </h3>
           <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.55, marginTop: '10px' }}>
-            Use your domain to access courses, AI tutors, and learning tools inside the Safuverse Academy.
+            Use your domain to access courses, AI tutors, and learning tools inside the Baldverse Academy.
           </p>
         </div>
 
@@ -432,15 +432,15 @@ export default function Home() {
             <div className="content-pill">About</div>
             <h2 className="content-title">Your Gateway to Web3 Identity</h2>
             <p className="content-text" style={{ marginBottom: '14px' }}>
-              Safu Domains is the official naming service for the Safuverse ecosystem on BNB Chain.
+              Bald Domains is the official naming service for the Baldverse ecosystem on Monad.
               Replace your long wallet address with a memorable .bald name.
             </p>
             <p className="content-text">
-              Own your identity, receive payments easily, and unlock exclusive features across the Safuverse platforms.
+              Own your identity, receive payments easily, and unlock exclusive features across the Baldverse platforms.
             </p>
 
             <div style={{ marginTop: '22px', fontSize: '14px', color: '#222' }}>
-              <p><strong>Network:</strong> BNB Chain</p>
+              <p><strong>Network:</strong> Monad</p>
               <p><strong>Extension:</strong> .bald</p>
               <p><strong>Features:</strong> Lifetime registration available</p>
             </div>
@@ -484,7 +484,7 @@ export default function Home() {
           <section className="footer-promo">
             <div className="footer-promo-bg" />
             <h2 className="footer-title">
-              Explore the Safuverse
+              Explore the Baldverse
               <br />
               Ecosystem
             </h2>
@@ -508,7 +508,7 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="footer-copy">Safuverse 2025. All rights reserved.</div>
+          <div className="footer-copy">Baldverse 2025. All rights reserved.</div>
         </div>
       </footer>
     </>

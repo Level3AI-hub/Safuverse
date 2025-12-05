@@ -163,14 +163,14 @@ export default function Nav() {
       <div className="flex justify-between items-center h-[70px] w-full max-w-[1400px] mx-auto px-4 md:px-8">
         <a href="https://baldverse.com" className="flex items-center gap-1.5">
           <img
-            src="/Safuverse.png"
+            src="/Baldverse.png"
             className="h-10 hidden lg:block"
-            alt="Safuverse"
+            alt="Baldverse"
           />
           <img
             src="/small.png"
             className="h-12 lg:hidden block"
-            alt="Safuverse"
+            alt="Baldverse"
           />
         </a>
 

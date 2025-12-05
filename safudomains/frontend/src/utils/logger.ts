@@ -30,7 +30,7 @@ interface LoggerConfig {
 const defaultConfig: LoggerConfig = {
   enabled: import.meta.env.DEV, // Only log in development
   minLevel: LogLevel.DEBUG,
-  prefix: '[SafuDomains]',
+  prefix: '[BaldDomains]',
 }
 
 /**
