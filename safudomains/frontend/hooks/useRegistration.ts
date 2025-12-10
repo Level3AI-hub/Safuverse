@@ -154,7 +154,7 @@ export const useRegistration = () => {
           premium: 0n,
         }
         try {
-          await controller.callStatic.register(
+          await controller.register.staticCall(
             normalize(label as string),
             address,
             BigInt(seconds),
@@ -212,7 +212,7 @@ export const useRegistration = () => {
         }
 
         try {
-          await controller.callStatic.registerWithToken(
+          await controller.registerWithToken.staticCall(
             params,
             token,
             lifetime,

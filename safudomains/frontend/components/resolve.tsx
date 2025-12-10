@@ -87,7 +87,7 @@ const Resolve = () => {
     } else if (available === false) {
       setNext(0)
     }
-  }, [available, navigate])
+  }, [available, router, label])
 
   useEffect(() => {
     if (expires && gexpires) {

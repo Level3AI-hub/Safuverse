@@ -28,7 +28,7 @@ interface LoggerConfig {
  * Default configuration based on environment
  */
 const defaultConfig: LoggerConfig = {
-  enabled: import.meta.env.DEV, // Only log in development
+  enabled: process.env.NODE_ENV !== 'production', // Only log in development
   minLevel: LogLevel.DEBUG,
   prefix: '[safuDomains]',
 }
@@ -168,7 +168,7 @@ export const log = {
    * Log only in development
    */
   dev: (...args: any[]) => {
-    if (import.meta.env.DEV) {
+    if (process.env.NODE_ENV !== 'production') {
       console.log('[DEV]', ...args)
     }
   },
@@ -177,7 +177,7 @@ export const log = {
    * Log only in production
    */
   prod: (...args: any[]) => {
-    if (import.meta.env.PROD) {
+    if (process.env.NODE_ENV === 'production') {
       console.log('[PROD]', ...args)
     }
   },

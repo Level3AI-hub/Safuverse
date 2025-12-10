@@ -28,7 +28,17 @@ export function clientToSigner(client: Client<Transport, Chain, Account>) {
 /** Hook to convert a Viem Client to an ethers.js Signer. */
 export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
   const { data: client } = useConnectorClient<Config>({ chainId })
-  return useMemo(() => (client ? clientToSigner(client) : undefined), [client])
+  const [signer, setSigner] = useState<ethers.JsonRpcSigner | undefined>(undefined)
+
+  useEffect(() => {
+    if (client) {
+      clientToSigner(client).then(setSigner).catch(() => setSigner(undefined))
+    } else {
+      setSigner(undefined)
+    }
+  }, [client])
+
+  return signer
 }
 
 // 1) Connect to your RPC provider

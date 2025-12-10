@@ -1,22 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.SIGNER_PRIVATE_KEY!, provider);
-
 const NAME_WRAPPER_ABI = ['function ownerOf(uint256 id) view returns (address)'];
 const BASE_REGISTRAR_ABI = ['function nameExpires(uint256 id) view returns (uint256)'];
 
-const nameWrapper = new ethers.Contract(
-    process.env.NAME_WRAPPER_ADDRESS!,
-    NAME_WRAPPER_ABI,
-    provider
-);
-const baseRegistrar = new ethers.Contract(
-    process.env.BASE_REGISTRAR_ADDRESS!,
-    BASE_REGISTRAR_ABI,
-    provider
-);
+// Lazy initialization to avoid build-time errors
+function getProvider() {
+    return new ethers.JsonRpcProvider(process.env.RPC_URL);
+}
+
+function getWallet() {
+    const provider = getProvider();
+    return new ethers.Wallet(process.env.SIGNER_PRIVATE_KEY!, provider);
+}
+
+function getContracts() {
+    const provider = getProvider();
+    const nameWrapper = new ethers.Contract(
+        process.env.NAME_WRAPPER_ADDRESS!,
+        NAME_WRAPPER_ABI,
+        provider
+    );
+    const baseRegistrar = new ethers.Contract(
+        process.env.BASE_REGISTRAR_ADDRESS!,
+        BASE_REGISTRAR_ABI,
+        provider
+    );
+    return { nameWrapper, baseRegistrar };
+}
 
 function emptyReferral(registrant: string, name: string) {
     return {
@@ -35,6 +46,7 @@ function emptyReferral(registrant: string, name: string) {
 async function getDomainInfo(name: string) {
     const labelhash = ethers.keccak256(ethers.toUtf8Bytes(name));
     const tokenId = BigInt(labelhash);
+    const { nameWrapper, baseRegistrar } = getContracts();
 
     try {
         const owner = await nameWrapper.ownerOf(tokenId);
@@ -107,6 +119,7 @@ export async function POST(request: NextRequest) {
             ]
         );
 
+        const wallet = getWallet();
         const signature = await wallet.signMessage(ethers.getBytes(messageHash));
 
         return NextResponse.json({

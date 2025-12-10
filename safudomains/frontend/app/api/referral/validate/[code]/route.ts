@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-
 const NAME_WRAPPER_ABI = ['function ownerOf(uint256 id) view returns (address)'];
 const BASE_REGISTRAR_ABI = ['function nameExpires(uint256 id) view returns (uint256)'];
 
-const nameWrapper = new ethers.Contract(
-    process.env.NAME_WRAPPER_ADDRESS!,
-    NAME_WRAPPER_ABI,
-    provider
-);
-const baseRegistrar = new ethers.Contract(
-    process.env.BASE_REGISTRAR_ADDRESS!,
-    BASE_REGISTRAR_ABI,
-    provider
-);
+// Lazy initialization to avoid build-time errors
+function getContracts() {
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const nameWrapper = new ethers.Contract(
+        process.env.NAME_WRAPPER_ADDRESS!,
+        NAME_WRAPPER_ABI,
+        provider
+    );
+    const baseRegistrar = new ethers.Contract(
+        process.env.BASE_REGISTRAR_ADDRESS!,
+        BASE_REGISTRAR_ABI,
+        provider
+    );
+    return { nameWrapper, baseRegistrar };
+}
 
 export async function GET(
     request: NextRequest,
@@ -26,6 +29,7 @@ export async function GET(
 
         const labelhash = ethers.keccak256(ethers.toUtf8Bytes(code));
         const tokenId = BigInt(labelhash);
+        const { nameWrapper, baseRegistrar } = getContracts();
 
         let owner = ethers.ZeroAddress;
         let expiry = 0;
