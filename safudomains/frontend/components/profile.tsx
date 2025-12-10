@@ -21,8 +21,8 @@ export default function Profile() {
   // Fetch domains
   const { domains } = useAllOwnedNames(address?.toLowerCase() || '');
 
-  // Fetch referral stats
-  const { earnings, referralCode, isLoading: referralLoading } = useReferralStats(address);
+  // Fetch referral stats from ReferralVerifier contract
+  const { referralCount, pendingEarnings, referralPct, isLoading: referralLoading } = useReferralStats(address);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(THEME_KEY);
@@ -47,15 +47,17 @@ export default function Profile() {
 
   // Calculate stats
   const domainsOwned = domains.length;
-  const referralEarnings = earnings ? Number(formatEther(earnings)) : 0;
+  const totalReferrals = referralCount ? Number(referralCount) : 0;
+  const pendingFiatEarnings = pendingEarnings ? Number(formatEther(pendingEarnings)) : 0;
+  const currentPct = referralPct ? Number(referralPct) : 25;
 
   // Get the primary domain for referral link
   const primaryDomain = useMemo(() => {
     if (domains.length > 0) {
       return domains[0].name?.replace('.safu', '') || '';
     }
-    return referralCode || '';
-  }, [domains, referralCode]);
+    return '';
+  }, [domains]);
 
   const referralLink = primaryDomain
     ? `https://safu.domains?ref=${primaryDomain}`
@@ -172,34 +174,34 @@ export default function Profile() {
           <article className={`p-6 rounded-2xl ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-white shadow-lg'}`}>
             <div className="flex items-center justify-between mb-4">
               <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Referral Earnings
+                Total Referrals
               </span>
               <span className={`px-3 py-1 rounded-lg text-lg ${isDark ? 'bg-green-500/20' : 'bg-green-100'}`}>
-                💰
+                👥
               </span>
             </div>
             <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {referralLoading ? '...' : `${referralEarnings.toFixed(4)} BNB`}
+              {referralLoading ? '...' : totalReferrals}
             </p>
             <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-              Total rewards earned from sharing your unique referral link.
+              People who registered using your referral link.
             </p>
           </article>
 
           <article className={`p-6 rounded-2xl ${isDark ? 'bg-gray-900/50 border border-gray-800' : 'bg-white shadow-lg'}`}>
             <div className="flex items-center justify-between mb-4">
               <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Total Domains
+                Referral Rate
               </span>
-              <span className={`px-3 py-1 rounded-lg text-lg ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                👥
+              <span className={`px-3 py-1 rounded-lg text-lg ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                💰
               </span>
             </div>
             <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {domainsOwned}
+              {referralLoading ? '...' : `${currentPct}%`}
             </p>
             <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-              Your .safu domains registered on BNB Chain.
+              {totalReferrals >= 5 ? 'Bonus tier unlocked!' : `${5 - totalReferrals} more referrals to unlock 30%`}
             </p>
           </article>
         </section>
@@ -335,16 +337,22 @@ export default function Profile() {
             <div className={`space-y-3 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               <p className="flex items-start gap-2">
                 <span className="text-orange-500">•</span>
-                Earn a share of fees whenever someone mints using your link.
+                Earn <strong>{currentPct}%</strong> of registration fees when someone mints using your link.
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-orange-500">•</span>
-                Future airdrops, quests, and multipliers will factor in both domains owned and referral activity.
+                Start at 25% and unlock 30% after 5 successful referrals.
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-orange-500">•</span>
-                The more you refer, the higher your reward percentage grows.
+                Rewards are sent directly to your wallet instantly on registration.
               </p>
+              {pendingFiatEarnings > 0 && (
+                <p className="flex items-start gap-2">
+                  <span className="text-green-500">•</span>
+                  You have <strong>{pendingFiatEarnings.toFixed(4)} BNB</strong> pending from fiat payments.
+                </p>
+              )}
             </div>
           </article>
         </section>

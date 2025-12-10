@@ -3,38 +3,59 @@
 import { useReadContract } from 'wagmi';
 import { constants } from '../constant';
 
-const REFERRAL_ABI = [
+// ABI derived from ReferralVerifier.sol contract source
+const REFERRAL_VERIFIER_ABI = [
   {
     inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'nativeEarnings',
+    name: 'referralCount',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'codes',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    name: 'pendingFiatEarnings',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: 'referrer', type: 'address' }],
+    name: 'getReferralPct',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
 ] as const;
 
 export function useReferralStats(address: `0x${string}` | undefined) {
-  const { data: earnings, isLoading: earningsLoading } = useReadContract({
+  // Get referral count
+  const { data: referralCount, isLoading: countLoading } = useReadContract({
     address: constants.Referral,
-    abi: REFERRAL_ABI,
-    functionName: 'nativeEarnings',
+    abi: REFERRAL_VERIFIER_ABI,
+    functionName: 'referralCount',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
     },
   });
 
-  const { data: referralCode, isLoading: codeLoading } = useReadContract({
+  // Get pending fiat earnings
+  const { data: pendingEarnings, isLoading: earningsLoading } = useReadContract({
     address: constants.Referral,
-    abi: REFERRAL_ABI,
-    functionName: 'codes',
+    abi: REFERRAL_VERIFIER_ABI,
+    functionName: 'pendingFiatEarnings',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  // Get current referral percentage (25% base, 30% after 5 referrals)
+  const { data: referralPct, isLoading: pctLoading } = useReadContract({
+    address: constants.Referral,
+    abi: REFERRAL_VERIFIER_ABI,
+    functionName: 'getReferralPct',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
@@ -42,8 +63,9 @@ export function useReferralStats(address: `0x${string}` | undefined) {
   });
 
   return {
-    earnings: earnings as bigint | undefined,
-    referralCode: referralCode as string | undefined,
-    isLoading: earningsLoading || codeLoading,
+    referralCount: referralCount as bigint | undefined,
+    pendingEarnings: pendingEarnings as bigint | undefined,
+    referralPct: referralPct as bigint | undefined,
+    isLoading: countLoading || earningsLoading || pctLoading,
   };
 }
