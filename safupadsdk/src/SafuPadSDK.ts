@@ -28,11 +28,10 @@ import { NETWORKS, DEFAULT_CONFIG } from './constants';
  *   name: 'MyToken',
  *   symbol: 'MTK',
  *   totalSupply: 1000000000,
- *   raiseTargetUSD: '50000',
- *   raiseMaxUSD: '100000',
+ *   raiseTargetBNB: '50',
+ *   raiseMaxBNB: '100',
  *   vestingDuration: 90,
  *   metadata: {...},
- *   projectInfoFiWallet: '0x...',
  *   burnLP: false
  * });
  * ```
@@ -73,7 +72,7 @@ export class SafuPadSDK {
     } else {
       this.networkConfig = this.config.network!;
     }
- 
+
     // Setup provider
     if (this.config.provider) {
       if (typeof this.config.provider === 'string') {
@@ -183,7 +182,7 @@ export class SafuPadSDK {
     }
     this.initialized = true;
 
-    
+
   }
 
   /**
@@ -221,7 +220,7 @@ export class SafuPadSDK {
   }
 
   /**
-   * Get the current MON balance (Monad native token)
+   * Get the current BNB balance (BSC native token)
    */
   async getBalance(address?: string): Promise<string> {
     const addr = address || (await this.getAddress());
@@ -318,16 +317,16 @@ export class SafuPadSDK {
   }
 
   /**
-   * Format MON amount (Monad native token)
+   * Format BNB amount (BSC native token)
    */
-  formatMON(amount: bigint | string): string {
+  formatBNB(amount: bigint | string): string {
     return ethers.formatEther(amount);
   }
 
   /**
-   * Parse MON amount (Monad native token)
+   * Parse BNB amount (BSC native token)
    */
-  parseMON(amount: string): bigint {
+  parseBNB(amount: string): bigint {
     return ethers.parseEther(amount);
   }
 

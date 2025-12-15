@@ -1,26 +1,12 @@
-# SafuPad SDK
-
-A comprehensive TypeScript SDK for interacting with SafuPad smart contracts **deployed on BNB Chain** (BNB Smart Chain - BSC).
-
-## Deployment Information
-
-**Primary Network**: BNB Smart Chain (BSC)
-- **BSC Mainnet**: Chain ID 56
-- **BSC Testnet**: Chain ID 97
-
-This SDK provides TypeScript/JavaScript bindings for the SafuPad token launchpad platform deployed on BNB Chain, enabling developers to integrate fair token launches, bonding curve trading, and PancakeSwap graduation features into their applications.
-
-## Features
-
-- 🔐 **Type-safe** - Full TypeScript support with comprehensive types
-- 🎯 **Easy to use** - Simple, intuitive API
-- ⚡ **Fast** - Optimized for performance
-- 🌐 **Multi-network** - Support for BSC Mainnet, Testnet, and localhost
-- 🔌 **Flexible** - Works in Node.js and browsers
-- 📊 **Complete** - All contract functions wrapped with helpers
-- 🎨 **Event handling** - Easy event listening and filtering
-- 🛡️ **Error handling** - Comprehensive error types and messages
-- 📈 **Volume Tracking** - Built-in 24h volume and trading analytics
+﻿- ðŸ” **Type-safe** - Full TypeScript support with comprehensive types
+- ðŸŽ¯ **Easy to use** - Simple, intuitive API
+- âš¡ **Fast** - Optimized for performance
+- ðŸŒ **Multi-network** - Support for BSC Mainnet, Testnet, and localhost
+- ðŸ”Œ **Flexible** - Works in Node.js and browsers
+- ðŸ“Š **Complete** - All contract functions wrapped with helpers
+- ðŸŽ¨ **Event handling** - Easy event listening and filtering
+- ðŸ›¡ï¸ **Error handling** - Comprehensive error types and messages
+- ðŸ“ˆ **Volume Tracking** - Built-in 24h volume and trading analytics
 
 ## Installation
 
@@ -41,7 +27,7 @@ import { SafuPadSDK } from '@safupad/sdk';
 
 // Initialize SDK with MetaMask or other injected provider
 const sdk = new SafuPadSDK({
-  network: 'bsc',
+  network: 'BSC',
   provider: window.ethereum,
 });
 
@@ -62,19 +48,19 @@ await tx.wait();
 import { SafuPadSDK } from '@safupad/sdk';
 
 const sdk = new SafuPadSDK({
-  network: 'bscTestnet',
+  network: 'BSCTestnet',
   privateKey: process.env.PRIVATE_KEY,
 });
 
 await sdk.initialize();
 
-// Create a launch - ✅ UPDATED: No projectInfoFiWallet needed
+// Create a launch - âœ… UPDATED: No projectInfoFiWallet needed
 const tx = await sdk.launchpad.createLaunch({
   name: 'MyToken',
   symbol: 'MTK',
   totalSupply: 1000000000,
-  raiseTargetBNB: '50', // ✅ NEW: BNB amounts instead of USD
-  raiseMaxBNB: '100', // ✅ NEW: BNB amounts instead of USD
+  raiseTargetBNB: '50', // âœ… NEW: BNB amounts instead of USD
+  raiseMaxBNB: '100', // âœ… NEW: BNB amounts instead of USD
   vestingDuration: 90,
   metadata: {
     logoURI: 'https://example.com/logo.png',
@@ -90,7 +76,7 @@ const tx = await sdk.launchpad.createLaunch({
 await tx.wait();
 ```
 
-## 🚨 Breaking Changes v2.0.0
+## ðŸš¨ Breaking Changes v2.0.0
 
 ### Removed `projectInfoFiWallet` Parameter
 
@@ -99,7 +85,7 @@ await tx.wait();
 ```typescript
 await sdk.launchpad.createLaunch({
   // ...
-  projectInfoFiWallet: '0x...', // ❌ No longer needed
+  projectInfoFiWallet: '0x...', // âŒ No longer needed
   // ...
 });
 ```
@@ -120,8 +106,8 @@ await sdk.launchpad.createLaunch({
 
 ```typescript
 await sdk.launchpad.createLaunch({
-  raiseTargetUSD: '50000', // ❌ USD amounts
-  raiseMaxUSD: '100000', // ❌ USD amounts
+  raiseTargetUSD: '50000', // âŒ USD amounts
+  raiseMaxUSD: '100000', // âŒ USD amounts
   // ...
 });
 ```
@@ -130,8 +116,8 @@ await sdk.launchpad.createLaunch({
 
 ```typescript
 await sdk.launchpad.createLaunch({
-  raiseTargetBNB: '50', // ✅ BNB amounts (50-500 BNB)
-  raiseMaxBNB: '100', // ✅ BNB amounts
+  raiseTargetBNB: '50', // âœ… BNB amounts (50- BNB)
+  raiseMaxBNB: '100', // âœ… BNB amounts
   // ...
 });
 ```
@@ -142,7 +128,7 @@ await sdk.launchpad.createLaunch({
 
 ```typescript
 const info = await sdk.launchpad.getLaunchInfo(tokenAddress);
-console.log(info.projectInfoFiWallet); // ❌ No longer exists
+console.log(info.projectInfoFiWallet); // âŒ No longer exists
 ```
 
 **After (v2.x):**
@@ -150,7 +136,7 @@ console.log(info.projectInfoFiWallet); // ❌ No longer exists
 ```typescript
 const info = await sdk.launchpad.getLaunchInfo(tokenAddress);
 // projectInfoFiWallet removed - managed globally by platform
-console.log(info.burnLP); // ✅ Still available
+console.log(info.burnLP); // âœ… Still available
 ```
 
 ## Core Concepts
@@ -161,7 +147,7 @@ The main entry point for all SafuPad interactions:
 
 ```typescript
 const sdk = new SafuPadSDK({
-  network: 'bsc' | 'bscTestnet' | 'localhost',
+  network: 'BSC' | 'BSCTestnet' | 'localhost',
   provider?: string | Provider | BrowserProvider,
   privateKey?: string,
 });
@@ -186,13 +172,13 @@ The SDK exposes five main contract modules:
 #### Create Project Raise
 
 ```typescript
-// ✅ UPDATED: No projectInfoFiWallet, uses BNB amounts
+// âœ… UPDATED: No projectInfoFiWallet, uses BNB amounts
 const tx = await sdk.launchpad.createLaunch({
   name: 'MyToken',
   symbol: 'MTK',
   totalSupply: 1000000000, // 1 billion
-  raiseTargetBNB: '50', // ✅ Minimum 50 BNB
-  raiseMaxBNB: '100', // ✅ Maximum 500 BNB
+  raiseTargetBNB: '50', // âœ… Minimum  BNB
+  raiseMaxBNB: '100', // âœ… Maximum  BNB
   vestingDuration: 90, // days (90-180)
   metadata: {
     logoURI: 'https://example.com/logo.png',
@@ -209,8 +195,8 @@ const tx = await sdk.launchpad.createLaunch({
 
 **Parameters:**
 
-- `raiseTargetBNB`: String - Minimum raise target (50-500 BNB)
-- `raiseMaxBNB`: String - Maximum raise cap (50-500 BNB)
+- `raiseTargetBNB`: String - Minimum raise target (50- BNB)
+- `raiseMaxBNB`: String - Maximum raise cap (50- BNB)
 - `burnLP`: Boolean - `true` burns LP permanently, `false` locks in fee harvester
 - ~~`projectInfoFiWallet`~~ - Removed, uses global InfoFi address
 
@@ -240,13 +226,13 @@ const tx = await sdk.launchpad.contribute(
 #### Get Launch Info
 
 ```typescript
-// ✅ UPDATED: No longer includes projectInfoFiWallet
+// âœ… UPDATED: No longer includes projectInfoFiWallet
 const info = await sdk.launchpad.getLaunchInfo(tokenAddress);
 console.log('Founder:', info.founder);
 console.log('Raised:', sdk.formatBNB(info.totalRaised));
 console.log('Target:', sdk.formatBNB(info.raiseTarget));
 console.log('Completed:', info.raiseCompleted);
-console.log('Graduated:', info.graduatedToPancakeSwap);
+console.log('Graduated:', info.graduatedToBSC DEX);
 console.log('LP Burned:', info.burnLP);
 ```
 
@@ -260,19 +246,19 @@ console.log('LP Burned:', info.burnLP);
   totalRaised: bigint;
   raiseDeadline: bigint;
   raiseCompleted: boolean;
-  graduatedToPancakeSwap: boolean;
+  graduatedToBSC DEX: boolean;
   raisedFundsVesting: bigint;
   raisedFundsClaimed: bigint;
   launchType: LaunchType;
   burnLP: boolean;
-  // ❌ projectInfoFiWallet removed
+  // âŒ projectInfoFiWallet removed
 }
 ```
 
 #### Get Launch Info with USD
 
 ```typescript
-// ✅ Provides both BNB and USD values
+// âœ… Provides both BNB and USD values
 const info = await sdk.launchpad.getLaunchInfoWithUSD(tokenAddress);
 console.log('Target BNB:', sdk.formatBNB(info.raiseTargetBNB));
 console.log('Target USD:', sdk.formatBNB(info.raiseTargetUSD));
@@ -304,11 +290,11 @@ if (amounts.claimableFunds > 0n) {
 - Tokens to be released are burned
 - Raised funds go to global InfoFi address for redistribution
 
-#### Graduate to PancakeSwap
+#### Graduate to BSC DEX
 
 ```typescript
-// Token graduates at 15 BNB in bonding curve
-const tx = await sdk.launchpad.graduateToPancakeSwap(tokenAddress);
+// Token graduates at  BNB in bonding curve
+const tx = await sdk.launchpad.graduateToBSC DEX(tokenAddress);
 await tx.wait();
 ```
 
@@ -351,7 +337,7 @@ const tx = await sdk.bondingDex.sellTokens(
 const pool = await sdk.bondingDex.getPoolInfo(tokenAddress);
 console.log('Market Cap USD:', sdk.formatBNB(pool.marketCapUSD));
 console.log('Market Cap BNB:', sdk.formatBNB(pool.marketCapBNB));
-console.log('BNB Reserve:', sdk.formatBNB(pool.bnbReserve));
+console.log('BNB Reserve:', sdk.formatBNB(pool.BNBReserve));
 console.log('Token Reserve:', sdk.formatToken(pool.tokenReserve));
 console.log('Current Price:', sdk.formatBNB(pool.currentPrice));
 console.log('Graduation:', Number(pool.graduationProgress), '%');
@@ -360,7 +346,7 @@ console.log('Graduated:', pool.graduated);
 
 **Graduation Threshold:**
 
-- All INSTANT_LAUNCH tokens graduate at **15 BNB** in bonding curve
+- All INSTANT_LAUNCH tokens graduate at ** BNB** in bonding curve
 - PROJECT_RAISE require their raise target to be met before graduation
 
 #### Get Fee Information
@@ -408,7 +394,7 @@ const hourlyVolume = await sdk.bondingDex.getVolumeHistory(
 // Get recent trades
 const trades = await sdk.bondingDex.getRecentTrades(tokenAddress, 50);
 trades.forEach((trade) => {
-  console.log(`${trade.type}: ${sdk.formatBNB(trade.bnbAmount)} BNB`);
+  console.log(`${trade.type}: ${sdk.formatBNB(trade.BNBAmount)} BNB`);
 });
 
 // Get top traders
@@ -448,10 +434,10 @@ const price = await sdk.priceOracle.getBNBPrice();
 console.log('BNB Price:', sdk.formatUnits(price, 8), 'USD');
 
 // Convert USD to BNB
-const bnbAmount = await sdk.priceOracle.usdToBNB(ethers.parseUnits('50000', 18));
+const BNBAmount = await sdk.priceOracle.usdToBNB(ethers.parseUnits('50000', 18));
 
 // Convert BNB to USD
-const usdAmount = await sdk.priceOracle.bnbToUSD(ethers.parseEther('10'));
+const usdAmount = await sdk.priceOracle.BNBToUSD(ethers.parseEther('10'));
 ```
 
 ### LP Fee Harvester
@@ -481,7 +467,7 @@ console.log('Total Fees Distributed:', sdk.formatBNB(stats.totalFeesDistributed)
 
 ```typescript
 // Format amounts
-const bnb = sdk.formatBNB(bigintAmount); // "0.5"
+const BNB = sdk.formatBNB(bigintAmount); // "0.5"
 const tokens = sdk.formatToken(bigintAmount, 18); // "1000.0"
 
 // Parse amounts
@@ -506,36 +492,36 @@ const txUrl = sdk.getExplorerUrl('tx', '0x...');
 
 ```typescript
 // Launch events
-const unsubscribe1 = sdk.launchpad.onLaunchCreated((event) => {
+const unsuBSCribe1 = sdk.launchpad.onLaunchCreated((event) => {
   console.log('New launch:', event.args.token);
   console.log('Founder:', event.args.founder);
   console.log('Burn LP:', event.args.burnLP);
 });
 
 // Trading events
-const unsubscribe2 = sdk.bondingDex.onTokensBought((event) => {
+const unsuBSCribe2 = sdk.bondingDex.onTokensBought((event) => {
   console.log('Buyer:', event.args.buyer);
-  console.log('Amount:', sdk.formatBNB(event.args.bnbAmount));
+  console.log('Amount:', sdk.formatBNB(event.args.BNBAmount));
   console.log('Price:', sdk.formatBNB(event.args.currentPrice));
 });
 
 // Sell events
-const unsubscribe3 = sdk.bondingDex.onTokensSold((event) => {
+const unsuBSCribe3 = sdk.bondingDex.onTokensSold((event) => {
   console.log('Seller:', event.args.seller);
   console.log('Amount:', sdk.formatBNB(event.args.bnbReceived));
 });
 
 // Graduation events
-const unsubscribe4 = sdk.bondingDex.onPoolGraduated((event) => {
+const unsuBSCribe4 = sdk.bondingDex.onPoolGraduated((event) => {
   console.log('Pool graduated:', event.args.token);
   console.log('Final Market Cap:', sdk.formatBNB(event.args.finalMarketCap));
 });
 
 // Cleanup
-unsubscribe1();
-unsubscribe2();
-unsubscribe3();
-unsubscribe4();
+unsuBSCribe1();
+unsuBSCribe2();
+unsuBSCribe3();
+unsuBSCribe4();
 ```
 
 ### Query Past Events
@@ -645,7 +631,7 @@ function useSafuPad() {
   useEffect(() => {
     const initSDK = async () => {
       const newSdk = new SafuPadSDK({
-        network: 'bsc',
+        network: 'BSC',
         provider: window.ethereum,
       });
 
@@ -741,12 +727,12 @@ npm test
 npm run docs
 ```
 
-## Migration Guide (v1.x → v2.x)
+## Migration Guide (v1.x â†’ v2.x)
 
 ### 1. Update Launch Creation
 
 ```typescript
-// ❌ Old (v1.x)
+// âŒ Old (v1.x)
 await sdk.launchpad.createLaunch({
   raiseTargetUSD: '50000',
   raiseMaxUSD: '100000',
@@ -754,7 +740,7 @@ await sdk.launchpad.createLaunch({
   // ...
 });
 
-// ✅ New (v2.x)
+// âœ… New (v2.x)
 await sdk.launchpad.createLaunch({
   raiseTargetBNB: '50', // Now in BNB
   raiseMaxBNB: '100', // Now in BNB
@@ -766,11 +752,11 @@ await sdk.launchpad.createLaunch({
 ### 2. Update Launch Info Access
 
 ```typescript
-// ❌ Old (v1.x)
+// âŒ Old (v1.x)
 const info = await sdk.launchpad.getLaunchInfo(token);
 console.log(info.projectInfoFiWallet); // No longer exists
 
-// ✅ New (v2.x)
+// âœ… New (v2.x)
 const info = await sdk.launchpad.getLaunchInfo(token);
 // Access other properties as before
 console.log(info.burnLP); // Still available
@@ -779,54 +765,573 @@ console.log(info.burnLP); // Still available
 ### 3. Update Raise Validation
 
 ```typescript
-// ❌ Old (v1.x)
+// âŒ Old (v1.x)
 if (raiseTarget >= 50000 && raiseTarget <= 500000) // USD
 
-// ✅ New (v2.x)
+// âœ… New (v2.x)
 if (raiseTarget >= 50 && raiseTarget <= 500) // BNB
 ```
 
-## BNB Chain Integration Details
+## Frontend Integration Guide - BSC Migration
 
-This SDK is specifically designed for BNB Chain (BNB Smart Chain) deployment:
+This guide covers everything you need to integrate the BSC-migrated SDK into your React/Vue/Next.js frontend applications.
+
+### 1. Wallet Configuration for BSC
+
+#### Add BSC Network to MetaMask
+
+Users need to add the BSC network to their wallet before interacting with your dApp:
+
+```typescript
+// utils/addBSCNetwork.ts
+export const BSC_MAINNET = {
+  chainId: '0x279F', // 10143 in hex
+  chainName: 'BSC',
+  nativeCurrency: {
+    name: 'BNB',
+    symbol: 'BNB',
+    decimals: 18,
+  },
+  rpcUrls: ['https://rpc.BSC.xyz/'],
+  blockExplorerUrls: ['https://explorer.BSC.xyz'],
+};
+
+export const BSC_TESTNET = {
+  chainId: '0x2803', // 10243 in hex
+  chainName: 'BSC Testnet',
+  nativeCurrency: {
+    name: 'BNB',
+    symbol: 'BNB',
+    decimals: 18,
+  },
+  rpcUrls: ['https://testnet-rpc.BSC.xyz/'],
+  blockExplorerUrls: ['https://testnet-explorer.BSC.xyz'],
+};
+
+export async function addBSCNetwork() {
+  if (!window.ethereum) {
+    throw new Error('MetaMask is not installed');
+  }
+
+  try {
+    await window.ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [BSC_MAINNET],
+    });
+  } catch (error) {
+    console.error('Failed to add BSC network:', error);
+    throw error;
+  }
+}
+```
+
+#### Auto-Switch to BSC Network
+
+```typescript
+// utils/switchToBSC.ts
+export async function switchToBSCNetwork() {
+  if (!window.ethereum) {
+    throw new Error('MetaMask is not installed');
+  }
+
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x279F' }], // BSC mainnet
+    });
+  } catch (switchError: any) {
+    // Network not added yet
+    if (switchError.code === 4902) {
+      await addBSCNetwork();
+    } else {
+      throw switchError;
+    }
+  }
+}
+```
+
+### 2. SDK Initialization in React
+
+#### Create a Custom Hook
+
+```typescript
+// hooks/useSafuPad.ts
+import { SafuPadSDK } from '@safupad/sdk';
+import { useState, useEffect } from 'react';
+
+export function useSafuPad() {
+  const [sdk, setSdk] = useState<SafuPadSDK | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [chainId, setChainId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const initSDK = async () => {
+      try {
+        if (!window.ethereum) {
+          throw new Error('MetaMask not installed');
+        }
+
+        const newSdk = new SafuPadSDK({
+          network: 'BSC', // âœ… Changed from 'bsc' to 'BSC'
+          provider: window.ethereum,
+        });
+
+        await newSdk.initialize();
+        setSdk(newSdk);
+
+        // Get current chain
+        const chain = await window.ethereum.request({ method: 'eth_chainId' });
+        setChainId(parseInt(chain, 16));
+
+        // Listen for chain changes
+        window.ethereum.on('chainChanged', (newChainId: string) => {
+          setChainId(parseInt(newChainId, 16));
+          window.location.reload(); // Recommended by MetaMask
+        });
+
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', (accounts: string[]) => {
+          if (accounts.length === 0) {
+            setAddress(null);
+          } else {
+            setAddress(accounts[0]);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to initialize SDK:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initSDK();
+
+    return () => {
+      // Cleanup listeners
+      if (window.ethereum) {
+        window.ethereum.removeAllListeners('chainChanged');
+        window.ethereum.removeAllListeners('accountsChanged');
+      }
+    };
+  }, []);
+
+  const connect = async () => {
+    if (!sdk) throw new Error('SDK not initialized');
+
+    // Check if on correct network
+    if (chainId !== 10143) {
+      await switchToBSCNetwork();
+    }
+
+    const addr = await sdk.connect();
+    setAddress(addr);
+    return addr;
+  };
+
+  return { sdk, address, connect, isLoading, chainId };
+}
+```
+
+### 3. Migration Checklist for Existing Frontends
+
+#### Step 1: Update Environment Variables
+
+```bash
+# .env.local (BEFORE - BSC)
+NEXT_PUBLIC_CHAIN_ID=56
+NEXT_PUBLIC_RPC_URL=https://bsc-dataseed.binance.org/
+NEXT_PUBLIC_EXPLORER_URL=https://bscscan.com
+NEXT_PUBLIC_CURRENCY_SYMBOL=BNB
+
+# .env.local (AFTER - BSC)
+NEXT_PUBLIC_CHAIN_ID=10143
+NEXT_PUBLIC_RPC_URL=https://rpc.BSC.xyz/
+NEXT_PUBLIC_EXPLORER_URL=https://explorer.BSC.xyz
+NEXT_PUBLIC_CURRENCY_SYMBOL=BNB
+```
+
+#### Step 2: Update Network References
+
+```typescript
+// âŒ BEFORE (BSC)
+const SUPPORTED_CHAINS = [56, 97]; // BSC mainnet, testnet
+const NETWORK_NAMES = {
+  56: 'BSC Mainnet',
+  97: 'BSC Testnet',
+};
+
+// âœ… AFTER (BSC)
+const SUPPORTED_CHAINS = [10143, 10243]; // BSC mainnet, testnet
+const NETWORK_NAMES = {
+  10143: 'BSC',
+  10243: 'BSC Testnet',
+};
+```
+
+#### Step 3: Update SDK Initialization
+
+```typescript
+// âŒ BEFORE
+const sdk = new SafuPadSDK({
+  network: 'bsc', // Old BSC network
+  provider: window.ethereum,
+});
+
+// âœ… AFTER
+const sdk = new SafuPadSDK({
+  network: 'BSC', // New BSC network
+  provider: window.ethereum,
+});
+```
+
+#### Step 4: Update Function Calls
+
+```typescript
+// âŒ BEFORE
+const price = await sdk.priceOracle.getBNBPrice();
+const formatted = sdk.formatBNB(amount);
+const bnbAmount = await sdk.priceOracle.usdToBNB(usdAmount);
+
+// âœ… AFTER
+const price = await sdk.priceOracle.getBNBPrice();
+const formatted = sdk.formatBNB(amount);
+const BNBAmount = await sdk.priceOracle.usdToBNB(usdAmount);
+```
+
+#### Step 5: Update Parameter Names
+
+```typescript
+// âŒ BEFORE
+await sdk.launchpad.createLaunch({
+  raiseTargetBNB: '100',
+  raiseMaxBNB: '200',
+  // ...
+});
+
+// âœ… AFTER
+await sdk.launchpad.createLaunch({
+  raiseTargetBNB: '100',
+  raiseMaxBNB: '200',
+  // ...
+});
+```
+
+### 4. Display Components
+
+#### Currency Display Component
+
+```tsx
+// components/BNBDisplay.tsx
+import React from 'react';
+
+interface BNBDisplayProps {
+  amount: string | bigint;
+  showSymbol?: boolean;
+  decimals?: number;
+}
+
+export function BNBDisplay({ amount, showSymbol = true, decimals = 4 }: BNBDisplayProps) {
+  const formatted = typeof amount === 'bigint' 
+    ? parseFloat(ethers.formatEther(amount)).toFixed(decimals)
+    : parseFloat(amount).toFixed(decimals);
+
+  return (
+    <span className="BNB-amount">
+      {formatted} {showSymbol && 'BNB'}
+    </span>
+  );
+}
+```
+
+#### Network Status Indicator
+
+```tsx
+// components/NetworkStatus.tsx
+import React from 'react';
+import { useSafuPad } from '../hooks/useSafuPad';
+import { switchToBSCNetwork } from '../utils/switchToBSC';
+
+export function NetworkStatus() {
+  const { chainId } = useSafuPad();
+  const isBSC = chainId === 10143;
+
+  if (isBSC) {
+    return (
+      <div className="network-status success">
+        âœ“ Connected to BSC
+      </div>
+    );
+  }
+
+  return (
+    <div className="network-status warning">
+      âš ï¸ Wrong Network
+      <button onClick={switchToBSCNetwork}>
+        Switch to BSC
+      </button>
+    </div>
+  );
+}
+```
+
+### 5. Complete React Example
+
+```tsx
+// pages/LaunchToken.tsx
+import React, { useState } from 'react';
+import { useSafuPad } from '../hooks/useSafuPad';
+import { BNBDisplay } from '../components/BNBDisplay';
+import { NetworkStatus } from '../components/NetworkStatus';
+
+export default function LaunchToken() {
+  const { sdk, address, connect, isLoading } = useSafuPad();
+  const [formData, setFormData] = useState({
+    name: '',
+    symbol: '',
+    totalSupply: '1000000000',
+    raiseTargetBNB: '50',
+    raiseMaxBNB: '100',
+  });
+
+  const handleLaunch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!sdk || !address) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      const tx = await sdk.launchpad.createLaunch({
+        name: formData.name,
+        symbol: formData.symbol,
+        totalSupply: parseInt(formData.totalSupply),
+        raiseTargetBNB: formData.raiseTargetBNB,
+        raiseMaxBNB: formData.raiseMaxBNB,
+        vestingDuration: 90,
+        metadata: {
+          logoURI: '',
+          description: '',
+          website: '',
+          twitter: '',
+          telegram: '',
+          discord: '',
+        },
+        burnLP: false,
+      });
+
+      console.log('Transaction:', tx.hash);
+      await tx.wait();
+      alert('Launch created successfully!');
+    } catch (error) {
+      console.error('Launch failed:', error);
+      alert('Launch failed: ' + error.message);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading SDK...</div>;
+  }
+
+  return (
+    <div className="launch-page">
+      <NetworkStatus />
+      
+      {!address ? (
+        <button onClick={connect}>Connect Wallet</button>
+      ) : (
+        <div>
+          <p>Connected: {address}</p>
+          
+          <form onSubmit={handleLaunch}>
+            <input
+              placeholder="Token Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+            
+            <input
+              placeholder="Symbol"
+              value={formData.symbol}
+              onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+            />
+            
+            <input
+              type="number"
+              placeholder="Raise Target (BNB)"
+              value={formData.raiseTargetBNB}
+              onChange={(e) => setFormData({ ...formData, raiseTargetBNB: e.target.value })}
+            />
+            
+            <input
+              type="number"
+              placeholder="Raise Max (BNB)"
+              value={formData.raiseMaxBNB}
+              onChange={(e) => setFormData({ ...formData, raiseMaxBNB: e.target.value })}
+            />
+            
+            <BNBDisplay amount={formData.raiseTargetBNB} />
+            
+            <button type="submit">Launch Token</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### 6. Testing on BSC Testnet
+
+```typescript
+// Use testnet for development
+const sdk = new SafuPadSDK({
+  network: 'BSCTestnet', // Use testnet
+  provider: window.ethereum,
+});
+
+// Request testnet BNB from faucet
+// Visit: https://faucet.BSC.xyz (placeholder - update when available)
+```
+
+### 7. ComBNB Issues and Solutions
+
+#### Issue: "Unsupported Chain ID"
+
+**Solution:** Make sure user is connected to BSC network (chain ID 10143)
+
+```typescript
+if (chainId !== 10143) {
+  await switchToBSCNetwork();
+}
+```
+
+#### Issue: "Insufficient BNB for gas"
+
+**Solution:** Users need BNB tokens for gas fees (not BNB anymore)
+
+```typescript
+const balance = await sdk.getBalance(address);
+if (balance < ethers.parseEther('0.01')) {
+  alert('You need at least 0.01 BNB for gas fees');
+}
+```
+
+#### Issue: "Transaction Reverted"
+
+**Solution:** Check that contract addresses are updated for BSC
+
+```typescript
+// Verify you're using the correct network configuration
+console.log(sdk.config.contracts);
+```
+
+### 8. Performance Optimization
+
+```typescript
+// Use React Query for caching
+import { useQuery } from '@tanstack/react-query';
+
+function useTokenPrice(tokenAddress: string) {
+  const { sdk } = useSafuPad();
+  
+  return useQuery({
+    queryKey: ['tokenPrice', tokenAddress],
+    queryFn: async () => {
+      if (!sdk) throw new Error('SDK not ready');
+      return await sdk.bondingDex.getPoolInfo(tokenAddress);
+    },
+    enabled: !!sdk && !!tokenAddress,
+    refetchInterval: 10000, // Refetch every 10 seconds
+  });
+}
+```
+
+### 9. TypeScript Types
+
+```typescript
+// types/BSC.ts
+export interface BSCToken {
+  address: string;
+  name: string;
+  symbol: string;
+  raiseTargetBNB: string;
+  raiseMaxBNB: string;
+  totalRaisedBNB: string;
+}
+
+export interface BSCNetwork {
+  chainId: number;
+  name: string;
+  rpcUrl: string;
+  explorerUrl: string;
+  nativeCurrency: {
+    name: 'BNB';
+    symbol: 'BNB';
+    decimals: 18;
+  };
+}
+```
+
+### 10. Build Configuration
+
+Update your build configuration to handle the new network:
+
+```javascript
+// next.config.js
+module.exports = {
+  env: {
+    NEXT_PUBLIC_BSC_CHAIN_ID: '10143',
+    NEXT_PUBLIC_BSC_RPC: 'https://rpc.BSC.xyz/',
+  },
+};
+```
+
+---
+
+## BSC Integration Details
+
+
+This SDK is specifically designed for BSC (BSC) deployment:
 
 ### Network Configuration
 
 The SDK includes pre-configured support for BSC networks:
 
 ```typescript
-// BSC Mainnet (default for 'bsc')
+// BSC Mainnet (default for 'BSC')
 {
   chainId: 56,
-  rpcUrl: 'https://bsc-dataseed.binance.org/',
-  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://BSC-dataseed.binance.org/',
+  explorerUrl: 'https://BSCscan.com',
   nativeCurrency: 'BNB'
 }
 
 // BSC Testnet
 {
   chainId: 97,
-  rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-  explorerUrl: 'https://testnet.bscscan.com',
+  rpcUrl: 'https://data-seed-preBSC-1-s1.binance.org:8545/',
+  explorerUrl: 'https://testnet.BSCscan.com',
   nativeCurrency: 'tBNB'
 }
 ```
 
-### BNB Chain Specific Features
+### BSC Specific Features
 
-1. **BNB-Denominated Launches**: All token raises are denominated in BNB (50-500 BNB range)
-2. **PancakeSwap Integration**: Automatic graduation to PancakeSwap V2 on BSC at 15 BNB threshold
+1. **BNB-Denominated Launches**: All token raises are denominated in BNB (50- BNB range)
+2. **BSC DEX Integration**: Automatic graduation to BSC DEX V2 on BSC at  BNB threshold
 3. **Chainlink Price Feeds**: Uses Chainlink BNB/USD oracle deployed on BSC for accurate pricing
 4. **Low Gas Costs**: Optimized for BSC's affordable transaction fees
 5. **BSCScan Integration**: Built-in support for BSCScan transaction and contract links
 
-### PancakeSwap on BNB Chain
+### BSC DEX on BSC
 
-The SDK integrates with PancakeSwap V2 contracts on BSC:
+The SDK integrates with BSC DEX V2 contracts on BSC:
 - **Router**: 0x10ED43C718714eb63d5aA57B78B54704E256024E (BSC Mainnet)
 - **Factory**: 0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73 (BSC Mainnet)
 
-Tokens automatically graduate from bonding curve to PancakeSwap when reaching 15 BNB liquidity.
+Tokens automatically graduate from bonding curve to BSC DEX when reaching  BNB liquidity.
 
 ### BSCScan Verification
 
@@ -835,37 +1340,37 @@ All contract addresses and transactions can be verified on BSCScan:
 ```typescript
 // Get BSCScan URL for transaction
 const txUrl = sdk.getExplorerUrl('tx', txHash);
-// https://bscscan.com/tx/0x...
+// https://BSCscan.com/tx/0x...
 
 // Get BSCScan URL for token
 const tokenUrl = sdk.getExplorerUrl('address', tokenAddress);
-// https://bscscan.com/address/0x...
+// https://BSCscan.com/address/0x...
 ```
 
 ### Network Information
 
 #### BSC Mainnet
 - **Chain ID**: 56
-- **RPC URL**: https://bsc-dataseed.binance.org/
-- **Explorer**: https://bscscan.com
+- **RPC URL**: https://BSC-dataseed.binance.org/
+- **Explorer**: https://BSCscan.com
 - **Native Token**: BNB
 - **Faucet**: N/A (use exchanges to acquire BNB)
 
 #### BSC Testnet
 - **Chain ID**: 97
-- **RPC URL**: https://data-seed-prebsc-1-s1.binance.org:8545/
-- **Explorer**: https://testnet.bscscan.com
+- **RPC URL**: https://data-seed-preBSC-1-s1.binance.org:8545/
+- **Explorer**: https://testnet.BSCscan.com
 - **Native Token**: tBNB
 - **Faucet**: https://testnet.bnbchain.org/faucet-smart
 
 ### Integration with Safuverse Ecosystem
 
-The SafuPad SDK is part of the larger Safuverse ecosystem on BNB Chain:
+The SafuPad SDK is part of the larger Safuverse ecosystem on BSC:
 - **SafuAcademyy**: Token economics education integration
 - **Safucard**: Project scorecard NFTs on BSC
 - **SafuAgents**: AI-powered launch analytics
 
-All ecosystem components are deployed on BNB Chain for seamless interoperability.
+All ecosystem components are deployed on BSC for seamless interoperability.
 
 ## Contributing
 
@@ -877,22 +1382,22 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- 📧 Email: support@safupad.com
-- 💬 Discord: https://discord.gg/safupad
-- 🐦 Twitter: https://twitter.com/safupad
-- 📖 Docs: https://docs.safupad.com
+- ðŸ“§ Email: support@safupad.com
+- ðŸ’¬ Discord: https://discord.gg/safupad
+- ðŸ¦ Twitter: https://twitter.com/safupad
+- ðŸ“– Docs: https://docs.safupad.com
 
 ## Changelog
 
 ### v2.0.0 (Breaking Changes)
 
-- ✅ **Removed `projectInfoFiWallet` parameter** - Now uses global InfoFi address
-- ✅ **Changed to BNB-based raises** - `raiseTargetBNB` and `raiseMaxBNB` instead of USD
-- ✅ **Unified graduation threshold** - All tokens graduate at 15 BNB
-- ✅ **Added volume tracking** - 24h volume, top traders, and trading analytics
-- ✅ **Fixed event parsing** - Improved reliability of volume tracking
-- 🔧 Updated ABIs for new contract versions
-- 🔧 Improved TypeScript types
+- âœ… **Removed `projectInfoFiWallet` parameter** - Now uses global InfoFi address
+- âœ… **Changed to BNB-based raises** - `raiseTargetBNB` and `raiseMaxBNB` instead of USD
+- âœ… **Unified graduation threshold** - All tokens graduate at  BNB
+- âœ… **Added volume tracking** - 24h volume, top traders, and trading analytics
+- âœ… **Fixed event parsing** - Improved reliability of volume tracking
+- ðŸ”§ Updated ABIs for new contract versions
+- ðŸ”§ Improved TypeScript types
 
 ### v1.0.0
 
@@ -905,4 +1410,5 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built for BNB Chain** - TypeScript SDK for SafuPad token launchpad platform on BNB Smart Chain.
+**Built for BSC** - TypeScript SDK for SafuPad token launchpad platform on BSC.
+

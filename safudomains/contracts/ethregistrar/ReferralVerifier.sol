@@ -21,7 +21,10 @@ contract ReferralVerifier is Ownable {
     address public signer;
     mapping(bytes32 => bool) public usedNonces;
     mapping(address => uint256) public referralCount;
-    
+
+    // Total earnings tracking (in native token, e.g., BNB)
+    mapping(address => uint256) public totalEarnings;
+
     // Fiat tracking
     uint256 public untrackedFiatEarnings;
     mapping(address => uint256) public pendingFiatEarnings;
@@ -117,8 +120,9 @@ contract ReferralVerifier is Ownable {
         uint256 pct = referralCount[data.referrer] >= BONUS_THRESHOLD ? BONUS_PCT : BASE_PCT;
         paidAmount = (totalPrice * pct) / 100;
 
-        // Increment referral count
+        // Increment referral count and track total earnings
         referralCount[data.referrer]++;
+        totalEarnings[data.referrer] += paidAmount;
 
         // Process payment based on type
         if (isFiat) {
