@@ -10,7 +10,7 @@
     "build:all": "npm run build:frontend && npm run build:backend",
     "copy:dist": "xcopy /E /I /Y frontend\\dist dist",
     "prepare:cpanel": "npm run build:frontend && npm run copy:dist",
-    "postinstall": "cd backend && npx prisma generate",
+    "postinstall": "if [ -z \"$VERCEL\" ]; then cd backend && npx prisma generate; fi",
     "local:start": "hardhat node",
     "local:deploy": "hardhat run scripts/deploy.ts --network local",
     "deploy": "npx hardhat run scripts/deploy.s --network bsc",
