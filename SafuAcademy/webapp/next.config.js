@@ -13,9 +13,12 @@ const nextConfig = {
       },
     ],
   },
-  // Turbopack configuration (empty to silence warning and use webpack fallbacks)
-  turbopack: {},
-  webpack: (config) => {
+  // Turbopack configuration - set root to silence warning
+  turbopack: {
+    root: '..',
+    resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+  },
+  webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -24,7 +27,8 @@ const nextConfig = {
     };
     return config;
   },
+  // Transpile @reown packages
+  transpilePackages: ['@reown/appkit', '@reown/appkit-controllers', '@reown/appkit-utils'],
 };
 
 module.exports = nextConfig;
-
