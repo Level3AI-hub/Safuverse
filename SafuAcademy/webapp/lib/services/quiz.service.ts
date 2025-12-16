@@ -2,11 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import { getPointsConfig } from '../points';
 
 interface QuizQuestion {
-    id: string;
+    id?: string;
     question: string;
     options: string[];
-    correctAnswer: number; // index of correct option
-    points: number;
+    correctIndex: number;
 }
 
 export class QuizService {
@@ -16,35 +15,42 @@ export class QuizService {
         this.prisma = prisma;
     }
 
-    async getQuizByLessonId(lessonId: number) {
+    async getQuizByLessonId(lessonId: string) {
         return this.prisma.quiz.findUnique({
             where: { lessonId },
-            include: {
-                lesson: {
+        });
+    }
+
+    async getQuizWithLesson(lessonId: string) {
+        const quiz = await this.prisma.quiz.findUnique({
+            where: { lessonId },
+        });
+        if (!quiz) return null;
+
+        const lesson = await this.prisma.lesson.findUnique({
+            where: { id: lessonId },
+            select: {
+                id: true,
+                title: true,
+                courseId: true,
+                course: {
                     select: {
-                        id: true,
-                        title: true,
-                        courseId: true,
-                        course: {
-                            select: {
-                                level: true,
-                            },
-                        },
+                        level: true,
                     },
                 },
             },
         });
+
+        return { ...quiz, lesson };
     }
 
-    async getQuizQuestions(lessonId: number): Promise<{
-        quizId: number;
-        lessonId: number;
+    async getQuizQuestions(lessonId: string): Promise<{
+        quizId: string;
+        lessonId: string;
         passingScore: number;
         questions: Array<{
-            id: string;
             question: string;
             options: string[];
-            points: number;
         }>;
     } | null> {
         const quiz = await this.getQuizByLessonId(lessonId);
@@ -58,33 +64,31 @@ export class QuizService {
             lessonId: quiz.lessonId,
             passingScore: quiz.passingScore,
             questions: questions.map(q => ({
-                id: q.id,
                 question: q.question,
                 options: q.options,
-                points: q.points,
             })),
         };
     }
 
     async submitQuizAnswers(
         userId: string,
-        lessonId: number,
-        answers: Record<string, number> // questionId -> selected option index
+        lessonId: string,
+        answers: number[] // array of selected option indices
     ): Promise<{
         success: boolean;
-        score: number;
+        scorePercent: number;
         passed: boolean;
-        correctAnswers: Record<string, number>;
+        correctIndices: number[];
         pointsAwarded: number;
         error?: string;
     }> {
-        const quiz = await this.getQuizByLessonId(lessonId);
-        if (!quiz) {
+        const quizWithLesson = await this.getQuizWithLesson(lessonId);
+        if (!quizWithLesson || !quizWithLesson.lesson) {
             return {
                 success: false,
-                score: 0,
+                scorePercent: 0,
                 passed: false,
-                correctAnswers: {},
+                correctIndices: [],
                 pointsAwarded: 0,
                 error: 'Quiz not found',
             };
@@ -95,7 +99,7 @@ export class QuizService {
             where: {
                 userId_courseId: {
                     userId,
-                    courseId: quiz.lesson.courseId,
+                    courseId: quizWithLesson.lesson.courseId,
                 },
             },
         });
@@ -103,94 +107,88 @@ export class QuizService {
         if (!enrollment) {
             return {
                 success: false,
-                score: 0,
+                scorePercent: 0,
                 passed: false,
-                correctAnswers: {},
+                correctIndices: [],
                 pointsAwarded: 0,
                 error: 'User not enrolled in this course',
             };
         }
 
-        const questions = quiz.questions as unknown as QuizQuestion[];
-        let totalPoints = 0;
-        let earnedPoints = 0;
-        const correctAnswers: Record<string, number> = {};
+        const questions = quizWithLesson.questions as unknown as QuizQuestion[];
+        let correctCount = 0;
+        const correctIndices: number[] = [];
 
         // Grade the quiz
-        for (const question of questions) {
-            totalPoints += question.points;
-            correctAnswers[question.id] = question.correctAnswer;
-
-            if (answers[question.id] === question.correctAnswer) {
-                earnedPoints += question.points;
+        for (let i = 0; i < questions.length; i++) {
+            correctIndices.push(questions[i].correctIndex);
+            if (answers[i] === questions[i].correctIndex) {
+                correctCount++;
             }
         }
 
-        const score = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
-        const passed = score >= quiz.passingScore;
+        const scorePercent = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+        const passed = scorePercent >= quizWithLesson.passingScore;
+
+        // Count previous attempts to get attempt number
+        const previousAttempts = await this.prisma.quizAttempt.count({
+            where: {
+                userId,
+                quizId: quizWithLesson.id,
+            },
+        });
 
         // Record the attempt
         await this.prisma.quizAttempt.create({
             data: {
                 userId,
-                quizId: quiz.id,
-                score,
-                passed,
-                answers,
+                quizId: quizWithLesson.id,
+                scorePercent,
+                isPassed: passed,
+                answers: answers,
+                attemptNumber: previousAttempts + 1,
+                passPointsAwarded: false, // Will be updated below if points are awarded
             },
         });
 
-        // Award points only if passed and not already awarded
+        // Award points only if passed and not already awarded for this quiz
         let pointsAwarded = 0;
 
         if (passed) {
-            // Get user lesson to check if points were already awarded
-            const userLesson = await this.prisma.userLesson.findUnique({
-                where: { userId_lessonId: { userId, lessonId } },
+            // Check if user already passed this quiz before
+            const previousPass = await this.prisma.quizAttempt.findFirst({
+                where: {
+                    userId,
+                    quizId: quizWithLesson.id,
+                    isPassed: true,
+                    id: { not: undefined }, // exclude the one we just created
+                },
+                orderBy: { createdAt: 'asc' },
             });
 
-            if (!userLesson?.quizPointsAwarded) {
-                // Award quiz points based on course level
-                const pointsConfig = getPointsConfig(quiz.lesson.course.level);
-                pointsAwarded = pointsConfig.quizPoints;
-
-                // Update user lesson to mark quiz points as awarded
-                await this.prisma.userLesson.upsert({
-                    where: { userId_lessonId: { userId, lessonId } },
-                    create: {
-                        userId,
-                        lessonId,
-                        quizPointsAwarded: true,
-                    },
-                    update: {
-                        quizPointsAwarded: true,
-                    },
-                });
+            // Only award points on first pass
+            if (!previousPass) {
+                // Award quiz points based on passPoints
+                pointsAwarded = quizWithLesson.passPoints;
 
                 // Award points to user
                 await this.prisma.user.update({
                     where: { id: userId },
-                    data: { points: { increment: pointsAwarded } },
-                });
-
-                // Update UserCourse points earned
-                await this.prisma.userCourse.update({
-                    where: { userId_courseId: { userId, courseId: quiz.lesson.courseId } },
-                    data: { pointsEarned: { increment: pointsAwarded } },
+                    data: { totalPoints: { increment: pointsAwarded } },
                 });
             }
         }
 
         return {
             success: true,
-            score,
+            scorePercent,
             passed,
-            correctAnswers,
+            correctIndices,
             pointsAwarded,
         };
     }
 
-    async getUserQuizAttempts(userId: string, lessonId: number) {
+    async getUserQuizAttempts(userId: string, lessonId: string) {
         const quiz = await this.getQuizByLessonId(lessonId);
         if (!quiz) return [];
 
@@ -203,7 +201,7 @@ export class QuizService {
         });
     }
 
-    async hasUserPassedQuiz(userId: string, lessonId: number): Promise<boolean> {
+    async hasUserPassedQuiz(userId: string, lessonId: string): Promise<boolean> {
         const quiz = await this.getQuizByLessonId(lessonId);
         if (!quiz) return false;
 
@@ -211,7 +209,7 @@ export class QuizService {
             where: {
                 userId,
                 quizId: quiz.id,
-                passed: true,
+                isPassed: true,
             },
         });
 

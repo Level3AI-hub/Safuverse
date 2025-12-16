@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { QuizService, LessonService, CourseService, RelayerService } from '@/lib/services';
+import { QuizService, LessonService, RelayerService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 const quizService = new QuizService(prisma);
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
-const lessonService = new LessonService(prisma, courseService);
+const lessonService = new LessonService(prisma, relayerService);
 
 export async function GET(
     request: NextRequest,
@@ -18,12 +17,7 @@ export async function GET(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         // Check enrollment first
         const lesson = await lessonService.getLesson(lessonId);

@@ -14,16 +14,15 @@ export async function GET(request: NextRequest) {
             select: {
                 id: true,
                 walletAddress: true,
-                points: true,
+                totalPoints: true,
                 createdAt: true,
-                userCourses: {
+                enrollments: {
                     include: {
                         course: {
                             select: {
                                 id: true,
                                 title: true,
                                 category: true,
-                                totalLessons: true,
                             },
                         },
                     },

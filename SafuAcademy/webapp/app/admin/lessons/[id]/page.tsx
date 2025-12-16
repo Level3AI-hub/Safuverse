@@ -5,24 +5,21 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Quiz {
-    id: number;
-    questions: { id?: number; question: string; options: string[]; correctIndex: number }[];
+    id: string;
+    questions: { id?: string; question: string; options: string[]; correctIndex: number }[];
     passingScore: number;
-    bonusPoints: number;
+    passPoints: number;
 }
 
 interface Lesson {
-    id: number;
+    id: string;
     courseId: number;
     title: string;
     description: string | null;
-    order: number;
-    type: string;
-    contentUrl: string | null;
+    orderIndex: number;
     videoStorageKey: string | null;
     videoDuration: number;
     watchPoints: number;
-    pointsValue: number;
     quiz: Quiz | null;
     course: { id: number; title: string };
 }
@@ -78,9 +75,7 @@ export default function EditLessonPage() {
             const formData = new FormData();
             formData.append('title', lesson.title);
             formData.append('description', lesson.description || '');
-            formData.append('type', lesson.type);
             formData.append('watchPoints', lesson.watchPoints.toString());
-            formData.append('pointsValue', lesson.pointsValue.toString());
 
             const res = await fetch(`/api/admin/lessons/${lessonId}`, {
                 method: 'PUT',
@@ -143,7 +138,7 @@ export default function EditLessonPage() {
                 body: JSON.stringify({
                     questions: quiz.questions,
                     passingScore: quiz.passingScore,
-                    bonusPoints: quiz.bonusPoints,
+                    passPoints: quiz.passPoints,
                 }),
             });
 
@@ -182,7 +177,7 @@ export default function EditLessonPage() {
 
     function addQuestion() {
         setQuiz((prev) => ({
-            ...(prev || { id: 0, passingScore: 70, bonusPoints: 20, questions: [] }),
+            ...(prev || { id: '', passingScore: 70, passPoints: 20, questions: [] }),
             questions: [
                 ...(prev?.questions || []),
                 { question: '', options: ['', '', '', ''], correctIndex: 0 },
@@ -225,7 +220,7 @@ export default function EditLessonPage() {
                         ← Back to {lesson.course.title}
                     </Link>
                     <h1 className="text-3xl font-bold text-white mt-2">Edit Lesson</h1>
-                    <p className="text-gray-400">Order: {lesson.order + 1}</p>
+                    <p className="text-gray-400">Order: {lesson.orderIndex + 1}</p>
                 </div>
                 <div className="flex gap-4">
                     <button
@@ -282,19 +277,7 @@ export default function EditLessonPage() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-gray-400 mb-2">Type</label>
-                                <select
-                                    value={lesson.type}
-                                    onChange={(e) => setLesson({ ...lesson, type: e.target.value })}
-                                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                                >
-                                    <option value="VIDEO">Video</option>
-                                    <option value="READING">Reading</option>
-                                    <option value="QUIZ">Quiz</option>
-                                </select>
-                            </div>
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-400 mb-2">Watch Points</label>
                                 <input
@@ -304,13 +287,14 @@ export default function EditLessonPage() {
                                     min="0"
                                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                 />
+                                <p className="text-gray-500 text-xs mt-1">Points for watching 50%+ of video</p>
                             </div>
                             <div>
-                                <label className="block text-gray-400 mb-2">Points Value</label>
+                                <label className="block text-gray-400 mb-2">Video Duration (seconds)</label>
                                 <input
                                     type="number"
-                                    value={lesson.pointsValue}
-                                    onChange={(e) => setLesson({ ...lesson, pointsValue: parseInt(e.target.value) || 0 })}
+                                    value={lesson.videoDuration}
+                                    onChange={(e) => setLesson({ ...lesson, videoDuration: parseInt(e.target.value) || 0 })}
                                     min="0"
                                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                 />
@@ -390,14 +374,15 @@ export default function EditLessonPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 mb-2">Bonus Points</label>
+                                <label className="block text-gray-400 mb-2">Pass Points</label>
                                 <input
                                     type="number"
-                                    value={quiz?.bonusPoints || 20}
-                                    onChange={(e) => setQuiz((prev) => ({ ...prev!, bonusPoints: parseInt(e.target.value) || 20 }))}
+                                    value={quiz?.passPoints || 20}
+                                    onChange={(e) => setQuiz((prev) => ({ ...prev!, passPoints: parseInt(e.target.value) || 20 }))}
                                     min="0"
                                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                 />
+                                <p className="text-gray-500 text-xs mt-1">Points awarded for passing the quiz</p>
                             </div>
                         </div>
                     </div>

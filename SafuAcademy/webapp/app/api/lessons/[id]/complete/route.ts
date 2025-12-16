@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
-import { LessonService, CourseService, RelayerService } from '@/lib/services';
+import { LessonService, RelayerService, ProgressService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
-const lessonService = new LessonService(prisma, courseService);
+const progressService = new ProgressService(prisma, relayerService);
 
 const completeLessonSchema = z.object({
     videoProgressPercent: z.number().min(0).max(100).optional(),
@@ -24,30 +23,67 @@ export async function POST(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         const body = await request.json();
         const data = completeLessonSchema.parse(body);
 
-        const result = await lessonService.completeLesson(
-            auth.userId,
-            auth.walletAddress,
-            lessonId,
-            data
-        );
+        // Get lesson to find courseId
+        const lesson = await prisma.lesson.findUnique({
+            where: { id: lessonId },
+        });
 
-        if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 400 });
+        if (!lesson) {
+            return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
         }
+
+        // Check course completion using progress service
+        const enrollment = await prisma.userCourse.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: auth.userId,
+                    courseId: lesson.courseId,
+                },
+            },
+        });
+
+        if (!enrollment) {
+            return NextResponse.json({ error: 'Not enrolled in this course' }, { status: 403 });
+        }
+
+        // Mark lesson as watched if video progress is sufficient
+        if (data.videoProgressPercent && data.videoProgressPercent >= 50) {
+            await prisma.userLesson.upsert({
+                where: {
+                    userId_lessonId: {
+                        userId: auth.userId,
+                        lessonId,
+                    },
+                },
+                update: {
+                    isWatched: true,
+                    watchProgressPercent: data.videoProgressPercent,
+                    watchedAt: new Date(),
+                },
+                create: {
+                    userId: auth.userId,
+                    lessonId,
+                    isWatched: true,
+                    watchProgressPercent: data.videoProgressPercent,
+                    watchedAt: new Date(),
+                },
+            });
+        }
+
+        // Check if course is complete
+        const courseCompletion = await progressService.checkAndAwardCourseCompletion(
+            auth.userId,
+            lesson.courseId
+        );
 
         return NextResponse.json({
             message: 'Lesson completed',
-            courseCompleted: result.courseCompleted,
+            courseCompleted: courseCompletion.completed,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {

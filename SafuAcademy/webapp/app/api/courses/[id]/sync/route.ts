@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { CourseService, RelayerService } from '@/lib/services';
+import { RelayerService, ProgressService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
+const progressService = new ProgressService(prisma, relayerService);
 
 export async function POST(
     request: NextRequest,
@@ -23,18 +23,12 @@ export async function POST(
             return NextResponse.json({ error: 'Invalid course ID' }, { status: 400 });
         }
 
-        const result = await courseService.syncCourseCompletion(
-            auth.userId,
-            auth.walletAddress,
-            courseId
-        );
-
-        if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 400 });
-        }
+        // Use progress service to check and sync course completion
+        const result = await progressService.checkAndAwardCourseCompletion(auth.userId, courseId);
 
         return NextResponse.json({
-            message: 'Course synced to blockchain',
+            message: result.completed ? 'Course synced to blockchain' : 'Course not completed yet',
+            completed: result.completed,
             txHash: result.txHash,
         });
     } catch (error) {
