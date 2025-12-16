@@ -43,11 +43,11 @@ export async function GET(request: NextRequest) {
         });
 
         const completionMap = new Map(
-            completionsPerCourse.map((c: { courseId: string; _count: number }) => [c.courseId, c._count])
+            completionsPerCourse.map((c: { courseId: number; _count: number }) => [c.courseId, c._count])
         );
 
         const coursesWithStats = courseStats.map((course: {
-            id: string;
+            id: number;
             title: string;
             isPublished: boolean;
             _count: { enrollments: number; lessons: number };
