@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin } from '@/lib/middleware/admin.middleware';
 import prisma from '@/lib/prisma';
 import { getStorageService } from '@/lib/services/storage.service';
-import { LessonType } from '@prisma/client';
 
 interface RouteContext {
     params: Promise<{ id: string }>;
@@ -23,9 +22,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
         const lessons = await prisma.lesson.findMany({
             where: { courseId },
-            orderBy: { order: 'asc' },
+            orderBy: { orderIndex: 'asc' },
             include: {
-                quiz: { select: { id: true, passingScore: true, bonusPoints: true } },
+                quiz: { select: { id: true, passingScore: true, passPoints: true } },
             },
         });
 
@@ -63,11 +62,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         const formData = await request.formData();
         const title = formData.get('title') as string;
         const description = formData.get('description') as string | null;
-        const type = (formData.get('type') as string) || 'VIDEO';
         const videoFile = formData.get('video') as File | null;
-        const contentUrl = formData.get('contentUrl') as string | null;
-        const estimatedMinutes = parseInt(formData.get('estimatedMinutes') as string || '10', 10);
-        const pointsValue = parseInt(formData.get('pointsValue') as string || '10', 10);
         const watchPoints = parseInt(formData.get('watchPoints') as string || '10', 10);
 
         if (!title) {
@@ -75,7 +70,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
 
         // Get next order index
-        const order = course._count.lessons;
+        const orderIndex = course._count.lessons;
 
         // Handle video upload if provided
         let videoStorageKey: string | null = null;
@@ -105,21 +100,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
                 courseId,
                 title,
                 description,
-                order,
-                type: type as LessonType,
-                contentUrl,
-                videoStorageKey,
+                orderIndex,
+                videoStorageKey: videoStorageKey || '',
                 videoDuration,
-                estimatedMinutes,
-                pointsValue,
                 watchPoints,
             },
-        });
-
-        // Update course total lessons
-        await prisma.course.update({
-            where: { id: courseId },
-            data: { totalLessons: order + 1 },
         });
 
         return NextResponse.json({ lesson });

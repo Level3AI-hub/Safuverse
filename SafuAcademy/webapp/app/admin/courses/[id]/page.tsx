@@ -48,7 +48,6 @@ export default function EditCoursePage() {
 
     // New lesson form
     const [newLessonTitle, setNewLessonTitle] = useState('');
-    const [newLessonType, setNewLessonType] = useState('VIDEO');
     const [addingLesson, setAddingLesson] = useState(false);
 
     useEffect(() => {
@@ -120,7 +119,6 @@ export default function EditCoursePage() {
             const token = localStorage.getItem('auth_token');
             const formData = new FormData();
             formData.append('title', newLessonTitle);
-            formData.append('type', newLessonType);
 
             const res = await fetch(`/api/admin/courses/${courseId}/lessons`, {
                 method: 'POST',
@@ -327,15 +325,6 @@ export default function EditCoursePage() {
                                 placeholder="Lesson title"
                                 className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                             />
-                            <select
-                                value={newLessonType}
-                                onChange={(e) => setNewLessonType(e.target.value)}
-                                className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                            >
-                                <option value="VIDEO">Video</option>
-                                <option value="READING">Reading</option>
-                                <option value="QUIZ">Quiz</option>
-                            </select>
                             <button
                                 onClick={addLesson}
                                 disabled={addingLesson || !newLessonTitle.trim()}
@@ -408,7 +397,8 @@ export default function EditCoursePage() {
                         </table>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

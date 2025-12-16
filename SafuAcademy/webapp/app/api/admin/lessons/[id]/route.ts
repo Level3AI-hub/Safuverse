@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin } from '@/lib/middleware/admin.middleware';
 import prisma from '@/lib/prisma';
 import { getStorageService } from '@/lib/services/storage.service';
-import { LessonType } from '@prisma/client';
 
 interface RouteContext {
     params: Promise<{ id: string }>;
@@ -18,8 +17,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const lesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -59,8 +57,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const existingLesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -73,11 +70,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         const formData = await request.formData();
         const title = formData.get('title') as string | null;
         const description = formData.get('description') as string | null;
-        const type = formData.get('type') as string | null;
         const videoFile = formData.get('video') as File | null;
-        const contentUrl = formData.get('contentUrl') as string | null;
-        const estimatedMinutes = formData.get('estimatedMinutes') as string | null;
-        const pointsValue = formData.get('pointsValue') as string | null;
         const watchPoints = formData.get('watchPoints') as string | null;
         const videoDuration = formData.get('videoDuration') as string | null;
 
@@ -112,11 +105,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
             data: {
                 ...(title && { title }),
                 ...(description !== null && { description }),
-                ...(type && { type: type as LessonType }),
-                ...(contentUrl !== null && { contentUrl }),
                 ...(videoStorageKey && { videoStorageKey }),
-                ...(estimatedMinutes && { estimatedMinutes: parseInt(estimatedMinutes, 10) }),
-                ...(pointsValue && { pointsValue: parseInt(pointsValue, 10) }),
                 ...(watchPoints && { watchPoints: parseInt(watchPoints, 10) }),
                 ...(videoDuration && { videoDuration: parseInt(videoDuration, 10) }),
             },
@@ -139,8 +128,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const lesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -160,15 +148,6 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
         // Delete lesson (cascade deletes quiz)
         await prisma.lesson.delete({ where: { id: lessonId } });
-
-        // Update course total lessons
-        const lessonCount = await prisma.lesson.count({
-            where: { courseId: lesson.courseId },
-        });
-        await prisma.course.update({
-            where: { id: lesson.courseId },
-            data: { totalLessons: lessonCount },
-        });
 
         return NextResponse.json({ deleted: true });
     } catch (error) {

@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
                                 id: true,
                                 title: true,
                                 category: true,
-                                totalLessons: true,
                             },
                         },
                     },

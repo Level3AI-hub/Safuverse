@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
                 completionPoints,
                 minPointsToAccess,
                 enrollmentCost,
-                totalLessons: 0,
                 isPublished: false,
                 onChainSynced: !!onChainTxHash,
                 onChainTxHash,

@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
     if (auth) {
       const enrollments = await prisma.userCourse.findMany({
         where: { userId: auth.userId },
-        select: { courseId: true, progress: true },
+        select: { courseId: true, progressPercent: true },
       });
 
       const enrollmentMap = new Map(
-        enrollments.map(e => [e.courseId, e.progress])
+        enrollments.map(e => [e.courseId, e.progressPercent])
       );
 
       const coursesWithProgress = courses.map(course => ({

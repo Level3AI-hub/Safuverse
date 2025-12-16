@@ -12,7 +12,7 @@ export class CourseService {
 
     async getAllCourses() {
         return this.prisma.course.findMany({
-            where: { isActive: true, isPublished: true },
+            where: { isPublished: true },
             include: {
                 _count: {
                     select: { lessons: true },

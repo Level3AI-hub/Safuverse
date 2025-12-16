@@ -142,7 +142,7 @@ export class ProgressService {
         // Recalculate course progress
         const courseProgress = await this.recalculateProgress(userId, lesson.courseId);
 
-        let completionResult = { completed: false, txHash: undefined as string | undefined };
+        let completionResult: { completed: boolean; txHash?: string } = { completed: false };
         if (courseProgress === 100) {
             completionResult = await this.checkAndCompleteCourse(userId, lesson.courseId);
         }
@@ -218,5 +218,12 @@ export class ProgressService {
         }
 
         return { completed: true, txHash: txResult.txHash };
+    }
+
+    /**
+     * Alias for checkAndCompleteCourse (for API compatibility)
+     */
+    async checkAndAwardCourseCompletion(userId: string, courseId: number): Promise<{ completed: boolean; txHash?: string }> {
+        return this.checkAndCompleteCourse(userId, courseId);
     }
 }
