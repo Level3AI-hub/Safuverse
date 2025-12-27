@@ -887,9 +887,9 @@ export default function CourseDetailPage() {
 
               <div className={`text-[13px] space-y-3 ${isDark ? 'text-gray-300' : 'text-[#444]'}`}>
                 {activeTab === "Transcript" && (
-                  <p>
+                  <div className="whitespace-pre-wrap">
                     {courseLongDescription}
-                  </p>
+                  </div>
                 )}
                 {activeTab === "Resources" && (
                   <ul className="list-disc list-inside space-y-1">
