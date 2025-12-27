@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
         return NextResponse.json({
             enrolled: !!enrollment,
-            enrolledAt: enrollment?.createdAt || null,
+            enrolledAt: enrollment?.enrolledAt || null,
             progressPercent: enrollment?.progressPercent || 0,
         });
     } catch (error) {
