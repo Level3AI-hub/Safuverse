@@ -1,11 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-// Define CourseLevel enum locally to avoid dependency on prisma generate
-enum CourseLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-}
+import { PrismaClient, CourseLevel } from '@prisma/client';
 
 interface Course {
     id: number;
