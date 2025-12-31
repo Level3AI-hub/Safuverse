@@ -16,8 +16,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const quiz = await prisma.quiz.findUnique({
             where: { lessonId },
@@ -47,8 +46,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         // Verify lesson exists
         const lesson = await prisma.lesson.findUnique({
@@ -69,7 +67,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
 
         const body = await request.json();
-        const { questions, passingScore = 70, bonusPoints = 20 } = body;
+        const { questions, passingScore = 70, passPoints = 20 } = body;
 
         if (!questions || !Array.isArray(questions) || questions.length === 0) {
             return NextResponse.json({ error: 'Questions are required' }, { status: 400 });
@@ -96,7 +94,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
                 lessonId,
                 questions,
                 passingScore,
-                bonusPoints,
+                passPoints,
             },
         });
 
@@ -117,8 +115,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const existingQuiz = await prisma.quiz.findUnique({
             where: { lessonId },
@@ -129,14 +126,14 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         }
 
         const body = await request.json();
-        const { questions, passingScore, bonusPoints } = body;
+        const { questions, passingScore, passPoints } = body;
 
         const quiz = await prisma.quiz.update({
             where: { lessonId },
             data: {
                 ...(questions && { questions }),
                 ...(passingScore !== undefined && { passingScore }),
-                ...(bonusPoints !== undefined && { bonusPoints }),
+                ...(passPoints !== undefined && { passPoints }),
             },
         });
 
@@ -157,8 +154,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const existingQuiz = await prisma.quiz.findUnique({
             where: { lessonId },

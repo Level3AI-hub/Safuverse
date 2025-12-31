@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { formatEther } from 'viem';
 import { useAllOwnedNames } from '../hooks/getAllNames';
 import { useReferralStats } from '../hooks/useReferralStats';
+import { useENSName } from '../hooks/getPrimaryName';
 import Nav from './nav';
 import { MobileNav } from './mobilenav';
 import '../app/profile/profile.css';
@@ -25,26 +26,30 @@ export default function Profile() {
   // Fetch referral stats from ReferralVerifier contract
   const { referralCount, totalEarnings, referralPct, isLoading: referralLoading } = useReferralStats(address);
 
+  // Fetch user's primary name (reverse record)
+  const { name: primaryName, loading: primaryNameLoading } = useENSName({ owner: address as `0x${string}` });
+
   useEffect(() => {
     const stored = window.localStorage.getItem(THEME_KEY);
     if (stored === 'light' || stored === 'dark') {
       setTheme(stored);
     }
+
+    // Listen for body class changes (when nav toggles dark mode)
+    const observer = new MutationObserver(() => {
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      setTheme(isDarkMode ? 'dark' : 'light');
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    // Check initial state from body class
+    if (document.body.classList.contains('dark-mode')) {
+      setTheme('dark');
+    }
+
+    return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [theme]);
-
-  useEffect(() => {
-    if (!isConnected) {
-      router.push('/');
-    }
-  }, [isConnected, router]);
 
   const isDark = theme === 'dark';
 
@@ -54,16 +59,21 @@ export default function Profile() {
   const earningsInBnb = totalEarnings ? Number(formatEther(totalEarnings)) : 0;
   const currentPct = referralPct ? Number(referralPct) : 25;
 
-  // Get the primary domain for referral link
-  const primaryDomain = useMemo(() => {
+  // Get the primary domain for referral link (prefer primary name, fallback to first domain)
+  const referralDomain = useMemo(() => {
+    // First try the primary name (reverse record)
+    if (primaryName && typeof primaryName === 'string' && primaryName.endsWith('.safu')) {
+      return primaryName.replace('.safu', '');
+    }
+    // Fallback to first owned domain
     if (domains.length > 0) {
       return domains[0].name?.replace('.safu', '') || '';
     }
     return '';
-  }, [domains]);
+  }, [primaryName, domains]);
 
-  const referralLink = primaryDomain
-    ? `https://names.safuverse.com?ref=${primaryDomain}`
+  const referralLink = referralDomain
+    ? `https://names.safuverse.com?ref=${referralDomain}`
     : '';
 
   const fallbackCopy = (text: string) => {
@@ -115,7 +125,21 @@ export default function Profile() {
   };
 
   if (!isConnected) {
-    return null;
+    return (
+      <>
+        <Nav />
+        <MobileNav />
+        <div className="soft-mist-bg" />
+        <div className="nav-spacer" />
+        <div className="profile-shell">
+          <div className="connect-wallet-box">
+            <div className="connect-wallet-icon">🔐</div>
+            <h2>Connect Your Wallet</h2>
+            <p>Please connect your wallet to access your profile and manage your .safu domains.</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -240,7 +264,7 @@ export default function Profile() {
                     </tbody>
                   </table>
                   {domains.length > 10 && (
-                    <button className="view-all-btn" onClick={() => router.push('/mynames')}>
+                    <button className="view-all-btn" onClick={() => router.push('/profile')}>
                       View all {domains.length} domains
                     </button>
                   )}
@@ -287,21 +311,6 @@ export default function Profile() {
           </section>
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer className="profile-footer">
-        <div className="footer-inner">
-          <h2 className="footer-title">
-            Boost your Learning &amp; Knowledge
-            <br />
-            with CourseSite Now
-          </h2>
-          <button className="footer-cta" onClick={() => router.push('/')}>
-            Start Learning Now
-          </button>
-          <div className="footer-copy">SafuVerse © 2025</div>
-        </div>
-      </footer>
     </>
   );
 }
