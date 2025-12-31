@@ -21,26 +21,26 @@ export async function GET(request: NextRequest) {
             prisma.userCourse.count({
                 where: {
                     userId: auth.userId,
-                    progress: 100,
+                    isCompleted: true,
                 },
             }),
             prisma.userLesson.count({
                 where: {
                     userId: auth.userId,
-                    completedAt: { not: null },
+                    isWatched: true,
                 },
             }),
             prisma.quizAttempt.count({
                 where: {
                     userId: auth.userId,
-                    passed: true,
+                    isPassed: true,
                 },
             }),
         ]);
 
         const user = await prisma.user.findUnique({
             where: { id: auth.userId },
-            select: { points: true },
+            select: { totalPoints: true },
         });
 
         return NextResponse.json({
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
             coursesCompleted: completedCount,
             lessonsCompleted,
             quizzesPassed,
-            totalPoints: user?.points || 0,
+            totalPoints: user?.totalPoints || 0,
         });
     } catch (error) {
         console.error('Stats fetch error:', error);

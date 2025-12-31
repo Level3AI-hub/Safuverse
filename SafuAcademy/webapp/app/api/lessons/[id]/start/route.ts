@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { LessonService, CourseService, RelayerService } from '@/lib/services';
+import { LessonService, RelayerService, ProgressService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
-const lessonService = new LessonService(prisma, courseService);
+const lessonService = new LessonService(prisma, relayerService);
 
 export async function POST(
     request: NextRequest,
@@ -17,12 +16,7 @@ export async function POST(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         const userLesson = await lessonService.startLesson(auth.userId, lessonId);
 

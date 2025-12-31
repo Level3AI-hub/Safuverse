@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { QuizService, LessonService, CourseService, RelayerService } from '@/lib/services';
+import { QuizService, LessonService, RelayerService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
-const quizService = new QuizService(prisma);
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
-const lessonService = new LessonService(prisma, courseService);
+const quizService = new QuizService(prisma, relayerService);
+const lessonService = new LessonService(prisma, relayerService);
 
 export async function GET(
     request: NextRequest,
@@ -18,12 +17,7 @@ export async function GET(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         // Check enrollment first
         const lesson = await lessonService.getLesson(lessonId);
@@ -53,7 +47,24 @@ export async function GET(
         // Get user's attempts
         const attempts = await quizService.getUserQuizAttempts(auth.userId, lessonId);
 
-        return NextResponse.json({ quiz, attempts });
+        // Get course info for back navigation
+        const course = await prisma.course.findUnique({
+            where: { id: lesson.courseId },
+            select: { id: true, title: true },
+        });
+
+        return NextResponse.json({
+            quiz: {
+                ...quiz,
+                lesson: {
+                    id: lesson.id,
+                    title: lesson.title,
+                    courseId: lesson.courseId,
+                    course: course || { id: lesson.courseId, title: 'Course' },
+                },
+            },
+            attempts,
+        });
     } catch (error) {
         console.error('Quiz fetch error:', error);
         return NextResponse.json(
