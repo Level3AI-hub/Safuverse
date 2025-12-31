@@ -688,42 +688,44 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  <table className="domains-table">
-                    <thead>
-                      <tr>
-                        <th>Domain</th>
-                        <th>Status</th>
-                        <th>Minted</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {domains.slice(0, 10).map((domain: any, index: number) => {
-                        const now = Math.floor(Date.now() / 1000);
-                        const isExpired = domain.expiryDate && Number(domain.expiryDate) < now;
-                        const isPrimaryDomain = primaryName === domain.name;
+                  <div className="domains-table-wrapper">
+                    <table className="domains-table">
+                      <thead>
+                        <tr>
+                          <th>Domain</th>
+                          <th>Status</th>
+                          <th>Minted</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {domains.slice(0, 10).map((domain: any, index: number) => {
+                          const now = Math.floor(Date.now() / 1000);
+                          const isExpired = domain.expiryDate && Number(domain.expiryDate) < now;
+                          const isPrimaryDomain = primaryName === domain.name;
 
-                        return (
-                          <tr key={index}>
-                            <td className="domain-name">
-                              {domain.name}
-                              {isPrimaryDomain && <span className="primary-badge">Primary</span>}
-                            </td>
-                            <td>
-                              <span className={`status-pill ${isExpired ? 'expired' : ''}`}>
-                                <span className={`status-dot ${isExpired ? 'expired' : ''}`} />
-                                {isExpired ? 'Expired' : 'Active'}
-                              </span>
-                            </td>
-                            <td>{domain.createdAt ? formatDate(domain.createdAt) : '-'}</td>
-                            <td>
-                              <ActionsDropdown domain={domain.name} isPrimary={isPrimaryDomain} isDark={isDark} />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                          return (
+                            <tr key={index}>
+                              <td className="domain-name">
+                                {domain.name}
+                                {isPrimaryDomain && <span className="primary-badge">Primary</span>}
+                              </td>
+                              <td>
+                                <span className={`status-pill ${isExpired ? 'expired' : ''}`}>
+                                  <span className={`status-dot ${isExpired ? 'expired' : ''}`} />
+                                  {isExpired ? 'Expired' : 'Active'}
+                                </span>
+                              </td>
+                              <td>{domain.createdAt ? formatDate(domain.createdAt) : '-'}</td>
+                              <td>
+                                <ActionsDropdown domain={domain.name} isPrimary={isPrimaryDomain} isDark={isDark} />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                   {domains.length > 10 && (
                     <button className="view-all-btn" onClick={() => router.push('/profile')}>
                       View all {domains.length} domains
