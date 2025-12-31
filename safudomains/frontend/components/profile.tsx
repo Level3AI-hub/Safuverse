@@ -51,12 +51,6 @@ export default function Profile() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!isConnected) {
-      router.push('/');
-    }
-  }, [isConnected, router]);
-
   const isDark = theme === 'dark';
 
   // Calculate stats
@@ -131,7 +125,21 @@ export default function Profile() {
   };
 
   if (!isConnected) {
-    return null;
+    return (
+      <>
+        <Nav />
+        <MobileNav />
+        <div className="soft-mist-bg" />
+        <div className="nav-spacer" />
+        <div className="profile-shell">
+          <div className="connect-wallet-box">
+            <div className="connect-wallet-icon">🔐</div>
+            <h2>Connect Your Wallet</h2>
+            <p>Please connect your wallet to access your profile and manage your .safu domains.</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
