@@ -142,11 +142,8 @@ export default function Nav() {
       router.push(`/register/${search}`)
       setMobileSearchOpen(false)
       setMobileMenuOpen(false)
-    } else if (available == 'Registered') {
-      router.push(`/resolve/${search}`)
-      setMobileSearchOpen(false)
-      setMobileMenuOpen(false)
     }
+    // Do nothing if domain is already registered
   }
 
   const toggleTheme = () => {
