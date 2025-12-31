@@ -256,7 +256,7 @@ export default function Profile() {
                     </tbody>
                   </table>
                   {domains.length > 10 && (
-                    <button className="view-all-btn" onClick={() => router.push('/mynames')}>
+                    <button className="view-all-btn" onClick={() => router.push('/profile')}>
                       View all {domains.length} domains
                     </button>
                   )}

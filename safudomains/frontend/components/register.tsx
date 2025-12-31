@@ -387,7 +387,7 @@ const Register = () => {
 
   useEffect(() => {
     if (available === false) {
-      router.push(`/mynames`)
+      router.push(`/profile`)
     } else if (available === true) {
       setNext(0)
     }
@@ -1166,7 +1166,7 @@ const Register = () => {
                         Register another
                       </button>
                       <button
-                        onClick={() => router.push(`/mynames`)}
+                        onClick={() => router.push(`/profile`)}
                         style={buttonPrimaryStyle}
                       >
                         View My Names
