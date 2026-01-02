@@ -669,7 +669,8 @@ function _createLaunch(
             bnbForLiquidity = bnbForLiquidity - platformFee;
 
             // Send platform fee
-            payable(platformFeeAddress).transfer(platformFee);
+            payable(platformFeeAddress).transfer(platformFee / 2);
+            payable(basics.founder).transfer(platformFee/2);
             emit PlatformFeePaid(token, platformFee, "Project Raise Liquidity");
 
             status.liquidityAdded = true;
