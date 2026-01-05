@@ -422,7 +422,8 @@ export default function Home() {
             <div style={{ marginTop: '22px', fontSize: '14px', color: isDark ? '#ddd' : '#222' }}>
               <p><strong>Network:</strong> BSC</p>
               <p><strong>Extension:</strong> .safu</p>
-              <p><strong>Features:</strong> Lifetime registration available</p>
+              <p><strong>Features:</strong> Utility beyond Identity</p>
+              
             </div>
           </div>
         </div>
