@@ -580,34 +580,47 @@ const Home: React.FC = () => {
           </Link>
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-10">
-            <a href="https://safuverse.gitbook.io/safuverse-docs/" target="_blank" rel="noopener noreferrer">
-              <button className={`px-8 py-3 rounded-full border font-medium transition text-sm ${isDark ? 'border-white/20 text-white bg-white/5 hover:bg-white/10' : 'border-black/80 text-[#111] bg-white hover:bg-[#f5f5f5]'
-                }`}>
+            <a
+              href="https://safuverse.gitbook.io/safuverse-docs/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="px-8 py-3 rounded-full border font-semibold font-bold transition text-sm border-black/80 text-[#111] bg-white hover:bg-[#f5f5f5] dark:border-white/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10">
                 Read Docs
               </button>
             </a>
 
-            <a href="https://names.safuverse.com" target="_blank" rel="noopener noreferrer">
-              <button className={`px-8 py-3 rounded-full shadow-sm border flex items-center gap-2 font-medium transition text-sm ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5]'
-                }`}>
+            <a
+              href="https://safudomains.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="px-8 py-3 rounded-full shadow-sm border flex font-bold items-center gap-2 font-semibold transition text-sm bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5] dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10">
                 Mint .safu
               </button>
             </a>
 
-            <a href="https://safupad.app" target="_blank" rel="noopener noreferrer">
-              <button className={`px-8 py-3 rounded-full shadow-sm border flex items-center gap-2 font-medium transition text-sm ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5]'
-                }`}>
+            <a
+              href="https://safupad.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="px-8 py-3 rounded-full shadow-sm border font-bold flex items-center gap-2 font-semibold transition text-sm bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5] dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10">
                 Try SafuPad
               </button>
             </a>
 
-            <a href="https://safuverse.gitbook.io/safuverse-docs/security/audits" target="_blank" rel="noopener noreferrer">
-              <button className={`px-8 py-3 rounded-full shadow-sm border flex items-center gap-2 font-medium transition text-sm ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5]'
-                }`}>
+            <a
+              href="https://safuverse.gitbook.io/safuverse-docs/security/audits"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="px-8 py-3 rounded-full shadow-sm border flex font-bold items-center gap-2 font-semibold transition text-sm bg-white border-black/10 text-[#111] hover:bg-[#f5f5f5] dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10">
                 Audit Report
               </button>
             </a>
           </div>
+
 
           <p className={`mt-12 text-[11px] tracking-[0.18em] uppercase ${isDark ? 'text-gray-600' : 'text-[#777]'}`}>
             Safu Academy © 2025 · Designed by Level3 Labs

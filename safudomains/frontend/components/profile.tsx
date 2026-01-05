@@ -775,6 +775,47 @@ export default function Profile() {
           </section>
         </div>
       </div>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <section className="footer-promo">
+            <div className="footer-promo-bg" />
+            <h2 className="footer-title">
+              Explore the safuverse
+              <br />
+              Ecosystem
+            </h2>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a href="https://academy.safuverse.com/courses/all" target="_blank" rel="noopener noreferrer">
+                <button className="footer-btn" type="button">
+                  Visit Academy
+                </button>
+              </a>
+              <a href="https://safupad.xyz" target="_blank" rel="noopener noreferrer">
+                <button className="footer-btn" type="button" style={{ background: 'linear-gradient(135deg, #FFB000 0%, #FFD700 100%)', color: '#000' }}>
+                  Launch SafuPad
+                </button>
+              </a>
+            </div>
+          </section>
+
+          <div className="footer-actions">
+            <a href="https://safuverse.gitbook.io/safuverse-docs/" target="_blank" rel="noopener noreferrer">
+              <button className="footer-chip" type="button">
+                📄 Documentation
+              </button>
+            </a>
+            <a href="https://safuverse.com" target="_blank" rel="noopener noreferrer">
+              <button className="footer-chip" type="button">
+                🌐 Main Website
+              </button>
+            </a>
+          </div>
+
+          <div className="footer-copy">safuverse 2025. All rights reserved.</div>
+        </div>
+      </footer>
     </>
   );
 }

@@ -468,11 +468,18 @@ export default function Home() {
               <br />
               Ecosystem
             </h2>
-            <a href="https://academy.safuverse.com/courses/all" target="_blank" rel="noopener noreferrer">
-              <button className="footer-btn" type="button">
-                Visit Academy
-              </button>
-            </a>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a href="https://academy.safuverse.com/courses/all" target="_blank" rel="noopener noreferrer">
+                <button className="footer-btn" type="button">
+                  Visit Academy
+                </button>
+              </a>
+              <a href="https://safupad.xyz" target="_blank" rel="noopener noreferrer">
+                <button className="footer-btn" type="button" style={{ background: 'linear-gradient(135deg, #FFB000 0%, #FFD700 100%)', color: '#000' }}>
+                  Launch SafuPad
+                </button>
+              </a>
+            </div>
           </section>
 
           <div className="footer-actions">
