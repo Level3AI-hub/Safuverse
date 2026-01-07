@@ -265,7 +265,7 @@ graph TD
     B --> C[TokenFactoryV2.deployToken<br/>ERC20 with Transfer Lock]
     C --> D[Token Allocation:<br/>20% Founder, 20% Contributors<br/>10% Vesting, 10% Liquidity, 40% PancakeSwap]
 
-    D --> E[Set raiseTarget & raiseMax<br/>vestingDuration = 365 days]
+    D --> E[Set raiseTarget & raiseMax<br/>vestingDuration = 365 days FORCED]
     E --> F[Launch Active<br/>Contributions Open]
 
     F --> G[Contributors Call contribute]
@@ -384,32 +384,55 @@ graph TD
 
 ### Safucard - NFT Scorecard Journey
 
+Based on actual implementation (`Safucard.sol`, `App.tsx`, backend API):
+
 ```mermaid
 graph TD
-    A[User Connects Wallet] --> B[Request Wallet Analysis]
-    B --> C[Backend Analyzes Memecoin Holdings]
+    A[User Visits safucard.xyz] --> B[Connect Wallet via RainbowKit]
+    B --> C[Enter Wallet Address to Analyze]
 
-    C --> D[Calculate Scorecard Metrics]
-    D --> E[Display Score Preview]
+    C --> D[POST /api/score<br/>Backend Wallet Analysis]
+    D --> E[Analyze BSC Transactions<br/>Memecoin Holdings & Activity]
 
-    E --> F{User Wants to Mint?}
-    F -->|No| G[Exit]
-    F -->|Yes| H[Get USD Price from Chainlink]
+    E --> F[Calculate Score Metrics:<br/>- Total Trades<br/>- Win Rate<br/>- Profit/Loss<br/>- Token Diversity]
+    F --> G[Display Scorecard Preview]
 
-    H --> I[Convert $5 USD to BNB]
-    I --> J[User Pays in BNB]
+    G --> H{User Wants to Mint?}
+    H -->|No| I[Exit or Share Preview]
+    H -->|Yes| J[Safucard.getMintFeeInNative]
 
-    J --> K[NFT Minted On-Chain]
-    K --> L[Metadata Uploaded to IPFS]
-    L --> M[URI Frozen - Permanent Record]
+    J --> K[Chainlink Oracle Query<br/>0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE]
+    K --> L[Calculate $5 USD in BNB<br/>mintFee = 5 USD / latestPrice]
 
-    M --> N[NFT Appears in Wallet]
-    N --> O[Share on Social Media]
+    L --> M[User Approves Transaction]
+    M --> N[Safucard.mintNFT with _URI<br/>Contract: 0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65]
+
+    N --> O[Validate msg.value >= mintFee]
+    O --> P[ERC721._safeMint to User]
+    P --> Q[_tokenURIs[tokenId] = _URI]
+
+    Q --> R[Upload Metadata to IPFS<br/>via Pinata API]
+    R --> S[URI Frozen - Immutable Record]
+
+    S --> T[NFT Appears in Wallet]
+    T --> U[Share on Social Media]
+    T --> V[View on BSCScan]
 
     style A fill:#FF7000
-    style K fill:#90EE90
-    style M fill:#FFD700
+    style K fill:#E6E6FA
+    style N fill:#FFD700
+    style P fill:#90EE90
+    style S fill:#90EE90
 ```
+
+**Key Technical Details:**
+- **Contract**: `0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65`
+- **Chainlink BNB/USD Oracle**: `0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE`
+- **Mint Price**: $5 USD (dynamically calculated in BNB)
+- **Storage**: IPFS via Pinata for permanent metadata
+- **URI Freezing**: Once minted, token URI cannot be changed
+
+---
 
 ## System Architecture (From Code Implementation)
 

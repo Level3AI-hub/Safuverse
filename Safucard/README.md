@@ -20,6 +20,7 @@ All components integrate with **BNB Chain** infrastructure for minting, pricing,
 - **Testnet Chain ID**: 97 (BSC Testnet)
 
 - **ScorecardNFT**: `0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65`
+- **Chainlink BNB/USD Oracle**: `0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE`
 
 The NFT contracts are deployed on BNB Chain, leveraging Chainlink price oracles on BSC for accurate BNB/USD conversion to maintain a stable $5 USD mint price.
 
@@ -165,21 +166,31 @@ See `frontend/README.md` for setup details.
 ### Technical Flow
 
 ```
-User Wallet (BSC)
+User Wallet (BSC) → Connect via RainbowKit
     ↓
-Frontend (React)
+Frontend (React + Vite)
     ↓
-Safucardserver API → Analyzes BSC wallet activity
+POST /api/score → Backend analyzes BSC wallet activity
+    ↓ (Calculate metrics: trades, win rate, P/L, diversity)
+Frontend displays scorecard preview
     ↓
-Frontend displays information
+User clicks "Mint NFT" button
     ↓
-User approves mint transaction
+Safucard.getMintFeeInNative() called
     ↓
-ScorecardNFT Contract on BSC
+Chainlink Oracle (0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE)
+    ↓ (Returns BNB/USD price with 8 decimals)
+Calculate: mintFee = $5 USD / BNB price
     ↓
-Chainlink Oracle (BSC) → BNB/USD price
+User approves transaction (msg.value >= mintFee)
     ↓
-NFT Minted on BNB Chain
+Safucard.mintNFT(_URI) at 0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65
+    ↓
+ERC721._safeMint(msg.sender, tokenId)
+    ↓
+_tokenURIs[tokenId] = _URI (IPFS via Pinata)
+    ↓
+NFT Minted & URI Frozen on BNB Chain
 ```
 
 ## BNB Chain Integration
