@@ -52,8 +52,10 @@ Automatic graduation to PancakeSwap V2 when conditions met:
 
 ### Token Vesting
 
-- Founder tokens vested over time
-- On-chain vesting schedule
+- **365-day forced vesting** (MIN_VESTING_DURATION = MAX_VESTING_DURATION in contract)
+- Founder tokens: 20% immediate, 10% vested over 365 days
+- BNB proceeds: 20% immediate, 60% vested over 365 days
+- On-chain vesting with monthly claims
 - Transparent unlock periods
 
 ## User Journey
@@ -67,7 +69,7 @@ graph TD
 
     C --> D[Set Token Details<br/>Name, Symbol, Supply]
     D --> E[Set Raise Targets<br/>50-500 BNB Range]
-    E --> F[Set Vesting Duration<br/>90-180 Days]
+    E --> F[Vesting Duration<br/>365 Days FORCED]
     F --> G[Upload Metadata<br/>Logo, Description, Socials]
 
     G --> H[Choose LP Strategy]
@@ -243,7 +245,7 @@ graph TB
 
         LP_HARVEST[harvestFees<br/>Periodic Collection<br/>MIN: 0.01 BNB]
 
-        LP_DIST[Fee Distribution<br/>70% Creator<br/>0% Project<br/>30% Platform]
+        LP_DIST[Fee Distribution<br/>50% Creator, 30% InfoFi<br/>5% Platform, 15% Academy]
 
         LP_UNLOCK[LP Lock Duration<br/>Security Period]
     end
@@ -393,9 +395,10 @@ graph TD
         H4 -->|No| H6[Wait for More Fees]
 
         H5 --> H7[Split Harvested Fees]
-        H7 --> CREATOR2[70% to Creator]
-        H7 --> PLATFORM2[30% to Platform]
-        H7 --> PROJECT[0% to Project]
+        H7 --> CREATOR2[50% to Creator]
+        H7 --> INFOFI[30% to InfoFi]
+        H7 --> PLATFORM2[5% to Platform]
+        H7 --> ACADEMY[15% to Academy]
     end
 
     subgraph "Post-Graduation Trading"
@@ -413,6 +416,8 @@ graph TD
 
     style CREATOR fill:#90EE90
     style CREATOR2 fill:#90EE90
+    style INFOFI fill:#ADD8E6
+    style ACADEMY fill:#DDA0DD
     style PLATFORM1 fill:#FFD700
     style PLATFORM2 fill:#FFD700
     style PLATFORM3 fill:#FFD700

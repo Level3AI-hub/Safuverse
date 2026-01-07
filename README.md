@@ -108,143 +108,333 @@ Landing page and marketing website for the Safuverse ecosystem.
 
 **Directory**: `SafuLanding/`
 
-## User Journey Diagrams
+## User Journey Diagrams (From Code Implementation)
 
-### SafuPad - Token Launch Journey
+### SafuDomains - Domain Registration Flow
+
+Based on the actual frontend implementation (`components/register.tsx`, `hooks/useRegistration.ts`):
 
 ```mermaid
 graph TD
-    A[User Connects Wallet] --> B{Choose Launch Type}
-    B -->|Project Raise| C[Configure Token Details]
-    B -->|Instant Launch| D[Configure Token & Initial Liquidity]
+    A[User Visits names.safuverse.com] --> B[Connect Wallet via RainbowKit]
+    B --> C[Search Domain Name]
+    C --> D{Controller.available check}
 
-    C --> E[Set Raise Parameters<br/>50-500 BNB]
-    E --> F[Deploy Token via Factory]
-    F --> G[24h Fundraising Period]
+    D -->|Not Available| C
+    D -->|Available| E[Configure Registration]
 
-    D --> H[Deploy with Bonding Curve]
-    H --> I[Immediate Trading Starts]
+    E --> F[Select Duration: Years or Lifetime]
+    F --> G[Choose Payment: BNB/CAKE/USD1]
+    G --> H[Optional: Add Referral Code]
+    H --> I[Optional: Setup Profile<br/>Avatar, Bio, Socials]
 
-    G --> J{Raise Target Met?}
-    J -->|Yes| K[Graduate to PancakeSwap]
-    J -->|No| L[Contributors Get Refunds]
+    I --> J[Step 1: COMMIT Transaction]
+    J --> K[Generate 32-byte Secret]
+    K --> L[keccak256 Commitment Hash]
+    L --> M[Controller.commit on-chain]
 
-    I --> M[Trading on Bonding Curve]
-    M --> N{15 BNB Threshold Reached?}
-    N -->|Yes| K
-    N -->|No| M
+    M --> N[60-Second Wait<br/>Anti-Frontrun Protection]
 
-    K --> O[LP Tokens Locked/Burned]
-    O --> P[Trading on PancakeSwap]
-    P --> Q[Founder Vesting Begins]
-    Q --> R[LP Fees Harvested]
+    N --> O{Payment Method?}
+    O -->|BNB| P[Controller.register<br/>with msg.value]
+    O -->|Token| Q[ERC20.approve Token]
+    Q --> R[Controller.registerWithToken]
+    P --> S[Step 2: REGISTER Transaction]
+    R --> S
+
+    S --> T{Referral Used?}
+    T -->|Yes| U[Backend Signs Referral Data]
+    U --> V[Referrer Gets % Reward]
+    T -->|No| W[Domain Minted as NFT]
+    V --> W
+
+    W --> X[Set Resolver Records<br/>Text Records, Addresses]
+    X --> Y[Optional: Set Primary Name]
+    Y --> Z[Domain Ready!]
+
+    Z --> AA[Use in SafuAcademy]
+    Z --> AB[Share Referral Link]
 
     style A fill:#FF7000
-    style K fill:#90EE90
-    style P fill:#90EE90
+    style M fill:#FFD700
+    style S fill:#FFD700
+    style W fill:#90EE90
+    style Z fill:#90EE90
 ```
 
-### SafuAcademy - Learning Journey
+**Key Contracts Used:**
+- Controller: `0xC902396A4E49914d1266cc80e22Aa182dcF23138`
+- NameWrapper: `0xbf4B53F867dfE5A78Cf268AfBfC1f334044e61ae`
+- PublicResolver: `0x50143d9f7e496fF58049dE0db6FaDfB43FfE18e7`
+- Referral: `0x92149696fDDC858A76253F71268D34147e662410`
+
+---
+
+### SafuAcademy - Course Enrollment & Learning Flow
+
+Based on actual implementation (`lib/services/course.service.ts`, `lib/services/relayer.service.ts`, `lib/services/progress.service.ts`):
 
 ```mermaid
 graph TD
-    A[User Connects Wallet] --> B{Has .safu Domain?}
-    B -->|No| C[Redirect to SafuDomains]
-    B -->|Yes| D[Browse Course Catalog]
+    A[User Visits academy.safuverse.com] --> B[Connect Wallet via RainbowKit]
+    B --> C[Sign Message for JWT Auth]
+    C --> D[API: /api/user/domain-status]
 
-    C --> E[Purchase .safu Domain]
-    E --> D
+    D --> E{Check ENS ReverseRegistrar<br/>for .safu domain}
+    E -->|No Domain| F[Modal: Register .safu Domain]
+    F --> G[Redirect to names.safuverse.com]
+    G --> E
 
-    D --> F[Select Course]
-    F --> G[View Course Details]
-    G --> H[Enroll - Gasless Transaction]
+    E -->|Has Domain| H[Browse Course Catalog]
+    H --> I[Select Course]
+    I --> J[View: Lessons, Duration, Points]
 
-    H --> I[Relayer Submits Transaction]
-    I --> J[On-Chain Enrollment Confirmed]
+    J --> K{Course Type?}
+    K -->|BEGINNER| L[Free Enrollment]
+    K -->|PREMIUM| M[Check Points Balance]
+    K -->|ADVANCED| N[Check minPointsToAccess]
 
-    J --> K[Access Course Content]
-    K --> L[Watch Video Lessons]
-    L --> M[Complete Quizzes]
+    M --> O{Enough Points?}
+    O -->|No| P[Earn More Points First]
+    O -->|Yes| L
 
-    M --> N[Progress Tracked On-Chain]
-    N --> O{Course Completed?}
-    O -->|No| L
-    O -->|Yes| P[Earn Points & Certificate]
+    N --> Q{Meets Requirement?}
+    Q -->|No| P
+    Q -->|Yes| L
 
-    P --> Q[NFT Certificate Issued]
-    Q --> R[Share Achievement]
+    L --> R[Click Enroll Button]
+    R --> S[POST /api/courses/id/enroll]
+
+    S --> T[Database Transaction:<br/>Deduct Points, Create UserCourse]
+    T --> U[RelayerService.enrollUser]
+    U --> V[Relayer Wallet Signs TX]
+    V --> W[Level3Course.enroll on-chain<br/>Relayer Pays Gas]
+
+    W --> X[Enrollment Complete!]
+    X --> Y[Access Video Lessons]
+
+    Y --> Z[VideoPlayer Component<br/>Track Watch Progress]
+    Z --> AA{Watched >= 50%?}
+    AA -->|No| Z
+    AA -->|Yes| AB[POST /api/lessons/id/complete]
+
+    AB --> AC[Mark Lesson Watched<br/>Award watchPoints]
+    AC --> AD{Has Quiz?}
+    AD -->|No| AE[Lesson 100% Complete]
+    AD -->|Yes| AF[Unlock Quiz Button]
+
+    AF --> AG[Take Quiz]
+    AG --> AH{Score >= passingScore?}
+    AH -->|No| AG
+    AH -->|Yes| AI[Award quizPoints<br/>Lesson 100% Complete]
+
+    AE --> AJ[Recalculate Course Progress]
+    AI --> AJ
+
+    AJ --> AK{Progress = 100%?}
+    AK -->|No| Y
+    AK -->|Yes| AL[Award completionPoints]
+
+    AL --> AM[RelayerService.completeCourse]
+    AM --> AN[Level3Course.completeCourse on-chain]
+    AN --> AO[Certificate Ready!]
 
     style A fill:#FF7000
-    style H fill:#90EE90
-    style P fill:#FFD700
-    style Q fill:#FFD700
+    style W fill:#FFD700
+    style X fill:#90EE90
+    style AN fill:#FFD700
+    style AO fill:#90EE90
 ```
 
-### SafuDomains - Domain Registration Journey
+**Key Implementation Details:**
+- **Gasless Enrollment**: Relayer wallet pays gas, user signs nothing for enrollment
+- **Two-Phase Sync**: Database first (instant), blockchain async (background)
+- **Progress Formula**: `(watchedLessons + passedQuizzes) / (totalLessons + quizzableLessons) * 100`
+- **Contract**: Level3Course at `0x1988Bc593015Fe29ED7562Ba672a8798b3B13e88`
+
+---
+
+### SafuPad - Project Raise Flow
+
+Based on actual contract implementation (`LaunchpadManagerV3.sol`, `ContributionManager.sol`, `VestingManager.sol`):
 
 ```mermaid
 graph TD
-    A[User Connects Wallet] --> B[Search for .safu Domain]
-    B --> C{Domain Available?}
-    C -->|No| B
-    C -->|Yes| D[Select Registration Duration]
+    A[Founder Connects Wallet] --> B[createLaunch Transaction]
 
-    D --> E{Payment Method?}
-    E -->|BNB| F[Calculate BNB Price]
-    E -->|CAKE| G[Calculate CAKE Price]
-    E -->|USD1| H[Calculate USD1 Price]
+    B --> C[TokenFactoryV2.deployToken<br/>ERC20 with Transfer Lock]
+    C --> D[Token Allocation:<br/>20% Founder, 20% Contributors<br/>10% Vesting, 10% Liquidity, 40% PancakeSwap]
 
-    F --> I[Approve Payment]
-    G --> I
-    H --> I
+    D --> E[Set raiseTarget & raiseMax<br/>vestingDuration = 365 days FORCED]
+    E --> F[Launch Active<br/>Contributions Open]
 
-    I --> J[Register Domain On-Chain]
-    J --> K{Use Referral Code?}
-    K -->|Yes| L[Referrer Gets Reward]
-    K -->|No| M[Set as Primary Name]
+    F --> G[Contributors Call contribute]
+    G --> H[ContributionManager Validates:<br/>Deadline, Per-Wallet Limit]
+    H --> I[BNB Held in Contract<br/>contributions mapping updated]
 
-    L --> M
-    M --> N[Configure Resolver]
-    N --> O[Domain Registered Successfully]
+    I --> J{totalRaised >= raiseTarget?}
+    J -->|No, Deadline Passed| K[claimRefund Available<br/>Full BNB Returned]
+    J -->|Yes| L[_completeRaise Internal]
 
-    O --> P[Access SafuAcademyy]
-    O --> Q[Use for Identity]
+    L --> M[raiseCompleted = true]
+    M --> N[Calculate Allocations:<br/>20% Liquidity BNB<br/>20% Founder Immediate<br/>60% Vesting Pool]
+
+    N --> O[Transfer 20% Tokens to Founder]
+    O --> P[Transfer 20% BNB to Founder]
+    P --> Q[vestingStartTime = now]
+
+    Q --> R[Contributors Call claimContributorTokens]
+    R --> S[tokens = contribution/totalRaised * 20% supply]
+
+    S --> T[graduateToPancakeSwap Called]
+    T --> U[GraduationManager.graduateProjectRaise]
+    U --> V[1% Platform Fee Deducted]
+    V --> W[pancakeRouter.addLiquidityETH<br/>Creates Token/WBNB Pair]
+
+    W --> X{burnLP Setting?}
+    X -->|true| Y[LP Tokens Sent to Burn Address]
+    X -->|false| Z[LPFeeHarvester.lockLP<br/>365 Day Lock]
+
+    Y --> AA[token.enableTransfers]
+    Z --> AA
+
+    AA --> AB[Trading Live on PancakeSwap!]
+
+    AB --> AC[Founder Claims Vested BNB<br/>Monthly over 365 Days]
+    AC --> AD[claimFounderTokens<br/>10% Vested Tokens Released]
+
+    Z --> AE[Monthly Fee Harvesting<br/>70% Creator, 20% InfoFi, 10% Platform]
 
     style A fill:#FF7000
-    style O fill:#90EE90
     style L fill:#FFD700
+    style W fill:#FFD700
+    style AB fill:#90EE90
 ```
+
+---
+
+### SafuPad - Instant Launch Flow
+
+Based on actual contract implementation (`BondingDEX.sol`, `LaunchpadManagerV3.sol`):
+
+```mermaid
+graph TD
+    A[Founder Sends BNB] --> B[createInstantLaunch Transaction]
+
+    B --> C[Validate: totalSupply = 1 Billion]
+    C --> D[TokenFactoryV2.deployToken]
+    D --> E[Token Allocation:<br/>80% Tradable on Curve<br/>20% Reserved for PancakeSwap]
+
+    E --> F[BondingDEX.createInstantLaunchPool]
+    F --> G[Pool Active Immediately<br/>virtualBnbReserve = 3 BNB]
+
+    G --> H{Initial Buy Amount > 0?}
+    H -->|Yes| I[Execute Initial Buy<br/>Founder Gets Tokens]
+    H -->|No| J[Pool Ready for Trading]
+    I --> J
+
+    J --> K[Traders Call buyTokens/sellTokens]
+
+    K --> L[Calculate Dynamic Fee]
+    L --> M{Block Since Launch?}
+    M -->|0-20 blocks| N[10% Fee - Anti-Bot]
+    M -->|21-50 blocks| O[6% Fee]
+    M -->|51-100 blocks| P[4% Fee]
+    M -->|100+ blocks| Q[2% Fee - Permanent]
+
+    N --> R[Fee Distribution:<br/>50% Creator, 30% InfoFi<br/>5% Platform, 15% Academy]
+    O --> R
+    P --> R
+    Q --> R
+
+    R --> S[AMM Formula:<br/>tokensOut = bnb * tokenReserve / bnbReserve]
+    S --> T[Update Reserves & Market Cap]
+
+    T --> U{bnbReserve >= 15 BNB?}
+    U -->|No| K
+    U -->|Yes| V[_graduatePool Internal<br/>graduated = true, active = false]
+
+    V --> W[graduateToPancakeSwap Called]
+    W --> X[BondingDEX.withdrawGraduatedPool<br/>Get All BNB + Reserved Tokens]
+
+    X --> Y[GraduationManager.graduateInstantLaunch]
+    Y --> Z[1% Platform Fee]
+    Z --> AA[pancakeRouter.addLiquidityETH]
+
+    AA --> AB{burnLP?}
+    AB -->|true| AC[Burn LP Tokens]
+    AB -->|false| AD[LPFeeHarvester.lockLP]
+
+    AC --> AE[Trading Moves to PancakeSwap]
+    AD --> AE
+
+    AE --> AF[Creator Claims Accumulated Fees<br/>claimCreatorFees - 24h Cooldown]
+
+    style A fill:#FF7000
+    style G fill:#90EE90
+    style V fill:#FFD700
+    style AE fill:#90EE90
+```
+
+**Key Mechanics:**
+- **Virtual Reserve**: Shapes curve to reach 6x price multiplier at graduation
+- **Graduation Threshold**: 15 BNB triggers automatic graduation
+- **Fee Decay**: Anti-bot protection with 10% → 2% fee reduction over 100 blocks
+- **Creator Fee Protection**: Self-trades redirect fees to InfoFi
 
 ### Safucard - NFT Scorecard Journey
 
+Based on actual implementation (`Safucard.sol`, `App.tsx`, backend API):
+
 ```mermaid
 graph TD
-    A[User Connects Wallet] --> B[Request Wallet Analysis]
-    B --> C[Backend Analyzes Memecoin Holdings]
+    A[User Visits safucard.xyz] --> B[Connect Wallet via RainbowKit]
+    B --> C[Enter Wallet Address to Analyze]
 
-    C --> D[Calculate Scorecard Metrics]
-    D --> E[Display Score Preview]
+    C --> D[POST /api/score<br/>Backend Wallet Analysis]
+    D --> E[Analyze BSC Transactions<br/>Memecoin Holdings & Activity]
 
-    E --> F{User Wants to Mint?}
-    F -->|No| G[Exit]
-    F -->|Yes| H[Get USD Price from Chainlink]
+    E --> F[Calculate Score Metrics:<br/>- Total Trades<br/>- Win Rate<br/>- Profit/Loss<br/>- Token Diversity]
+    F --> G[Display Scorecard Preview]
 
-    H --> I[Convert $5 USD to BNB]
-    I --> J[User Pays in BNB]
+    G --> H{User Wants to Mint?}
+    H -->|No| I[Exit or Share Preview]
+    H -->|Yes| J[Safucard.getMintFeeInNative]
 
-    J --> K[NFT Minted On-Chain]
-    K --> L[Metadata Uploaded to IPFS]
-    L --> M[URI Frozen - Permanent Record]
+    J --> K[Chainlink Oracle Query<br/>0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE]
+    K --> L[Calculate $5 USD in BNB<br/>mintFee = 5 USD / latestPrice]
 
-    M --> N[NFT Appears in Wallet]
-    N --> O[Share on Social Media]
+    L --> M[User Approves Transaction]
+    M --> N[Safucard.mintNFT with _URI<br/>Contract: 0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65]
+
+    N --> O[Validate msg.value >= mintFee]
+    O --> P[ERC721._safeMint to User]
+    P --> Q[_tokenURIs[tokenId] = _URI]
+
+    Q --> R[Upload Metadata to IPFS<br/>via Pinata API]
+    R --> S[URI Frozen - Immutable Record]
+
+    S --> T[NFT Appears in Wallet]
+    T --> U[Share on Social Media]
+    T --> V[View on BSCScan]
 
     style A fill:#FF7000
-    style K fill:#90EE90
-    style M fill:#FFD700
+    style K fill:#E6E6FA
+    style N fill:#FFD700
+    style P fill:#90EE90
+    style S fill:#90EE90
 ```
 
-## System Architecture
+**Key Technical Details:**
+- **Contract**: `0x7Eb73a8dE1cf916A8a6eCA6C7Da218d2a4A72e65`
+- **Chainlink BNB/USD Oracle**: `0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE`
+- **Mint Price**: $5 USD (dynamically calculated in BNB)
+- **Storage**: IPFS via Pinata for permanent metadata
+- **URI Freezing**: Once minted, token URI cannot be changed
+
+---
+
+## System Architecture (From Code Implementation)
 
 ### Overall Ecosystem Architecture
 
@@ -252,111 +442,103 @@ graph TD
 graph TB
     subgraph "User Layer"
         U1[Web Browser]
-        U2[MetaMask/Binance Wallet]
+        U2[RainbowKit Wallet Connection<br/>MetaMask, Binance, Coinbase, WalletConnect]
     end
 
-    subgraph "Frontend Layer - Vercel"
-        F1[SafuAcademy Frontend<br/>academy.safuverse.com]
-        F2[SafuDomains Frontend<br/>names.safuverse.com]
+    subgraph "Frontend Layer - Vercel/Next.js"
+        F1[SafuAcademy Next.js App<br/>academy.safuverse.com<br/>Wagmi + TanStack Query]
+        F2[SafuDomains React App<br/>names.safuverse.com<br/>Wagmi + Apollo GraphQL]
         F3[Safucard Frontend<br/>safucard.xyz]
         F4[SafuAgents Frontend<br/>ai.safuverse.com]
-        F5[SafuLanding<br/>safuverse.com]
     end
 
-    subgraph "Backend Layer"
-        B1[SafuAcademy Relayer<br/>Gasless Transactions]
-        B2[Safucard API<br/>Score Calculation]
-        B3[SafuAgents API<br/>OpenAI Integration]
+    subgraph "Backend Services"
+        B1[SafuAcademy API Routes<br/>Next.js /api/*<br/>Prisma + PostgreSQL]
+        B2[Relayer Service<br/>ethers.js Wallet<br/>Pays Gas for Users]
+        B3[Referral Signature API<br/>/api/referral/generate]
     end
 
     subgraph "BNB Smart Chain - Chain ID 56"
-        subgraph "SafuPad Contracts"
-            SP1[LaunchpadManager]
-            SP2[BondingCurveDEX]
-            SP3[TokenFactory]
-            SP4[LPFeeHarvester]
+        subgraph "SafuPad Contracts (Modular)"
+            SP1[LaunchpadManagerV3<br/>Facade Orchestrator]
+            SP2[BondingCurveDEX<br/>AMM with Virtual Reserve]
+            SP3[TokenFactoryV2<br/>CREATE2 Deployment]
+            SP4[LPFeeHarvester<br/>365-Day LP Lock]
+            SP5[ContributionManager]
+            SP6[VestingManager]
+            SP7[GraduationManager]
         end
 
-        subgraph "SafuAcademyy Contracts"
-            SA1[CourseFactory]
-            SA2[Level3Course]
+        subgraph "SafuAcademy Contracts"
+            SA1[Level3Course<br/>enroll, completeCourse]
+            SA2[CourseFactory<br/>Course Deployment]
         end
 
-        subgraph "SafuDomains Contracts"
-            SD1[ENS Registry]
-            SD2[Controller]
-            SD3[BaseRegistrar]
-            SD4[NameWrapper]
-            SD5[PublicResolver]
-            SD6[ReverseRegistrar]
-            SD7[Referral System]
-        end
-
-        subgraph "Safucard Contracts"
-            SC1[ScorecardNFT]
+        subgraph "SafuDomains Contracts (ENS-Based)"
+            SD1[ENS Registry<br/>0xa886B8897814193f99A88701d70b31b4a8E27a1E]
+            SD2[Controller<br/>commit/register Pattern<br/>0xC902396A4E49914d1266cc80e22Aa182dcF23138]
+            SD3[BaseRegistrar<br/>0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c]
+            SD4[NameWrapper<br/>0xbf4B53F867dfE5A78Cf268AfBfC1f334044e61ae]
+            SD5[PublicResolver<br/>Text Records, Addresses<br/>0x50143d9f7e496fF58049dE0db6FaDfB43FfE18e7]
+            SD6[ReverseRegistrar<br/>Primary Name Resolution<br/>0x1D0831eA9486Fada3887a737E8d6f8C6Ad72a125]
+            SD7[Referral Contract<br/>Tier-Based Rewards<br/>0x92149696fDDC858A76253F71268D34147e662410]
         end
 
         subgraph "External BSC Integrations"
-            EX1[PancakeSwap V2<br/>Router & Factory]
-            EX2[Chainlink Oracles<br/>BNB/USD]
+            EX1[PancakeSwap V2 Router<br/>0x10ED43C718714eb63d5aA57B78B54704E256024E]
+            EX2[Chainlink BNB/USD<br/>0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE]
             EX3[WBNB Contract]
+            EX4[CAKE Token<br/>0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82]
+            EX5[USD1 Token<br/>0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d]
         end
     end
 
-    subgraph "Storage Layer"
-        S1[IPFS/Pinata<br/>Course Content & NFT Metadata]
+    subgraph "Data Layer"
+        D1[PostgreSQL<br/>Users, Courses, Progress]
+        D2[The Graph Subgraph<br/>Domain Queries]
+        D3[IPFS/Pinata<br/>Video Content]
     end
 
     U1 --> F1
     U1 --> F2
-    U1 --> F3
-    U1 --> F4
-    U1 --> F5
-
-    U2 --> SP1
-    U2 --> SA2
-    U2 --> SD2
-    U2 --> SC1
+    U2 --> F1
+    U2 --> F2
 
     F1 --> B1
-    F3 --> B2
-    F4 --> B3
+    B1 --> B2
+    B2 --> SA1
 
-    B1 --> SA2
-
-    F1 --> SA2
-    F1 --> SD6
+    F2 --> B3
     F2 --> SD2
+
+    B1 --> D1
+    F2 --> D2
+    F1 --> D3
 
     SP1 --> SP2
     SP1 --> SP3
-    SP1 --> EX1
-    SP2 --> EX1
+    SP1 --> SP5
+    SP1 --> SP6
+    SP1 --> SP7
+    SP7 --> EX1
     SP4 --> EX1
 
-    SA2 --> SD6
+    SA1 --> SD6
 
     SD2 --> SD1
     SD2 --> SD3
     SD3 --> SD4
-    SD1 --> SD5
-    SD1 --> SD6
+    SD2 --> SD5
     SD2 --> SD7
-
-    SC1 --> EX2
     SD2 --> EX2
-
-    SP1 --> EX3
-    EX1 --> EX3
-
-    F1 --> S1
-    SC1 --> S1
+    SD2 --> EX4
+    SD2 --> EX5
 
     style U1 fill:#FFE4B5
     style U2 fill:#FFE4B5
+    style B2 fill:#FFD700
     style EX1 fill:#E6E6FA
     style EX2 fill:#E6E6FA
-    style EX3 fill:#E6E6FA
 ```
 
 ### SafuPad Smart Contract Architecture
@@ -545,7 +727,55 @@ Safuverse/
 └── SafuPadSDK/          # TypeScript SDK for launchpad
 ```
 
-## Getting Started
+## Quick Start - Running Frontends
+
+Run both SafuAcademy and SafuDomains frontends with a single command:
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Level3AI-hub/Safuverse.git
+cd Safuverse
+
+# Install all dependencies (root + subprojects via postinstall)
+npm install
+```
+
+The `postinstall` script automatically installs dependencies for both SafuAcademy and SafuDomains frontends.
+
+### Running Both Frontends Together
+
+```bash
+# Start both frontends concurrently
+npm run dev
+```
+
+This launches:
+- **SafuAcademy**: http://localhost:5173
+- **SafuDomains**: http://localhost:5174
+
+### Individual Commands
+
+```bash
+# Run SafuAcademy frontend only
+npm run dev:academy
+
+# Run SafuDomains frontend only
+npm run dev:domains
+
+# Build all frontends
+npm run build:all
+
+# Build individual frontends
+npm run build:academy
+npm run build:domains
+
+# Install all subproject dependencies manually
+npm run install:all
+```
+
+## Getting Started (Detailed)
 
 Each sub-project contains its own README with detailed setup instructions. General steps:
 
