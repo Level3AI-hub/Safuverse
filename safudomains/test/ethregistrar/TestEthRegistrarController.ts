@@ -34,7 +34,7 @@ const EMPTY_REFERRAL_SIGNATURE = '0x' as `0x${string}`
 
 const REGISTRATION_TIME = 28n * DAY
 const BUFFERED_REGISTRATION_COST = REGISTRATION_TIME + 3n * DAY
-const GRACE_PERIOD = 90n * DAY
+const GRACE_PERIOD = 30n * DAY // Must match NameWrapper's GRACE_PERIOD (30 days)
 
 const getAccounts = async () => {
   const [ownerClient, registrantClient, otherClient] =
@@ -178,6 +178,7 @@ async function fixture() {
 
 describe('ETHRegistrarController', () => {
   it('should report label validity', async () => {
+    // Contract requires strlen() >= 2 for valid labels
     const checkLabels = {
       testing: true,
       longname12345678: true,
@@ -185,21 +186,21 @@ describe('ETHRegistrarController', () => {
       five5: true,
       four: true,
       iii: true,
-      ii: false,
-      i: false,
+      ii: true, // 2 chars - valid
+      i: false, // 1 char - invalid
       '': false,
 
-      // { ni } { hao } { ma } (chinese; simplified)
+      // { ni } { hao } { ma } (chinese; simplified) - 3 chars
       你好吗: true,
 
-      // { ta } { ko } (japanese; hiragana)
-      たこ: false,
+      // { ta } { ko } (japanese; hiragana) - 2 chars - valid
+      たこ: true,
 
-      // { poop } { poop } { poop } (emoji)
+      // { poop } { poop } { poop } (emoji) - 3 chars
       '\ud83d\udca9\ud83d\udca9\ud83d\udca9': true,
 
-      // { poop } { poop } (emoji)
-      '\ud83d\udca9\ud83d\udca9': false,
+      // { poop } { poop } (emoji) - 2 chars - valid
+      '\ud83d\udca9\ud83d\udca9': true,
     }
 
     const { ethRegistrarController } = await loadFixture(fixture)
@@ -984,7 +985,7 @@ describe('ETHRegistrarController', () => {
 
   it('should auto wrap the name and allow fuses and expiry to be set', async () => {
     const {
-      publicClient,
+      baseRegistrar,
       ethRegistrarController,
       nameWrapper,
       registrantAccount,
@@ -1003,15 +1004,18 @@ describe('ETHRegistrarController', () => {
       },
     )
 
-    const block = await publicClient.getBlock()
-
     const [, fuses, expiry] = await nameWrapper.read.getData([
       hexToBigInt(namehash(name)),
     ])
+
+    // Get the actual expiry from the base registrar (source of truth)
+    const baseExpiry = await baseRegistrar.read.nameExpires([labelId(label)])
+
     expect(fuses).toEqual(
       FUSES.PARENT_CANNOT_CONTROL | FUSES.CANNOT_UNWRAP | FUSES.IS_DOT_ETH,
     )
-    expect(expiry).toEqual(REGISTRATION_TIME + GRACE_PERIOD + block.timestamp)
+    // Expiry should be baseExpiry + GRACE_PERIOD
+    expect(expiry).toEqual(baseExpiry + GRACE_PERIOD)
   })
 
   it('approval should reduce gas for registration', async () => {
