@@ -274,7 +274,7 @@ describe('ETHRegistrarController', () => {
       fixture,
     )
 
-    const { args } = await commitName(
+    const { request } = await commitName(
       { ethRegistrarController },
       {
         label: 'newname',
@@ -283,8 +283,13 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: 0n })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value: 0n })
       .toBeRevertedWithCustomError('InsufficientValue')
   })
 
@@ -308,7 +313,7 @@ describe('ETHRegistrarController', () => {
       registrantAccount,
     } = await loadFixture(fixture)
 
-    const { args, params } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'newconfigname',
@@ -320,8 +325,21 @@ describe('ETHRegistrarController', () => {
     )
     const timestamp = await publicClient.getBlock().then((b) => b.timestamp)
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    // Get actual price from controller
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toEmitEvent('NameRegistered')
       .withArgs(
         params.label,
@@ -334,7 +352,7 @@ describe('ETHRegistrarController', () => {
 
     await expect(
       publicClient.getBalance({ address: ethRegistrarController.address }),
-    ).resolves.toEqual(REGISTRATION_TIME)
+    ).resolves.toEqual(value)
 
     const nodehash = namehash('newconfigname.safu')
     await expect(ensRegistry.read.resolver([nodehash])).resolves.toEqualAddress(
@@ -361,28 +379,25 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController, registrantAccount, callData } =
       await loadFixture(fixture)
 
-    const args = getRegisterNameParameterArray(
-      await getDefaultRegistrationOptions({
-        label: 'newconfigname',
-        ownerAddress: registrantAccount.address,
-        data: callData,
-      }),
-    )
-    // makeCommitment takes 9 params (without referree), while register takes 10 params
-    const commitmentArgs = args.slice(0, 9) as [
-      string,
-      `0x${string}`,
-      bigint,
-      `0x${string}`,
-      `0x${string}`,
-      readonly `0x${string}`[],
-      boolean,
-      number,
-      boolean,
-    ]
+    const params = await getDefaultRegistrationOptions({
+      label: 'newconfigname',
+      ownerAddress: registrantAccount.address,
+      data: callData,
+    })
+    const request = getRegisterRequest({
+      label: params.label,
+      ownerAddress: params.ownerAddress,
+      duration: params.duration,
+      secret: params.secret as `0x${string}`,
+      resolverAddress: params.resolverAddress,
+      data: params.data,
+      shouldSetReverseRecord: params.shouldSetReverseRecord,
+      ownerControlledFuses: params.ownerControlledFuses,
+      lifetime: params.lifetime,
+    })
 
     await expect(ethRegistrarController)
-      .read('makeCommitment', commitmentArgs)
+      .read('makeCommitment', [request])
       .toBeRevertedWithCustomError('ResolverRequiredWhenDataSupplied')
   })
 
@@ -390,7 +405,7 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController, registrantAccount, callData } =
       await loadFixture(fixture)
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'newconfigname',
@@ -401,8 +416,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithoutReason()
   })
 
@@ -410,7 +437,7 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController, registrantAccount, callData } =
       await loadFixture(fixture)
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'newconfigname',
@@ -421,8 +448,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithoutReason()
   })
 
@@ -430,7 +469,7 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController, publicResolver, registrantAccount } =
       await loadFixture(fixture)
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'awesome',
@@ -447,8 +486,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithString(
         'multicall: All records must have a matching namehash',
       )
@@ -458,7 +509,7 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController, publicResolver, registrantAccount } =
       await loadFixture(fixture)
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'awesome',
@@ -480,8 +531,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithString(
         'multicall: All records must have a matching namehash',
       )
@@ -496,7 +559,7 @@ describe('ETHRegistrarController', () => {
       registrantAccount,
     } = await loadFixture(fixture)
 
-    const { args, params } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'newconfigname',
@@ -507,8 +570,20 @@ describe('ETHRegistrarController', () => {
     )
     const timestamp = await publicClient.getBlock().then((b) => b.timestamp)
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toEmitEvent('NameRegistered')
       .withArgs(
         params.label,
@@ -528,14 +603,14 @@ describe('ETHRegistrarController', () => {
     ).resolves.toEqual(zeroAddress)
     await expect(
       publicClient.getBalance({ address: ethRegistrarController.address }),
-    ).resolves.toEqual(REGISTRATION_TIME)
+    ).resolves.toEqual(value)
   })
 
   it('should include the owner in the commitment', async () => {
     const { ethRegistrarController, registrantAccount, otherAccount } =
       await loadFixture(fixture)
 
-    let { args, params } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label: 'newname',
@@ -544,10 +619,26 @@ describe('ETHRegistrarController', () => {
       },
     )
 
-    args[1] = registrantAccount.address
+    // Create a modified request with a different owner to test commitment verification
+    const modifiedRequest = {
+      ...request,
+      owner: registrantAccount.address,
+    }
+
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
 
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [modifiedRequest, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithCustomError('CommitmentTooOld')
   })
 
@@ -567,7 +658,7 @@ describe('ETHRegistrarController', () => {
       },
     )
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label,
@@ -576,8 +667,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithCustomError('NameNotAvailable')
       .withArgs(label)
   })
@@ -588,7 +691,7 @@ describe('ETHRegistrarController', () => {
     )
     const testClient = await hre.viem.getTestClient()
 
-    const { args, hash } = await commitName(
+    const { request, params, hash } = await commitName(
       { ethRegistrarController },
       {
         label: 'newname',
@@ -606,8 +709,20 @@ describe('ETHRegistrarController', () => {
       seconds: Number(maxCommitmentAge - minCommitmentAge) + 1,
     })
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithCustomError('CommitmentTooOld')
       .withArgs(hash)
   })
@@ -638,7 +753,7 @@ describe('ETHRegistrarController', () => {
       address: ethRegistrarController.address,
     })
 
-    const duration = 86400n
+    const duration = REGISTRATION_TIME // Use 28 days to meet MIN_REGISTRATION_DURATION
     const { base: price } = await ethRegistrarController.read.rentPrice([
       'newname',
       duration,
@@ -690,7 +805,7 @@ describe('ETHRegistrarController', () => {
       address: ethRegistrarController.address,
     })
 
-    const duration = 86400n
+    const duration = REGISTRATION_TIME // Use 28 days to meet MIN_REGISTRATION_DURATION
     const { base: price } = await ethRegistrarController.read.rentPrice([
       'newname',
       duration,
@@ -723,7 +838,7 @@ describe('ETHRegistrarController', () => {
     const label = 'newname'
     const tokenId = labelId(label)
     const nodehash = namehash(`${label}.safu`)
-    const duration = 86400n
+    const duration = REGISTRATION_TIME // Use 28 days to meet MIN_REGISTRATION_DURATION
     // this is to allow user to register without namewrapped
     await baseRegistrar.write.addController([ownerAccount.address])
     await baseRegistrar.write.register([
@@ -764,7 +879,7 @@ describe('ETHRegistrarController', () => {
     const { ethRegistrarController } = await loadFixture(fixture)
 
     await expect(ethRegistrarController)
-      .write('renew', ['newname', 86400n, false])
+      .write('renew', ['newname', REGISTRATION_TIME, false])
       .toBeRevertedWithCustomError('InsufficientValue')
   })
 
@@ -914,7 +1029,7 @@ describe('ETHRegistrarController', () => {
     const name = label + '.safu'
     const node = namehash(name)
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label,
@@ -933,8 +1048,22 @@ describe('ETHRegistrarController', () => {
       },
     )
 
-    const gasA = await ethRegistrarController.estimateGas.register(args, {
-      value: BUFFERED_REGISTRATION_COST,
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
+    const registerArgs = [request, referralData, EMPTY_REFERRAL_SIGNATURE] as const
+
+    const gasA = await ethRegistrarController.estimateGas.register(registerArgs, {
+      value,
       account: registrantAccount,
     })
 
@@ -943,13 +1072,13 @@ describe('ETHRegistrarController', () => {
       { account: registrantAccount },
     )
 
-    const gasB = await ethRegistrarController.estimateGas.register(args, {
-      value: BUFFERED_REGISTRATION_COST,
+    const gasB = await ethRegistrarController.estimateGas.register(registerArgs, {
+      value,
       account: registrantAccount,
     })
 
-    const hash = await ethRegistrarController.write.register(args, {
-      value: BUFFERED_REGISTRATION_COST,
+    const hash = await ethRegistrarController.write.register(registerArgs, {
+      value,
       account: registrantAccount,
     })
 
@@ -997,7 +1126,7 @@ describe('ETHRegistrarController', () => {
       }),
     ]
 
-    const { args } = await commitName(
+    const { request, params } = await commitName(
       { ethRegistrarController },
       {
         label,
@@ -1008,8 +1137,20 @@ describe('ETHRegistrarController', () => {
       },
     )
 
+    const referralData = {
+      ...EMPTY_REFERRAL_DATA,
+      registrant: registrantAccount.address,
+    }
+
+    const { base, premium } = await ethRegistrarController.read.rentPrice([
+      params.label,
+      params.duration,
+      params.lifetime,
+    ])
+    const value = base + premium
+
     await expect(ethRegistrarController)
-      .write('register', args, { value: BUFFERED_REGISTRATION_COST })
+      .write('register', [request, referralData, EMPTY_REFERRAL_SIGNATURE], { value })
       .toBeRevertedWithoutReason()
   })
 })
