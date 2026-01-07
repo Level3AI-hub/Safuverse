@@ -52,8 +52,10 @@ Automatic graduation to PancakeSwap V2 when conditions met:
 
 ### Token Vesting
 
-- Founder tokens vested over time
-- On-chain vesting schedule
+- **365-day forced vesting** (MIN_VESTING_DURATION = MAX_VESTING_DURATION in contract)
+- Founder tokens: 20% immediate, 10% vested over 365 days
+- BNB proceeds: 20% immediate, 60% vested over 365 days
+- On-chain vesting with monthly claims
 - Transparent unlock periods
 
 ## User Journey
@@ -67,7 +69,7 @@ graph TD
 
     C --> D[Set Token Details<br/>Name, Symbol, Supply]
     D --> E[Set Raise Targets<br/>50-500 BNB Range]
-    E --> F[Set Vesting Duration<br/>90-180 Days]
+    E --> F[Vesting Duration<br/>365 Days FORCED]
     F --> G[Upload Metadata<br/>Logo, Description, Socials]
 
     G --> H[Choose LP Strategy]
@@ -243,7 +245,7 @@ graph TB
 
         LP_HARVEST[harvestFees<br/>Periodic Collection<br/>MIN: 0.01 BNB]
 
-        LP_DIST[Fee Distribution<br/>70% Creator<br/>0% Project<br/>30% Platform]
+        LP_DIST[Fee Distribution<br/>50% Creator, 30% InfoFi<br/>5% Platform, 15% Academy]
 
         LP_UNLOCK[LP Lock Duration<br/>Security Period]
     end
@@ -393,9 +395,10 @@ graph TD
         H4 -->|No| H6[Wait for More Fees]
 
         H5 --> H7[Split Harvested Fees]
-        H7 --> CREATOR2[70% to Creator]
-        H7 --> PLATFORM2[30% to Platform]
-        H7 --> PROJECT[0% to Project]
+        H7 --> CREATOR2[50% to Creator]
+        H7 --> INFOFI[30% to InfoFi]
+        H7 --> PLATFORM2[5% to Platform]
+        H7 --> ACADEMY[15% to Academy]
     end
 
     subgraph "Post-Graduation Trading"
@@ -413,6 +416,8 @@ graph TD
 
     style CREATOR fill:#90EE90
     style CREATOR2 fill:#90EE90
+    style INFOFI fill:#ADD8E6
+    style ACADEMY fill:#DDA0DD
     style PLATFORM1 fill:#FFD700
     style PLATFORM2 fill:#FFD700
     style PLATFORM3 fill:#FFD700
@@ -492,13 +497,15 @@ Chainlink integration for BNB/USD pricing on BSC.
 
 ## Deployed Contracts
 
-### BSC Testnet (Unverified)
+### BSC Mainnet (Chain ID: 56)
 
-- **LaunchpadManager**: `0x4c797EbaA64Cc7f1bD2a82A36bEE5Cf335D1830c`
-- **BondingCurveDEX**: `0x14eB3B6C297ff6fefc25c0E0d289Bf8348e864f6`
-- **TokenFactory**: `0xcb7526b9598240A737237C52f852705e6A449cD0`
-- **PriceOracle**: `0x56f0b1f80F8cc37f875Be42e2f4D09810514F346`
-- **LPFeeHarvester**: `0xa886B8897814193f99A88701d70b31b4a8E27a1E`
+- **LaunchpadManager**: `0x93f526689Ddccd35882b7Ec3C79F40e70fe3014d`
+- **BondingCurveDEX**: `0x4647a56f1B1624443fC084aE4A54208889495874`
+- **TokenFactory**: `0xFd66bB7a03F911302f807d0CEFdEfb7eE88b385a`
+- **PriceOracle**: `0x0f452bE1BE3cefE23Bfe2D1f1831b83073471699`
+- **LPFeeHarvester**: `0xAd0edb8cf7Cd9BF8ca11Fc8A9593c15a922D8870`
+- **PancakeSwap Router**: `0x10ED43C718714eb63d5aA57B78B54704E256024E`
+- **PancakeSwap Factory**: `0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73`
 
 ## Technology Stack
 

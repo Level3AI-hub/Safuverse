@@ -8,8 +8,9 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract TestUnwrap is Ownable {
     using BytesUtils for bytes;
 
+    // namehash('safu')
     bytes32 private constant ETH_NODE =
-        0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae;
+        0xf92e9539a836c60f519caef3f817b823139813f56a7a19c9621f7b47f35b340d;
 
     ENS public immutable ens;
     IBaseRegistrar public immutable registrar;

@@ -7,7 +7,7 @@ import {
   padHex,
   zeroAddress,
   type Address,
-} from '../../../node_modules/viem/_types/index.js'
+} from '../viem'
 import { DAY, FUSES } from '../../fixtures/constants.js'
 import { dnsEncodeName } from '../../fixtures/dnsEncodeName.js'
 import { toLabelId, toNameId } from '../../fixtures/utils.js'
@@ -32,7 +32,7 @@ export const {
   CANNOT_APPROVE,
 } = FUSES
 export const MAX_EXPIRY = 2n ** 64n - 1n
-export const GRACE_PERIOD = 90n * DAY
+export const GRACE_PERIOD = 30n * DAY
 export const DUMMY_ADDRESS = padHex('0x01', { size: 20 })
 
 export async function deployNameWrapperWithUtils() {
@@ -260,9 +260,9 @@ export const runForContract = ({
   onEnsRegistry,
 }: {
   contract:
-    | Fixture['nameWrapper']
-    | Fixture['ensRegistry']
-    | Fixture['baseRegistrar']
+  | Fixture['nameWrapper']
+  | Fixture['ensRegistry']
+  | Fixture['baseRegistrar']
   onNameWrapper?: (nameWrapper: Fixture['nameWrapper']) => Promise<void>
   onEnsRegistry?: (ensRegistry: Fixture['ensRegistry']) => Promise<void>
   onBaseRegistrar?: (baseRegistrar: Fixture['baseRegistrar']) => Promise<void>

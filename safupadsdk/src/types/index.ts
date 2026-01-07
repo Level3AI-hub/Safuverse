@@ -63,11 +63,13 @@ export interface TokenMetadata {
   twitter: string;
   telegram: string;
   discord: string;
+  docs: string;
 }
 
 /**
  * Launch creation parameters
  * ✅ UPDATED: Removed projectInfoFiWallet, changed to BNB amounts (BSC)
+ * ✅ UPDATED: Added teamInfo for founder and team member details
  */
 export interface CreateLaunchParams {
   name: string;
@@ -78,6 +80,7 @@ export interface CreateLaunchParams {
   vestingDuration: number; // in days
   metadata: TokenMetadata;
   burnLP: boolean;
+  teamInfo: LaunchTeamInfo; // Founder and team member information
   vanitySalt?: string;
 }
 
@@ -298,6 +301,35 @@ export interface TokenInfo {
 export interface ContributionInfo {
   amount: bigint;
   claimed: boolean;
+}
+
+/**
+ * Founder information for a launch
+ */
+export interface FounderInfo {
+  name: string;
+  walletAddress: string;
+  bio: string;
+}
+
+/**
+ * Team member information
+ */
+export interface TeamMember {
+  name: string;
+  role: string;
+  twitter: string;
+  linkedin: string;
+}
+
+/**
+ * Launch team information (founder + up to 2 team members)
+ */
+export interface LaunchTeamInfo {
+  founder: FounderInfo;
+  teamMember1: TeamMember;
+  teamMember2: TeamMember;
+  teamMemberCount: number; // 0, 1, or 2
 }
 
 /**

@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
                 isPublished: true,
                 _count: {
                     select: {
-                        userCourses: true,
+                        enrollments: true,
                         lessons: true,
                     },
                 },
@@ -43,15 +43,20 @@ export async function GET(request: NextRequest) {
         });
 
         const completionMap = new Map(
-            completionsPerCourse.map(c => [c.courseId, c._count])
+            completionsPerCourse.map((c: { courseId: number; _count: number }) => [c.courseId, c._count])
         );
 
-        const coursesWithStats = courseStats.map(course => ({
+        const coursesWithStats = courseStats.map((course: {
+            id: number;
+            title: string;
+            isPublished: boolean;
+            _count: { enrollments: number; lessons: number };
+        }) => ({
             courseId: course.id,
             title: course.title,
             isPublished: course.isPublished,
             lessons: course._count.lessons,
-            enrollments: course._count.userCourses,
+            enrollments: course._count.enrollments,
             completions: completionMap.get(course.id) || 0,
         }));
 

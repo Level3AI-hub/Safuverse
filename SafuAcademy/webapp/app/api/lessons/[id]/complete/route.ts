@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
-import { LessonService, CourseService, RelayerService } from '@/lib/services';
+import { LessonService, RelayerService, ProgressService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 const relayerService = new RelayerService(prisma);
-const courseService = new CourseService(prisma, relayerService);
-const lessonService = new LessonService(prisma, courseService);
+const progressService = new ProgressService(prisma, relayerService);
 
 const completeLessonSchema = z.object({
     videoProgressPercent: z.number().min(0).max(100).optional(),
@@ -24,30 +23,59 @@ export async function POST(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         const body = await request.json();
         const data = completeLessonSchema.parse(body);
 
-        const result = await lessonService.completeLesson(
-            auth.userId,
-            auth.walletAddress,
-            lessonId,
-            data
-        );
+        // Get lesson to find courseId
+        const lesson = await prisma.lesson.findUnique({
+            where: { id: lessonId },
+        });
 
-        if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 400 });
+        if (!lesson) {
+            return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
+        }
+
+        // Check course completion using progress service
+        const enrollment = await prisma.userCourse.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: auth.userId,
+                    courseId: lesson.courseId,
+                },
+            },
+        });
+
+        if (!enrollment) {
+            return NextResponse.json({ error: 'Not enrolled in this course' }, { status: 403 });
+        }
+
+        // Use progressService to update watch progress and award points
+        let watchResult: { saved: boolean; pointsAwarded: boolean; newTotalPoints?: number; courseProgress?: number; completed?: boolean; txHash?: string } = { saved: false, pointsAwarded: false };
+
+        if (data.videoProgressPercent && data.videoProgressPercent >= 50) {
+            watchResult = await progressService.updateLessonWatchProgress(
+                auth.userId,
+                lessonId,
+                data.videoProgressPercent
+            );
+        } else {
+            // Still check for course completion even if just tracking progress
+            const courseCompletion = await progressService.checkAndAwardCourseCompletion(
+                auth.userId,
+                lesson.courseId
+            );
+            watchResult.completed = courseCompletion.completed;
+            watchResult.txHash = courseCompletion.txHash;
         }
 
         return NextResponse.json({
             message: 'Lesson completed',
-            courseCompleted: result.courseCompleted,
+            pointsAwarded: watchResult.pointsAwarded,
+            newTotalPoints: watchResult.newTotalPoints,
+            courseCompleted: watchResult.completed,
+            txHash: watchResult.txHash,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {

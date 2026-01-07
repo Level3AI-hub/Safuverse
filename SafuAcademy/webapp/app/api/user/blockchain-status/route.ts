@@ -25,7 +25,13 @@ export async function GET(request: NextRequest) {
         });
 
         const statuses = await Promise.all(
-            userCourses.map(async (uc) => {
+            userCourses.map(async (uc: {
+                courseId: number;
+                progressPercent: number;
+                onChainSynced: boolean;
+                enrollTxHash: string | null;
+                course: { id: number; title: string };
+            }) => {
                 const isEnrolledOnChain = await relayerService.isUserEnrolled(
                     auth.walletAddress,
                     uc.courseId
@@ -38,9 +44,9 @@ export async function GET(request: NextRequest) {
                 return {
                     courseId: uc.courseId,
                     courseTitle: uc.course.title,
-                    dbProgress: uc.progress,
+                    dbProgress: uc.progressPercent,
                     dbSynced: uc.onChainSynced,
-                    dbTxHash: uc.txHash,
+                    dbTxHash: uc.enrollTxHash,
                     onChainEnrolled: isEnrolledOnChain,
                     onChainCompleted: hasCompletedOnChain,
                 };
@@ -51,13 +57,13 @@ export async function GET(request: NextRequest) {
 
         const user = await prisma.user.findUnique({
             where: { id: auth.userId },
-            select: { points: true },
+            select: { totalPoints: true },
         });
 
         return NextResponse.json({
             walletAddress: auth.walletAddress,
             onChainPoints: onChainPoints.toString(),
-            dbPoints: user?.points || 0,
+            dbPoints: user?.totalPoints || 0,
             courses: statuses,
         });
     } catch (error) {

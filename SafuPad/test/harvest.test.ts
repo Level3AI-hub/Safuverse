@@ -32,9 +32,10 @@ describe("LPFeeHarvester", function () {
     twitter: "@test",
     telegram: "https://t.me/test",
     discord: "https://discord.gg/test",
+    docs: "https://docs.test.com"
   };
 
-  const HARVEST_COOLDOWN = 24 * 60 * 60; // 24 hours
+  const HARVEST_COOLDOWN = 30 * 24 * 60 * 60; // 30 days (monthly)
   const DEFAULT_LOCK_DURATION = 365 * 24 * 60 * 60; // 365 days
 
   beforeEach(async function () {
@@ -59,11 +60,19 @@ describe("LPFeeHarvester", function () {
       to: await mockPancakeRouter.getAddress(),
       value: ethers.parseEther("10"), // Plenty of ETH for all tests
     });
+
+    // Deploy LaunchpadStorage (needed for LPFeeHarvester market cap check)
+    const LaunchpadStorage = await ethers.getContractFactory("LaunchpadStorage");
+    const launchpadStorage = await LaunchpadStorage.deploy(owner.address);
+    await launchpadStorage.waitForDeployment();
+
     const LPFeeHarvester = await ethers.getContractFactory("LPFeeHarvester");
     lpFeeHarvester = await LPFeeHarvester.deploy(
       await mockPancakeRouter.getAddress(),
       await mockPancakeFactory.getAddress(),
+      await launchpadStorage.getAddress(),
       platformFee.address,
+      projectInfoFi.address, // Use as academy address in tests
       owner.address // admin
     );
     await lpFeeHarvester.waitForDeployment();
@@ -124,16 +133,18 @@ describe("LPFeeHarvester", function () {
         lpAmount
       );
 
-      await expect(
-        lpFeeHarvester.lockLP(
-          await projectToken.getAddress(),
-          await mockPancakePair.getAddress(),
-          creator.address,
-          projectInfoFi.address,
-          lpAmount,
-          DEFAULT_LOCK_DURATION
-        )
-      ).to.emit(lpFeeHarvester, "LPLocked");
+      const tx = await lpFeeHarvester.lockLP(
+        await projectToken.getAddress(),
+        await mockPancakePair.getAddress(),
+        creator.address,
+        projectInfoFi.address,
+        lpAmount,
+        DEFAULT_LOCK_DURATION
+      );
+
+      const receipt = await tx.wait();
+      const event = receipt?.logs.find((log: any) => log.fragment?.name === "LPLocked");
+      expect(event).to.not.be.undefined;
 
       const lockInfo = await lpFeeHarvester.getLockInfo(
         await projectToken.getAddress()
@@ -164,16 +175,19 @@ describe("LPFeeHarvester", function () {
         DEFAULT_LOCK_DURATION
       );
 
-      await expect(
-        lpFeeHarvester.lockLP(
+      try {
+        await lpFeeHarvester.lockLP(
           await projectToken.getAddress(),
           await mockPancakePair.getAddress(),
           creator.address,
           projectInfoFi.address,
           lpAmount,
           DEFAULT_LOCK_DURATION
-        )
-      ).to.be.revertedWith("LP already locked");
+        );
+        expect.fail("Should have reverted");
+      } catch (error: any) {
+        expect(error.message).to.include("LP already locked");
+      }
     });
 
     it("Should reject invalid lock parameters", async function () {
@@ -359,10 +373,13 @@ describe("LPFeeHarvester", function () {
       );
     });
 
-    it("Should enforce 24-hour harvest cooldown", async function () {
-      await expect(
-        lpFeeHarvester.harvestFees(await projectToken.getAddress())
-      ).to.be.revertedWith("Harvest cooldown active");
+    it("Should enforce 30-day harvest cooldown", async function () {
+      try {
+        await lpFeeHarvester.harvestFees(await projectToken.getAddress());
+        expect.fail("Should have reverted");
+      } catch (error: any) {
+        expect(error.message).to.include("Harvest cooldown active");
+      }
     });
 
     it("Should allow harvest after cooldown period", async function () {
@@ -520,9 +537,10 @@ describe("LPFeeHarvester", function () {
       await ethers.provider.send("evm_increaseTime", [HARVEST_COOLDOWN]);
       await ethers.provider.send("evm_mine", []);
 
-      await expect(
-        lpFeeHarvester.harvestFees(await projectToken.getAddress())
-      ).to.emit(lpFeeHarvester, "FeesHarvested");
+      const tx = await lpFeeHarvester.harvestFees(await projectToken.getAddress());
+      const receipt = await tx.wait();
+      const event = receipt?.logs.find((log: any) => log.fragment?.name === "FeesHarvested");
+      expect(event).to.not.be.undefined;
     });
 
     it("Should record harvest history", async function () {
@@ -630,9 +648,10 @@ describe("LPFeeHarvester", function () {
       await ethers.provider.send("evm_increaseTime", [DEFAULT_LOCK_DURATION]);
       await ethers.provider.send("evm_mine", []);
 
-      await expect(
-        lpFeeHarvester.unlockLP(await projectToken.getAddress())
-      ).to.emit(lpFeeHarvester, "LPUnlocked");
+      const tx = await lpFeeHarvester.unlockLP(await projectToken.getAddress());
+      const receipt = await tx.wait();
+      const event = receipt?.logs.find((log: any) => log.fragment?.name === "LPUnlocked");
+      expect(event).to.not.be.undefined;
     });
   });
 

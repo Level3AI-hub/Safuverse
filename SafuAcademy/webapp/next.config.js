@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Allow larger file uploads for video lessons (500MB)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '500mb',
+    },
+  },
   images: {
     remotePatterns: [
       {
@@ -13,18 +19,34 @@ const nextConfig = {
       },
     ],
   },
-  // Turbopack configuration (empty to silence warning and use webpack fallbacks)
-  turbopack: {},
-  webpack: (config) => {
+  // Externalize problematic server-side packages
+  serverExternalPackages: [
+    'pino',
+    'thread-stream',
+    'pino-pretty',
+    '@prisma/client',
+    'prisma',
+  ],
+  // Webpack configuration (use webpack instead of Turbopack for production builds)
+  webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       net: false,
       tls: false,
+      '@react-native-async-storage/async-storage': false,
     };
+    // Externalize pino to avoid thread-stream issues on client
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'pino': 'pino/browser',
+      };
+    }
     return config;
   },
+  // Transpile @reown packages
+  transpilePackages: ['@reown/appkit', '@reown/appkit-controllers', '@reown/appkit-utils'],
 };
 
 module.exports = nextConfig;
-

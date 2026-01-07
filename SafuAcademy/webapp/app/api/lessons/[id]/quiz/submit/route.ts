@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
-import { QuizService } from '@/lib/services';
+import { QuizService, RelayerService } from '@/lib/services';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
-const quizService = new QuizService(prisma);
+const relayerService = new RelayerService(prisma);
+const quizService = new QuizService(prisma, relayerService);
 
 const quizSubmitSchema = z.object({
-    answers: z.record(z.string(), z.number()),
+    answers: z.array(z.number()), // Array of selected indices
 });
 
 export async function POST(
@@ -20,12 +21,7 @@ export async function POST(
             return unauthorizedResponse();
         }
 
-        const { id } = await params;
-        const lessonId = parseInt(id, 10);
-
-        if (isNaN(lessonId)) {
-            return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
-        }
+        const { id: lessonId } = await params;
 
         const body = await request.json();
         const { answers } = quizSubmitSchema.parse(body);
@@ -37,9 +33,9 @@ export async function POST(
         }
 
         return NextResponse.json({
-            score: result.score,
+            scorePercent: result.scorePercent,
             passed: result.passed,
-            correctAnswers: result.correctAnswers,
+            correctIndices: result.correctIndices,
             pointsAwarded: result.pointsAwarded,
         });
     } catch (error) {

@@ -14,7 +14,7 @@ import 'hardhat-deploy'
 import '@nomicfoundation/hardhat-ethers'
 import { HardhatUserConfig } from 'hardhat/config'
 
-import('./node_modules/@ensdomains/hardhat-chai-matchers-viem/dist/types')
+import('@ensdomains/hardhat-chai-matchers-viem')
 // hardhat actions
 import './tasks/esm_fix.cjs'
 
@@ -81,27 +81,9 @@ const config = {
           },
         },
       },
-      // for DummyOldResolver contract
-      {
-        version: '0.4.11',
-        settings: {
-          viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 1200,
-          },
-          outputSelection: {
-            '*': {
-              '*': ['abi', 'evm.bytecode', 'evm.deployedBytecode', 'metadata'],
-              '': ['ast'], // Make sure AST is included
-            },
-          },
-        },
-      },
       {
         version: '0.7.6',
         settings: {
-          viaIR: true,
           optimizer: {
             enabled: true,
             runs: 1200,
@@ -121,6 +103,7 @@ const config = {
       'contracts/ethregistrar/ETHRegistrarController.sol': {
         version: '0.8.17',
         settings: {
+
           optimizer: {
             enabled: true,
             runs: 1200,
@@ -143,6 +126,7 @@ const config = {
     except: [
       'Controllable$',
       'INameWrapper$',
+      'IBaseRegistrar$',
       'SHA1$',
       'Ownable$',
       'NameResolver$',
@@ -159,7 +143,7 @@ const config = {
     owner: {
       default: 1,
       9745: '0x2A0D7311fA7e9aC2890CFd8219b2dEf0c206E79B',
-      56: '0x235799785E387C2612d4A881919436B612ed391D',
+      56: '0xD83deFbA240568040b39bb2C8B4DB7dB02d40593',
       97: '0xd83defba240568040b39bb2c8b4db7db02d40593',
     },
   },

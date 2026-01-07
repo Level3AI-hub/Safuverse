@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin } from '@/lib/middleware/admin.middleware';
 import prisma from '@/lib/prisma';
 import { getStorageService } from '@/lib/services/storage.service';
-import { LessonType } from '@prisma/client';
 
 interface RouteContext {
     params: Promise<{ id: string }>;
+}
+
+interface LessonVideoType {
+    id: string;
+    storageKey: string;
+    language: string;
+    label: string;
+    duration: number | null;
+    orderIndex: number;
 }
 
 /**
@@ -18,14 +26,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const lesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
             include: {
                 course: { select: { id: true, title: true } },
                 quiz: true,
+                videos: {
+                    orderBy: { orderIndex: 'asc' },
+                },
             },
         });
 
@@ -33,16 +43,32 @@ export async function GET(request: NextRequest, context: RouteContext) {
             return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
         }
 
-        // For admin, include signed URL if video exists
+        const storageService = getStorageService();
+
+        // Generate signed URLs for all videos
+        const videosWithUrls = await Promise.all(
+            lesson.videos.map(async (video: LessonVideoType) => {
+                let signedUrl: string | null = null;
+                if (storageService.isAvailable()) {
+                    signedUrl = await storageService.getSignedVideoUrl(video.storageKey);
+                }
+                return {
+                    ...video,
+                    signedUrl,
+                };
+            })
+        );
+
+        // Legacy: include signed URL for old videoStorageKey if exists
         let signedVideoUrl: string | null = null;
-        if (lesson.videoStorageKey) {
-            const storageService = getStorageService();
-            if (storageService.isAvailable()) {
-                signedVideoUrl = await storageService.getSignedVideoUrl(lesson.videoStorageKey);
-            }
+        if (lesson.videoStorageKey && storageService.isAvailable()) {
+            signedVideoUrl = await storageService.getSignedVideoUrl(lesson.videoStorageKey);
         }
 
-        return NextResponse.json({ lesson, signedVideoUrl });
+        return NextResponse.json({
+            lesson: { ...lesson, videos: videosWithUrls },
+            signedVideoUrl, // Legacy support
+        });
     } catch (error) {
         console.error('Error fetching lesson:', error);
         return NextResponse.json({ error: 'Failed to fetch lesson' }, { status: 500 });
@@ -59,8 +85,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const existingLesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -73,11 +98,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         const formData = await request.formData();
         const title = formData.get('title') as string | null;
         const description = formData.get('description') as string | null;
-        const type = formData.get('type') as string | null;
         const videoFile = formData.get('video') as File | null;
-        const contentUrl = formData.get('contentUrl') as string | null;
-        const estimatedMinutes = formData.get('estimatedMinutes') as string | null;
-        const pointsValue = formData.get('pointsValue') as string | null;
         const watchPoints = formData.get('watchPoints') as string | null;
         const videoDuration = formData.get('videoDuration') as string | null;
 
@@ -112,11 +133,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
             data: {
                 ...(title && { title }),
                 ...(description !== null && { description }),
-                ...(type && { type: type as LessonType }),
-                ...(contentUrl !== null && { contentUrl }),
                 ...(videoStorageKey && { videoStorageKey }),
-                ...(estimatedMinutes && { estimatedMinutes: parseInt(estimatedMinutes, 10) }),
-                ...(pointsValue && { pointsValue: parseInt(pointsValue, 10) }),
                 ...(watchPoints && { watchPoints: parseInt(watchPoints, 10) }),
                 ...(videoDuration && { videoDuration: parseInt(videoDuration, 10) }),
             },
@@ -139,8 +156,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     try {
-        const { id } = await context.params;
-        const lessonId = parseInt(id, 10);
+        const { id: lessonId } = await context.params;
 
         const lesson = await prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -160,15 +176,6 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
         // Delete lesson (cascade deletes quiz)
         await prisma.lesson.delete({ where: { id: lessonId } });
-
-        // Update course total lessons
-        const lessonCount = await prisma.lesson.count({
-            where: { courseId: lesson.courseId },
-        });
-        await prisma.course.update({
-            where: { id: lesson.courseId },
-            data: { totalLessons: lessonCount },
-        });
 
         return NextResponse.json({ deleted: true });
     } catch (error) {
